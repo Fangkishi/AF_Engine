@@ -1,0 +1,7 @@
+#pragma once
+
+// For use by Hazel applications
+
+#include "AF/Application.h"
+
+#include "AF/EntryPoint.h"

@@ -1,0 +1,3 @@
+[submodule "AFEngine/vendor/spdlog"]
+	path = AFEngine/vendor/spdlog
+	url = https://github.com/gabime/spdlog

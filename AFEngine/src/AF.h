@@ -3,5 +3,6 @@
 // For use by Hazel applications
 
 #include "AF/Application.h"
+#include "AF/Log.h"
 
 #include "AF/EntryPoint.h"

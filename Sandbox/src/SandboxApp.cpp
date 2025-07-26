@@ -1,3 +1,4 @@
+#include "afpch.h"
 #include <AF.h>
 
 class Sandbox : public AF::Application

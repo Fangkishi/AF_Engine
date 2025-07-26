@@ -1,0 +1,72 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="AF">
+      <UniqueIdentifier>{EC725900-D8FE-870B-41AD-880B2D58880B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="AF\Core">
+      <UniqueIdentifier>{C44A0B36-302A-8AD1-3942-15A8A5A0F032}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="AF\Events">
+      <UniqueIdentifier>{501D2BEB-BC87-DF61-05C6-9007716FBDB6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Platform">
+      <UniqueIdentifier>{2AC788B4-1694-E3BF-3FAD-D1672BD9184E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Platform\Windows">
+      <UniqueIdentifier>{64FBD71A-50F4-F66C-7926-DCF1657ED678}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\AF.h" />
+    <ClInclude Include="src\AF\Application.h">
+      <Filter>AF</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AF\Core.h">
+      <Filter>AF</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AF\Core\KeyCodes.h">
+      <Filter>AF\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AF\Core\MouseCodes.h">
+      <Filter>AF\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AF\EntryPoint.h">
+      <Filter>AF</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AF\Events\ApplicationEvent.h">
+      <Filter>AF\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AF\Events\Event.h">
+      <Filter>AF\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AF\Events\KetEvent.h">
+      <Filter>AF\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AF\Events\MouseEvent.h">
+      <Filter>AF\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AF\Log.h">
+      <Filter>AF</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AF\Window.h">
+      <Filter>AF</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Platform\Windows\WindowsWindow.h">
+      <Filter>Platform\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="src\afpch.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\AF\Application.cpp">
+      <Filter>AF</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AF\Log.cpp">
+      <Filter>AF</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp">
+      <Filter>Platform\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="src\afpch.cpp" />
+  </ItemGroup>
+</Project>

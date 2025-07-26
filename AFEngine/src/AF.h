@@ -1,6 +1,6 @@
 #pragma once
 
-// For use by Hazel applications
+// For use by AF applications
 
 #include "AF/Application.h"
 #include "AF/Log.h"

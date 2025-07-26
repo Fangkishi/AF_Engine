@@ -13,6 +13,11 @@ workspace "AFEngine"
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
+IncludeDir = {}
+IncludeDir["GLFW"] = "AFEngine/vendor/GLFW/include"
+
+include "AFEngine/vendor/GLFW"
+
 project "AFEngine"
 	location "AFEngine"
 	kind "SharedLib"
@@ -20,6 +25,9 @@ project "AFEngine"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
+
+	pchheader "afpch.h"
+	pchsource "AFEngine/src/afpch.cpp"
 
 	files
 	{
@@ -29,7 +37,15 @@ project "AFEngine"
 
 	includedirs
 	{
-		"%{prj.name}/vendor/spdlog/include"
+		"%{prj.name}/src",
+		"%{prj.name}/vendor/spdlog/include",
+		"%{IncludeDir.GLFW}"
+	}
+
+	links
+	{
+		"GLFW",
+		"opengl32.lib"
 	}
 
 	filter "system:windows"
@@ -45,6 +61,7 @@ project "AFEngine"
 
 		postbuildcommands
 		{
+			"{MKDIR} ../bin/" .. outputdir .. "/Sandbox",
 			("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Sandbox")
 		}
 

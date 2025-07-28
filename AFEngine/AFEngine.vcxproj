@@ -79,12 +79,12 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>afpch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>AF_PLATFORM_WINDOWS;AF_BUILD_DLL;AF_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\GLFW\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>AF_PLATFORM_WINDOWS;AF_BUILD_DLL;GLFW_INCLUDE_NONE;AF_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\GLFW\include;vendor\GLad\include;vendor\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/utf-8 /MDd %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <ExternalWarningLevel>Level3</ExternalWarningLevel>
     </ClCompile>
@@ -104,15 +104,15 @@ IF EXIST ..\bin\Debug-windows-x86_64\AFEngine\AFEngine.dll\ (xcopy /Q /E /Y /I .
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>afpch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>AF_PLATFORM_WINDOWS;AF_BUILD_DLL;AF_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\GLFW\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>AF_PLATFORM_WINDOWS;AF_BUILD_DLL;GLFW_INCLUDE_NONE;AF_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\GLFW\include;vendor\GLad\include;vendor\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <MinimalRebuild>false</MinimalRebuild>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/utf-8 /MD %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <ExternalWarningLevel>Level3</ExternalWarningLevel>
     </ClCompile>
@@ -133,15 +133,15 @@ IF EXIST ..\bin\Release-windows-x86_64\AFEngine\AFEngine.dll\ (xcopy /Q /E /Y /I
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>afpch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>AF_PLATFORM_WINDOWS;AF_BUILD_DLL;AF_DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\GLFW\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>AF_PLATFORM_WINDOWS;AF_BUILD_DLL;GLFW_INCLUDE_NONE;AF_DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\GLFW\include;vendor\GLad\include;vendor\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <MinimalRebuild>false</MinimalRebuild>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/utf-8 /MD %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <ExternalWarningLevel>Level3</ExternalWarningLevel>
     </ClCompile>
@@ -166,16 +166,27 @@ IF EXIST ..\bin\Dist-windows-x86_64\AFEngine\AFEngine.dll\ (xcopy /Q /E /Y /I ..
     <ClInclude Include="src\AF\EntryPoint.h" />
     <ClInclude Include="src\AF\Events\ApplicationEvent.h" />
     <ClInclude Include="src\AF\Events\Event.h" />
-    <ClInclude Include="src\AF\Events\KetEvent.h" />
+    <ClInclude Include="src\AF\Events\KeyEvent.h" />
     <ClInclude Include="src\AF\Events\MouseEvent.h" />
+    <ClInclude Include="src\AF\ImGui\ImGuiLayer.h" />
+    <ClInclude Include="src\AF\Layer.h" />
+    <ClInclude Include="src\AF\LayerStack.h" />
     <ClInclude Include="src\AF\Log.h" />
     <ClInclude Include="src\AF\Window.h" />
+    <ClInclude Include="src\Platform\OpenGL\ImGuiOpenGLRenderer.h" />
+    <ClInclude Include="src\Platform\OpenGL\imgui_impl_glfw.h" />
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h" />
     <ClInclude Include="src\afpch.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\AF\Application.cpp" />
+    <ClCompile Include="src\AF\ImGui\ImGuiBuild.cpp" />
+    <ClCompile Include="src\AF\ImGui\ImGuiLayer.cpp" />
+    <ClCompile Include="src\AF\Layer.cpp" />
+    <ClCompile Include="src\AF\LayerStack.cpp" />
     <ClCompile Include="src\AF\Log.cpp" />
+    <ClCompile Include="src\Platform\OpenGL\ImGuiOpenGLRenderer.cpp" />
+    <ClCompile Include="src\Platform\OpenGL\imgui_impl_glfw.cpp" />
     <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp" />
     <ClCompile Include="src\afpch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
@@ -184,6 +195,12 @@ IF EXIST ..\bin\Dist-windows-x86_64\AFEngine\AFEngine.dll\ (xcopy /Q /E /Y /I ..
   <ItemGroup>
     <ProjectReference Include="vendor\GLFW\GLFW.vcxproj">
       <Project>{154B857C-0182-860D-AA6E-6C109684020F}</Project>
+    </ProjectReference>
+    <ProjectReference Include="vendor\GLad\GLad.vcxproj">
+      <Project>{9D4E857C-8985-860D-3272-6C101E88020F}</Project>
+    </ProjectReference>
+    <ProjectReference Include="vendor\imgui\ImGui.vcxproj">
+      <Project>{C0FF640D-2C14-8DBE-F595-301E616989EF}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

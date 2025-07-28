@@ -15,8 +15,12 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 IncludeDir = {}
 IncludeDir["GLFW"] = "AFEngine/vendor/GLFW/include"
+IncludeDir["GLad"] = "AFEngine/vendor/GLad/include"
+IncludeDir["ImGui"] = "AFEngine/vendor/imgui"
 
 include "AFEngine/vendor/GLFW"
+include "AFEngine/vendor/GLad"
+include "AFEngine/vendor/imgui"
 
 project "AFEngine"
 	location "AFEngine"
@@ -39,12 +43,16 @@ project "AFEngine"
 	{
 		"%{prj.name}/src",
 		"%{prj.name}/vendor/spdlog/include",
-		"%{IncludeDir.GLFW}"
+		"%{IncludeDir.GLFW}",
+		"%{IncludeDir.GLad}",
+		"%{IncludeDir.ImGui}"
 	}
 
 	links
 	{
 		"GLFW",
+		"GLad",
+		"ImGui",
 		"opengl32.lib"
 	}
 
@@ -57,6 +65,7 @@ project "AFEngine"
 		{
 			"AF_PLATFORM_WINDOWS",
 			"AF_BUILD_DLL",
+			"GLFW_INCLUDE_NONE"
 		}
 
 		postbuildcommands
@@ -67,14 +76,17 @@ project "AFEngine"
 
 	filter "configurations:Debug"
 		defines "AF_DEBUG"
+		buildoptions "/MDd"
 		symbols "On"
 
 	filter "configurations:Release"
 		defines "AF_RELEASE"
+		buildoptions "/MD"
 		optimize "On"
 
 	filter "configurations:Dist"
 		defines "AF_DIST"
+		buildoptions "/MD"
 		optimize "On"
 
 project "Sandbox"
@@ -114,12 +126,15 @@ project "Sandbox"
 
 	filter "configurations:Debug"
 		defines "AF_DEBUG"
+		buildoptions "/MDd"
 		symbols "On"
 
 	filter "configurations:Release"
 		defines "AF_RELEASE"
+		buildoptions "/MD"
 		optimize "On"
 
 	filter "configurations:Dist"
 		defines "AF_DIST"
+		buildoptions "/MD"
 		optimize "On"

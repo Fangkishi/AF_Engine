@@ -10,8 +10,14 @@
     <Filter Include="AF\Events">
       <UniqueIdentifier>{501D2BEB-BC87-DF61-05C6-9007716FBDB6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="AF\ImGui">
+      <UniqueIdentifier>{1669DFF7-0236-3A03-2B4F-28AB177B6F91}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Platform">
       <UniqueIdentifier>{2AC788B4-1694-E3BF-3FAD-D1672BD9184E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Platform\OpenGL">
+      <UniqueIdentifier>{1E7D2C1D-8A08-9AE1-9319-1DD6FF23F6E1}</UniqueIdentifier>
     </Filter>
     <Filter Include="Platform\Windows">
       <UniqueIdentifier>{64FBD71A-50F4-F66C-7926-DCF1657ED678}</UniqueIdentifier>
@@ -40,17 +46,32 @@
     <ClInclude Include="src\AF\Events\Event.h">
       <Filter>AF\Events</Filter>
     </ClInclude>
-    <ClInclude Include="src\AF\Events\KetEvent.h">
+    <ClInclude Include="src\AF\Events\KeyEvent.h">
       <Filter>AF\Events</Filter>
     </ClInclude>
     <ClInclude Include="src\AF\Events\MouseEvent.h">
       <Filter>AF\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AF\ImGui\ImGuiLayer.h">
+      <Filter>AF\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AF\Layer.h">
+      <Filter>AF</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AF\LayerStack.h">
+      <Filter>AF</Filter>
     </ClInclude>
     <ClInclude Include="src\AF\Log.h">
       <Filter>AF</Filter>
     </ClInclude>
     <ClInclude Include="src\AF\Window.h">
       <Filter>AF</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Platform\OpenGL\ImGuiOpenGLRenderer.h">
+      <Filter>Platform\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Platform\OpenGL\imgui_impl_glfw.h">
+      <Filter>Platform\OpenGL</Filter>
     </ClInclude>
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h">
       <Filter>Platform\Windows</Filter>
@@ -61,8 +82,26 @@
     <ClCompile Include="src\AF\Application.cpp">
       <Filter>AF</Filter>
     </ClCompile>
+    <ClCompile Include="src\AF\ImGui\ImGuiBuild.cpp">
+      <Filter>AF\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AF\ImGui\ImGuiLayer.cpp">
+      <Filter>AF\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AF\Layer.cpp">
+      <Filter>AF</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AF\LayerStack.cpp">
+      <Filter>AF</Filter>
+    </ClCompile>
     <ClCompile Include="src\AF\Log.cpp">
       <Filter>AF</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Platform\OpenGL\ImGuiOpenGLRenderer.cpp">
+      <Filter>Platform\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Platform\OpenGL\imgui_impl_glfw.cpp">
+      <Filter>Platform\OpenGL</Filter>
     </ClCompile>
     <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp">
       <Filter>Platform\Windows</Filter>

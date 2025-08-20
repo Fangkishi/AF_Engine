@@ -2,10 +2,11 @@
 
 #include "AF/Core.h"
 #include "AF/Events/Event.h"
+#include "AF/Core/Timestep.h"
 
 namespace AF {
 
-	class AF_API Layer
+	class Layer
 	{
 	public:
 		Layer(const std::string& name = "Layer");
@@ -13,7 +14,8 @@ namespace AF {
 
 		virtual void OnAttach() {}
 		virtual void OnDetach() {}
-		virtual void OnUpdate() {}
+		virtual void OnUpdate(Timestep ts) {}
+		virtual void OnImGuiRender() {}
 		virtual void OnEvent(Event& event) {}
 
 		const std::string& GetName() const { return m_DebugName; }

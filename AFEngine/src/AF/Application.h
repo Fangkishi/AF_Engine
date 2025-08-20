@@ -7,9 +7,13 @@
 #include "AF/Events/ApplicationEvent.h"
 #include "AF/LayerStack.h"
 
+#include "AF/Core/Timestep.h"
+
+#include "AF/ImGui/ImGuiLayer.h"
+
 namespace AF {
 
-	class AF_API Application
+	class Application
 	{
 	public:
 		Application();
@@ -27,10 +31,13 @@ namespace AF {
 		inline static Application& Get() { return *s_Instance; }
 	private:
 		bool OnWindowClose(WindowCloseEvent& e);
-
-		std::unique_ptr<Window> m_Window;
+		bool OnWindowResize(WindowResizeEvent& e);
+	private:
+		Scope<Window> m_Window;
+		ImGuiLayer* m_ImGuiLayer;
 		bool m_Running = true;
 		LayerStack m_LayerStack;
+		float m_LastFrameTime = 0.0f;
 	private:
 		static Application* s_Instance;
 	};

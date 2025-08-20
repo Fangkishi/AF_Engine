@@ -4,3 +4,9 @@
 [submodule "AFEngine/vendor/GLFW"]
 	path = AFEngine/vendor/GLFW
 	url = https://github.com/TheCherno/glfw
+[submodule "AFEngine/vendor/glm"]
+	path = AFEngine/vendor/glm
+	url = https://github.com/g-truc/glm
+[submodule "AFEngine/vendor/imgui"]
+	path = AFEngine/vendor/imgui
+	url = https://github.com/TheCherno/imgui

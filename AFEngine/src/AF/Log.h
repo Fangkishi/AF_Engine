@@ -6,7 +6,7 @@
 
 namespace AF {
 
-	class AF_API Log
+	class Log
 	{
 	public:
 		static void Init();

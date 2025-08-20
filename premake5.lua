@@ -18,6 +18,8 @@ IncludeDir = {}
 IncludeDir["GLFW"] = "AFEngine/vendor/GLFW/include"
 IncludeDir["GLad"] = "AFEngine/vendor/GLad/include"
 IncludeDir["ImGui"] = "AFEngine/vendor/imgui"
+IncludeDir["glm"] = "AFEngine/vendor/glm"
+IncludeDir["stb_image"] = "AFEngine/vendor/stb_image"
 
 include "AFEngine/vendor/GLFW"
 include "AFEngine/vendor/GLad"
@@ -25,9 +27,10 @@ include "AFEngine/vendor/imgui"
 
 project "AFEngine"
 	location "AFEngine"
-	kind "SharedLib"
+	kind "StaticLib"
 	language "C++"
-	staticruntime "off"
+	cppdialect "C++17"
+	staticruntime "on"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
@@ -38,7 +41,11 @@ project "AFEngine"
 	files
 	{
 		"%{prj.name}/src/**.h",
-		"%{prj.name}/src/**.cpp"
+		"%{prj.name}/src/**.cpp",
+		"%{prj.name}/vendor/glm/glm/**.hpp",
+		"%{prj.name}/vendor/glm/glm/**.inl",
+		"%{prj.name}/vendor/stb_image/**.h",
+		"%{prj.name}/vendor/stb_image/**.cpp",
 	}
 
 	includedirs
@@ -47,7 +54,9 @@ project "AFEngine"
 		"%{prj.name}/vendor/spdlog/include",
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.GLad}",
-		"%{IncludeDir.ImGui}"
+		"%{IncludeDir.ImGui}",
+		"%{IncludeDir.glm}",
+		"%{IncludeDir.stb_image}",
 	}
 
 	links
@@ -59,8 +68,7 @@ project "AFEngine"
 	}
 
 	filter "system:windows"
-		cppdialect "C++17"
-		systemversion "10.0"
+		systemversion "latest"
 
 		defines
 		{
@@ -69,31 +77,27 @@ project "AFEngine"
 			"GLFW_INCLUDE_NONE"
 		}
 
-		postbuildcommands
-		{
-			("{COPY} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/Sandbox/\"")
-		}
-
 	filter "configurations:Debug"
 		defines "AF_DEBUG"
 		runtime "Debug"
-		symbols "On"
+		symbols "on"
 
 	filter "configurations:Release"
 		defines "AF_RELEASE"
 		runtime "Release"
-		optimize "On"
+		optimize "on"
 
 	filter "configurations:Dist"
 		defines "AF_DIST"
 		runtime "Release"
-		optimize "On"
+		optimize "on"
 
 project "Sandbox"
 	location "Sandbox"
 	kind "ConsoleApp"
 	language "C++"
-	staticruntime "off"
+	cppdialect "C++17"
+	staticruntime "on"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
@@ -107,7 +111,10 @@ project "Sandbox"
 	includedirs
 	{
 		"AFEngine/vendor/spdlog/include",
-		"AFEngine/src"
+		"AFEngine/src",
+		"%{IncludeDir.glm}",
+		"%{IncludeDir.GLFW}",
+		"%{IncludeDir.GLad}",
 	}
 
 	links
@@ -116,8 +123,7 @@ project "Sandbox"
 	}
 
 	filter "system:windows"
-		cppdialect "C++17"
-		systemversion "10.0"
+		systemversion "latest"
 
 		defines
 		{
@@ -127,14 +133,14 @@ project "Sandbox"
 	filter "configurations:Debug"
 		defines "AF_DEBUG"
 		runtime "Debug"
-		symbols "On"
+		symbols "on"
 
 	filter "configurations:Release"
 		defines "AF_RELEASE"
 		runtime "Release"
-		optimize "On"
+		optimize "on"
 
 	filter "configurations:Dist"
 		defines "AF_DIST"
 		runtime "Release"
-		optimize "On"
+		optimize "on"

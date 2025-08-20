@@ -1,10 +1,16 @@
 #pragma once
 
+#include <memory>
+
 #ifdef AF_PLATFORM_WINDOWS
-	#ifdef AF_BUILD_DLL
-		#define AF_API __declspec(dllexport)
+	#if HZ_DYNAMIC_LINK
+		#ifdef AF_BUILD_DLL
+			#define AF_API __declspec(dllexport)
+		#else
+			#define AF_API __declspec(dllimport)
+		#endif
 	#else
-		#define AF_API __declspec(dllimport)
+		#define AF_API
 	#endif
 #else
 	#error AFEngine only support Windows !
@@ -25,3 +31,17 @@
 #define BIT(x) (1 << x)
 
 #define AF_BIND_EVENT_FN(fn) std::bind(&fn, this, std::placeholders::_1)
+
+namespace AF {
+
+	template<typename T>
+	using Scope = std::unique_ptr<T>;
+
+	template<typename T>
+	using Ref = std::shared_ptr<T>;
+
+	template<typename T, typename... Args>
+	Ref<T> CreateRef(Args&&... args) {
+		return std::make_shared<T>(std::forward<Args>(args)...);
+	}
+}

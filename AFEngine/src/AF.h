@@ -2,13 +2,13 @@
 
 // For use by AF applications
 
-#include "AF/Application.h"
-#include "AF/Layer.h"
-#include "AF/Log.h"
+#include "AF/Core/Application.h"
+#include "AF/Core/Layer.h"
+#include "AF/Core/Log.h"
 
 #include "AF/Core/Timestep.h"
 
-#include "AF/Input.h"
+#include "AF/Core/Input.h"
 #include "AF/Core/KeyCodes.h"
 #include "AF/Core/MouseCodes.h"
 
@@ -16,6 +16,7 @@
 
 // ----Renderer----
 #include "AF/Renderer/Renderer.h"
+#include "AF/Renderer/Renderer2D.h"
 #include "AF/Renderer/RenderCommand.h"
 
 #include "AF/Renderer/Shader.h"
@@ -30,5 +31,3 @@
 #include "AF/Renderer/Camera/GameCameraController.h"
 #include "AF/Renderer/Camera/OrthographicCamera2DController.h"
 //--------
-
-#include "AF/EntryPoint.h"

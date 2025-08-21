@@ -1,6 +1,6 @@
 #pragma once
 
-#include "AF/Window.h"
+#include "AF/Core/Window.h"
 #include "AF/Renderer/GraphicsContext.h"
 
 #include <GLFW/glfw3.h>

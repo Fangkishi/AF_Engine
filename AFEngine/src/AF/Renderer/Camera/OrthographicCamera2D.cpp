@@ -18,9 +18,9 @@ namespace AF {
 		m_R = right;
 		m_B = bottom;
 		m_T = top;
+		m_Scale = 0.0f;
 
-		float scale = std::pow(2.0f, m_Scale);
-		m_ProjectionMatrix = glm::ortho(m_L * scale, m_R * scale, m_B * scale, m_T * scale, -1.0f, 1.0f);
+		m_ProjectionMatrix = glm::ortho(m_L, m_R, m_B, m_T, -1.0f, 1.0f);
 		m_ViewProjectionMatrix = m_ProjectionMatrix * m_ViewMatrix;
 	}
 
@@ -33,11 +33,11 @@ namespace AF {
 		m_ViewProjectionMatrix = m_ProjectionMatrix * m_ViewMatrix;
 	}
 
-	void OrthographicCamera2D::scale(float deltaScale)
+	void OrthographicCamera2D::scale(float Scale)
 	{
-		m_Scale -= deltaScale;
+		m_Scale = Scale;
 
-		float scale = std::pow(2.0f, m_Scale);
+		float scale = std::pow(2.0f, Scale);
 		m_ProjectionMatrix = glm::ortho(m_L * scale, m_R * scale, m_B * scale, m_T * scale, -1.0f, 1.0f);
 		m_ViewProjectionMatrix = m_ProjectionMatrix * m_ViewMatrix;
 	}

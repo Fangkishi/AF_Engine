@@ -13,7 +13,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include "AF/Log.h"
+#include "AF/Core/Log.h"
 
 #ifdef AF_PLATFORM_WINDOWS
 #include <Windows.h>

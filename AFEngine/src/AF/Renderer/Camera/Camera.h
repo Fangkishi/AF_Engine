@@ -30,7 +30,7 @@ namespace AF {
 		glm::mat4 m_ViewMatrix{ 1.0 };
 		glm::mat4 m_ViewProjectionMatrix{ 1.0 };
 
-		glm::vec3 m_Position{ 0.0f, 0.0f, 0.0f };
+		glm::vec3 m_Position{ 0.0f, 0.0f, 1.0f };
 		glm::vec3 m_Up{ 0.0f, 1.0f, 0.0f };
 		glm::vec3 m_Right{ 1.0f, 0.0f, 0.0f };
 

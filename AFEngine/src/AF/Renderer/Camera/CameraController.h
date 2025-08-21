@@ -19,7 +19,7 @@ namespace AF {
 	class CameraController
 	{
 	public:
-		CameraController(Camera* camera);
+		CameraController(Ref<Camera> camera);
 
 		virtual void OnUpdate(Timestep ts) = 0;
 		virtual void OnEvent(Event& e);
@@ -39,9 +39,9 @@ namespace AF {
 		bool OnMouseScrolled(MouseScrolledEvent& e);
 		bool OnWindowResized(WindowResizeEvent& e);
 	protected:
-		float m_ZoomLevel = 2.236f; //CameraTranslationSpeed开根号
+		float m_ZoomLevel = 0.0f; //CameraTranslationSpeed开根号
 
-		Camera* m_Camera = nullptr;
+		Ref<Camera> m_Camera;
 
 		float m_CurrentX = 0.0f, m_CurrentY = 0.0f;
 

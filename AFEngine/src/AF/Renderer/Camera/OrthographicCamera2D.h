@@ -2,8 +2,6 @@
 
 #include "Camera.h"
 
-#include <glm/glm.hpp>
-
 namespace AF {
 
 	class OrthographicCamera2D : public Camera
@@ -19,7 +17,7 @@ namespace AF {
 		virtual void scale(float deltaScale)override;
 	private:
 		void RecalculateViewMatrix();
-	private:
+	public:
 		float m_L = 0.0f;
 		float m_R = 0.0f;
 		float m_B = 0.0f;

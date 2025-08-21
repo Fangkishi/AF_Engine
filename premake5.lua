@@ -115,6 +115,7 @@ project "Sandbox"
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.GLad}",
+		"%{IncludeDir.ImGui}",
 	}
 
 	links

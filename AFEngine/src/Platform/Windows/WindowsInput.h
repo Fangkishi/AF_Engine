@@ -1,6 +1,6 @@
 #pragma once
 
-#include "AF/Input.h"
+#include "AF/Core/Input.h"
 
 namespace AF {
 

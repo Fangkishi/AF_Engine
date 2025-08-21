@@ -1,12 +1,12 @@
 #include "afpch.h"
 #include "GameCameraController.h"
 
-#include "AF/Input.h"
+#include "AF/Core/Input.h"
 #include "AF/Core/KeyCodes.h"
 
 namespace AF {
 
-	GameCameraController::GameCameraController(Camera* camera)
+	GameCameraController::GameCameraController(Ref<Camera> camera)
 		:CameraController(camera)
 	{
 

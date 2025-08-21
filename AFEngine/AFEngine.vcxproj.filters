@@ -60,13 +60,28 @@
     <ClInclude Include="src\AF.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="src\AF\Application.h">
-      <Filter>src\AF</Filter>
+    <ClInclude Include="src\AF\Core\Application.h">
+      <Filter>src\AF\Core</Filter>
     </ClInclude>
-    <ClInclude Include="src\AF\Core.h">
-      <Filter>src\AF</Filter>
+    <ClInclude Include="src\AF\Core\Core.h">
+      <Filter>src\AF\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AF\Core\EntryPoint.h">
+      <Filter>src\AF\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AF\Core\Input.h">
+      <Filter>src\AF\Core</Filter>
     </ClInclude>
     <ClInclude Include="src\AF\Core\KeyCodes.h">
+      <Filter>src\AF\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AF\Core\Layer.h">
+      <Filter>src\AF\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AF\Core\LayerStack.h">
+      <Filter>src\AF\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AF\Core\Log.h">
       <Filter>src\AF\Core</Filter>
     </ClInclude>
     <ClInclude Include="src\AF\Core\MouseCodes.h">
@@ -75,8 +90,8 @@
     <ClInclude Include="src\AF\Core\Timestep.h">
       <Filter>src\AF\Core</Filter>
     </ClInclude>
-    <ClInclude Include="src\AF\EntryPoint.h">
-      <Filter>src\AF</Filter>
+    <ClInclude Include="src\AF\Core\Window.h">
+      <Filter>src\AF\Core</Filter>
     </ClInclude>
     <ClInclude Include="src\AF\Events\ApplicationEvent.h">
       <Filter>src\AF\Events</Filter>
@@ -96,18 +111,6 @@
     <ClInclude Include="src\AF\ImGui\ImGuiLayer.h">
       <Filter>src\AF\ImGui</Filter>
     </ClInclude>
-    <ClInclude Include="src\AF\Input.h">
-      <Filter>src\AF</Filter>
-    </ClInclude>
-    <ClInclude Include="src\AF\Layer.h">
-      <Filter>src\AF</Filter>
-    </ClInclude>
-    <ClInclude Include="src\AF\LayerStack.h">
-      <Filter>src\AF</Filter>
-    </ClInclude>
-    <ClInclude Include="src\AF\Log.h">
-      <Filter>src\AF</Filter>
-    </ClInclude>
     <ClInclude Include="src\AF\Renderer\Buffer.h">
       <Filter>src\AF\Renderer</Filter>
     </ClInclude>
@@ -124,6 +127,9 @@
       <Filter>src\AF\Renderer\Camera</Filter>
     </ClInclude>
     <ClInclude Include="src\AF\Renderer\Camera\OrthographicCamera2D.h">
+      <Filter>src\AF\Renderer\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AF\Renderer\Camera\OrthographicCamera2DController.h">
       <Filter>src\AF\Renderer\Camera</Filter>
     </ClInclude>
     <ClInclude Include="src\AF\Renderer\Camera\PerspectiveCamera.h">
@@ -149,9 +155,6 @@
     </ClInclude>
     <ClInclude Include="src\AF\Renderer\VertexArray.h">
       <Filter>src\AF\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="src\AF\Window.h">
-      <Filter>src\AF</Filter>
     </ClInclude>
     <ClInclude Include="src\Platform\OpenGL\OpenGLBuffer.h">
       <Filter>src\Platform\OpenGL</Filter>
@@ -1437,26 +1440,26 @@
     <ClInclude Include="vendor\stb_image\stb_image.h">
       <Filter>vendor\stb_image</Filter>
     </ClInclude>
-    <ClInclude Include="src\AF\Renderer\Camera\OrthographicCamera2DController.h" />
+    <ClInclude Include="src\AF\Renderer\Renderer2D.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\AF\Application.cpp">
-      <Filter>src\AF</Filter>
+    <ClCompile Include="src\AF\Core\Application.cpp">
+      <Filter>src\AF\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AF\Core\Layer.cpp">
+      <Filter>src\AF\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AF\Core\LayerStack.cpp">
+      <Filter>src\AF\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AF\Core\Log.cpp">
+      <Filter>src\AF\Core</Filter>
     </ClCompile>
     <ClCompile Include="src\AF\ImGui\ImGuiBuild.cpp">
       <Filter>src\AF\ImGui</Filter>
     </ClCompile>
     <ClCompile Include="src\AF\ImGui\ImGuiLayer.cpp">
       <Filter>src\AF\ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="src\AF\Layer.cpp">
-      <Filter>src\AF</Filter>
-    </ClCompile>
-    <ClCompile Include="src\AF\LayerStack.cpp">
-      <Filter>src\AF</Filter>
-    </ClCompile>
-    <ClCompile Include="src\AF\Log.cpp">
-      <Filter>src\AF</Filter>
     </ClCompile>
     <ClCompile Include="src\AF\Renderer\Buffer.cpp">
       <Filter>src\AF\Renderer</Filter>
@@ -1474,6 +1477,9 @@
       <Filter>src\AF\Renderer\Camera</Filter>
     </ClCompile>
     <ClCompile Include="src\AF\Renderer\Camera\OrthographicCamera2D.cpp">
+      <Filter>src\AF\Renderer\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AF\Renderer\Camera\OrthographicCamera2DController.cpp">
       <Filter>src\AF\Renderer\Camera</Filter>
     </ClCompile>
     <ClCompile Include="src\AF\Renderer\Camera\PerspectiveCamera.cpp">
@@ -1530,6 +1536,6 @@
     <ClCompile Include="vendor\stb_image\stb_image.cpp">
       <Filter>vendor\stb_image</Filter>
     </ClCompile>
-    <ClCompile Include="src\AF\Renderer\Camera\OrthographicCamera2DController.cpp" />
+    <ClCompile Include="src\AF\Renderer\Renderer2D.cpp" />
   </ItemGroup>
 </Project>

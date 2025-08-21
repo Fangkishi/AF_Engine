@@ -1,4 +1,7 @@
 #include <AF.h>
+#include <AF/Core/EntryPoint.h>
+
+#include "Sandbox2D.h"
 
 class ExampleLayer : public AF::Layer
 {
@@ -6,14 +9,14 @@ public:
 	ExampleLayer()
 		:Layer("Example")
 	{
-		m_Camera = new AF::PerspectiveCamera(45.0f, 1.6f / 0.9f, 0.1f, 100.0f);
-		m_CameraController = new AF::GameCameraController(m_Camera);
+		m_Camera = AF::CreateRef<AF::PerspectiveCamera>(45.0f, 1.6f / 0.9f, 0.1f, 100.0f);
+		m_CameraController = AF::CreateRef<AF::GameCameraController>(m_Camera);
 
 		//m_Camera = new AF::OrthographicCamera2D(-1.6f, 1.6f, -0.9f, 0.9f);
 		//m_CameraController = new AF::OrthographicCamera2DController(static_cast<AF::OrthographicCamera2D*>(m_Camera), true);
 
 		//Vertex Array
-		m_VertexArray.reset(AF::VertexArray::Create());
+		m_VertexArray = AF::VertexArray::Create();
 
 		//Vertex Buffer
 		float vertices[] = {
@@ -53,7 +56,7 @@ public:
 
 		m_VertexArray->SetIndexBuffer(IndexBuffer);
 
-		auto shader = m_ShaderLibrary.Load("assets/shaders/Test.glsl");
+		auto shader = m_ShaderLibrary.Load("assets/shaders/Texture.glsl");
 
 		//m_Shader = AF::Shader::Create("assets/shaders/Test.glsl");
 
@@ -69,7 +72,7 @@ public:
 
 		AF::Renderer::BeginScene(*m_Camera);
 
-		auto shader = m_ShaderLibrary.Get("Test");
+		auto shader = m_ShaderLibrary.Get("Texture");
 
 		m_Texture->Bind();
 
@@ -94,8 +97,8 @@ private:
 
 	AF::Ref<AF::Texture2D> m_Texture;
 
-	AF::Camera* m_Camera = nullptr;
-	AF::CameraController* m_CameraController = nullptr;
+	AF::Ref<AF::Camera> m_Camera = nullptr;
+	AF::Ref<AF::CameraController> m_CameraController = nullptr;
 };
 
 class Sandbox : public AF::Application
@@ -103,7 +106,8 @@ class Sandbox : public AF::Application
 public:
 	Sandbox()
 	{
-		PushLayer(new ExampleLayer());
+		//PushLayer(new ExampleLayer());
+		PushLayer(new Sandbox2D());
 	}
 
 	~Sandbox()

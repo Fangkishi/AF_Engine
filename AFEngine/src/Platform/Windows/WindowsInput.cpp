@@ -1,7 +1,7 @@
 #include "afpch.h"
 #include "WindowsInput.h"
 
-#include "AF/Application.h"
+#include "AF/Core/Application.h"
 #include <GLFW/glfw3.h>
 
 namespace AF {

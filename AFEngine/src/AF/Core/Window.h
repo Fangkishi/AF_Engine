@@ -2,7 +2,7 @@
 
 #include "afpch.h"
 
-#include "AF/Core.h"
+#include "AF/Core/Core.h"
 #include "AF/Events/Event.h"
 
 namespace AF {

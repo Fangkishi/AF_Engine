@@ -3,9 +3,9 @@
 #include "Core.h"
 
 #include "Window.h"
-#include "Events/Event.h"
+#include "AF/Events/Event.h"
 #include "AF/Events/ApplicationEvent.h"
-#include "AF/LayerStack.h"
+#include "AF/Core/LayerStack.h"
 
 #include "AF/Core/Timestep.h"
 
@@ -36,6 +36,7 @@ namespace AF {
 		Scope<Window> m_Window;
 		ImGuiLayer* m_ImGuiLayer;
 		bool m_Running = true;
+		bool m_Minimized = false;
 		LayerStack m_LayerStack;
 		float m_LastFrameTime = 0.0f;
 	private:

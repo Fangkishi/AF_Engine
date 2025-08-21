@@ -2,8 +2,6 @@
 
 #include "Camera.h"
 
-#include <glm/glm.hpp>
-
 namespace AF {
 
 	class OrthographicCamera : public Camera

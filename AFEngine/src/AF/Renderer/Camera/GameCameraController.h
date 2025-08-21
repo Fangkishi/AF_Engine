@@ -5,7 +5,7 @@ namespace AF {
 
 	class GameCameraController : public CameraController {
 	public:
-		GameCameraController(Camera* camera);
+		GameCameraController(Ref<Camera> camera);
 
 		void OnUpdate(Timestep ts) override;
 

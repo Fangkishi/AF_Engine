@@ -15,6 +15,8 @@ namespace AF {
 
 	void Camera::RecalculateViewMatrix()
 	{
+		AF_PROFILE_FUNCTION();
+
 		glm::vec3 front = glm::cross(m_Up, m_Right);
 		glm::vec3 center = m_Position + front;
 

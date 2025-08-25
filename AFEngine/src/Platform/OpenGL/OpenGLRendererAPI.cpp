@@ -27,6 +27,8 @@ namespace AF {
 
 	void OpenGLRendererAPI::Init()
 	{
+		AF_PROFILE_FUNCTION();
+
 	#ifdef AF_DEBUG
 		glEnable(GL_DEBUG_OUTPUT);
 		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);

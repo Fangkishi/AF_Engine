@@ -21,6 +21,7 @@
 
 #include "AF/Renderer/Shader.h"
 #include "AF/Renderer/Texture.h"
+#include "AF/Renderer/Framebuffer.h"
 #include "AF/Renderer/VertexArray.h"
 #include "AF/Renderer/Buffer.h"
 

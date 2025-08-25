@@ -30,7 +30,13 @@ namespace AF {
 		const Camera& GetCamera() const { return *m_Camera; }
 
 		float GetZoomLevel() const { return m_ZoomLevel; }
-		void SetZoomLevel(float level) { m_ZoomLevel = level; }
+		void SetZoomLevel(float level) {
+			m_ZoomLevel = level;
+			if (!std::dynamic_pointer_cast<PerspectiveCamera>(m_Camera))
+			{
+				m_Camera->scale(level);
+			}
+		}
 
 		void setSensitivity(float s) { m_Sensitivity = s; }
 		void setScaleSpeed(float s) { m_ScaleSpeed = s; }
@@ -39,7 +45,7 @@ namespace AF {
 		bool OnMouseScrolled(MouseScrolledEvent& e);
 		bool OnWindowResized(WindowResizeEvent& e);
 	protected:
-		float m_ZoomLevel = 0.0f; //CameraTranslationSpeed¿ª¸ùºÅ
+		float m_ZoomLevel = 0.0f;
 
 		Ref<Camera> m_Camera;
 

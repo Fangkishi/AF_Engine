@@ -8,6 +8,8 @@ namespace AF {
 
 	void Renderer::Init()
 	{
+		AF_PROFILE_FUNCTION();
+
 		RenderCommand::Init();
 		Renderer2D::Init();
 	}

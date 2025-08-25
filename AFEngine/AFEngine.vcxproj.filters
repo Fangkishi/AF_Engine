@@ -10,6 +10,9 @@
     <Filter Include="src\AF\Core">
       <UniqueIdentifier>{DB4A453F-4700-BE34-D0F4-B70B3CA9B438}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\AF\Debug">
+      <UniqueIdentifier>{5901FB27-4564-8ACC-EEE9-C282DA2B564F}</UniqueIdentifier>
+    </Filter>
     <Filter Include="src\AF\Events">
       <UniqueIdentifier>{277FE52A-933F-6161-5C7A-AADEC8F9A53D}</UniqueIdentifier>
     </Filter>
@@ -87,11 +90,17 @@
     <ClInclude Include="src\AF\Core\MouseCodes.h">
       <Filter>src\AF\Core</Filter>
     </ClInclude>
+    <ClInclude Include="src\AF\Core\Timer.h">
+      <Filter>src\AF\Core</Filter>
+    </ClInclude>
     <ClInclude Include="src\AF\Core\Timestep.h">
       <Filter>src\AF\Core</Filter>
     </ClInclude>
     <ClInclude Include="src\AF\Core\Window.h">
       <Filter>src\AF\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AF\Debug\Instrumentor.h">
+      <Filter>src\AF\Debug</Filter>
     </ClInclude>
     <ClInclude Include="src\AF\Events\ApplicationEvent.h">
       <Filter>src\AF\Events</Filter>
@@ -135,6 +144,9 @@
     <ClInclude Include="src\AF\Renderer\Camera\PerspectiveCamera.h">
       <Filter>src\AF\Renderer\Camera</Filter>
     </ClInclude>
+    <ClInclude Include="src\AF\Renderer\Framebuffer.h">
+      <Filter>src\AF\Renderer</Filter>
+    </ClInclude>
     <ClInclude Include="src\AF\Renderer\GraphicsContext.h">
       <Filter>src\AF\Renderer</Filter>
     </ClInclude>
@@ -142,6 +154,9 @@
       <Filter>src\AF\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\AF\Renderer\Renderer.h">
+      <Filter>src\AF\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AF\Renderer\Renderer2D.h">
       <Filter>src\AF\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\AF\Renderer\RendererAPI.h">
@@ -160,6 +175,9 @@
       <Filter>src\Platform\OpenGL</Filter>
     </ClInclude>
     <ClInclude Include="src\Platform\OpenGL\OpenGLContext.h">
+      <Filter>src\Platform\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Platform\OpenGL\OpenGLFramebuffer.h">
       <Filter>src\Platform\OpenGL</Filter>
     </ClInclude>
     <ClInclude Include="src\Platform\OpenGL\OpenGLRendererAPI.h">
@@ -1440,7 +1458,6 @@
     <ClInclude Include="vendor\stb_image\stb_image.h">
       <Filter>vendor\stb_image</Filter>
     </ClInclude>
-    <ClInclude Include="src\AF\Renderer\Renderer2D.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\AF\Core\Application.cpp">
@@ -1485,6 +1502,9 @@
     <ClCompile Include="src\AF\Renderer\Camera\PerspectiveCamera.cpp">
       <Filter>src\AF\Renderer\Camera</Filter>
     </ClCompile>
+    <ClCompile Include="src\AF\Renderer\Framebuffer.cpp">
+      <Filter>src\AF\Renderer</Filter>
+    </ClCompile>
     <ClCompile Include="src\AF\Renderer\GraphicsContext.cpp">
       <Filter>src\AF\Renderer</Filter>
     </ClCompile>
@@ -1492,6 +1512,9 @@
       <Filter>src\AF\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="src\AF\Renderer\Renderer.cpp">
+      <Filter>src\AF\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AF\Renderer\Renderer2D.cpp">
       <Filter>src\AF\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="src\AF\Renderer\RendererAPI.cpp">
@@ -1510,6 +1533,9 @@
       <Filter>src\Platform\OpenGL</Filter>
     </ClCompile>
     <ClCompile Include="src\Platform\OpenGL\OpenGLContext.cpp">
+      <Filter>src\Platform\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Platform\OpenGL\OpenGLFramebuffer.cpp">
       <Filter>src\Platform\OpenGL</Filter>
     </ClCompile>
     <ClCompile Include="src\Platform\OpenGL\OpenGLRendererAPI.cpp">
@@ -1536,6 +1562,5 @@
     <ClCompile Include="vendor\stb_image\stb_image.cpp">
       <Filter>vendor\stb_image</Filter>
     </ClCompile>
-    <ClCompile Include="src\AF\Renderer\Renderer2D.cpp" />
   </ItemGroup>
 </Project>

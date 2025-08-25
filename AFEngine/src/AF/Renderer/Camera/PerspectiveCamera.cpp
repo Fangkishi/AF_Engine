@@ -6,6 +6,8 @@ namespace AF {
 	PerspectiveCamera::PerspectiveCamera(float fovy, float aspect, float n, float f)
 		:m_Fovy(fovy), m_Aspect(aspect)
 	{
+		AF_PROFILE_FUNCTION();
+
 		m_Near = n;
 		m_Far = f;
 
@@ -15,6 +17,8 @@ namespace AF {
 
 	void PerspectiveCamera::SetProjection(float fovy, float aspect, float n, float f)
 	{
+		AF_PROFILE_FUNCTION();
+
 		m_Fovy = fovy;
 		m_Aspect = aspect;
 		m_Near = n;
@@ -24,7 +28,10 @@ namespace AF {
 		m_ViewProjectionMatrix = m_ProjectionMatrix * m_ViewMatrix;
 	}
 
-	void PerspectiveCamera::scale(float deltaScale) {
+	void PerspectiveCamera::scale(float deltaScale) 
+	{
+		AF_PROFILE_FUNCTION();
+
 		auto front = glm::normalize(glm::cross(m_Up, m_Right));
 		glm::vec3 position = m_Position += (front * deltaScale);
 		SetPosition(position);

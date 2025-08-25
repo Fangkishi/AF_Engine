@@ -10,6 +10,8 @@ namespace AF {
 
 	void CameraController::OnEvent(Event& e)
 	{
+		AF_PROFILE_FUNCTION();
+
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<MouseScrolledEvent>(AF_BIND_EVENT_FN(CameraController::OnMouseScrolled));
 		dispatcher.Dispatch<WindowResizeEvent>(AF_BIND_EVENT_FN(CameraController::OnWindowResized));
@@ -52,7 +54,7 @@ namespace AF {
 			}
 
 			// 应用当前缩放级别
-			float scale = std::pow(2.0f, orthographicCamera->m_Scale);
+			float scale = std::pow(2.0f, m_ZoomLevel);
 			orthographicCamera->m_ProjectionMatrix = glm::ortho(left * scale, right * scale, bottom * scale, top * scale, orthographicCamera->m_Near, orthographicCamera->m_Far);
 			orthographicCamera->m_ViewProjectionMatrix = orthographicCamera->m_ProjectionMatrix * orthographicCamera->m_ViewMatrix;
 		}
@@ -87,7 +89,7 @@ namespace AF {
 			}
 
 			 //应用当前缩放级别
-			float scale = std::pow(2.0f, orthographicCamera2D->m_Scale);
+			float scale = std::pow(2.0f, m_ZoomLevel);
 			orthographicCamera2D->m_ProjectionMatrix = glm::ortho(left * scale, right * scale, bottom * scale, top * scale, -1.0f, 1.0f);
 			orthographicCamera2D->m_ViewProjectionMatrix = orthographicCamera2D->m_ProjectionMatrix * orthographicCamera2D->m_ViewMatrix;
 		}
@@ -95,9 +97,11 @@ namespace AF {
 
 	bool CameraController::OnMouseScrolled(MouseScrolledEvent& e)
 	{
+		AF_PROFILE_FUNCTION();
+
 		float deltaZoom = e.GetYOffset() * 0.25f;
 		m_ZoomLevel -= m_ScaleSpeed * deltaZoom;
-		if (Ref<PerspectiveCamera> perspectiveCamera = std::dynamic_pointer_cast<PerspectiveCamera>(m_Camera))
+		if (std::dynamic_pointer_cast<PerspectiveCamera>(m_Camera))
 		{
 			m_Camera->scale(deltaZoom);
 		}
@@ -111,6 +115,8 @@ namespace AF {
 
 	bool CameraController::OnWindowResized(WindowResizeEvent& e)
 	{
+		AF_PROFILE_FUNCTION();
+
 		float width = (float)e.GetWidth(), height = (float)e.GetHeight();
 		OnResize(width, height);
 		return false;

@@ -30,7 +30,7 @@ public:
 			 0.5f,  0.5f, -1.0f, 1.0f, 1.0f,
 		};
 		AF::Ref<AF::VertexBuffer> VertexBuffer;
-		VertexBuffer.reset(AF::VertexBuffer::Create(vertices, sizeof(vertices)));
+		VertexBuffer = AF::VertexBuffer::Create(vertices, sizeof(vertices));
 
 		AF::BufferLayout layout = {
 			{ AF::ShaderDataType::Float3, "a_Position" },
@@ -52,7 +52,7 @@ public:
 			4, 6, 7,   // 第二个三角形
 		};
 		AF::Ref<AF::IndexBuffer> IndexBuffer;
-		IndexBuffer.reset(AF::IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t)));
+		IndexBuffer = AF::IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t));
 
 		m_VertexArray->SetIndexBuffer(IndexBuffer);
 
@@ -104,7 +104,8 @@ private:
 class Sandbox : public AF::Application
 {
 public:
-	Sandbox()
+	Sandbox(const AF::ApplicationSpecification& specification)
+		: AF::Application(specification)
 	{
 		//PushLayer(new ExampleLayer());
 		PushLayer(new Sandbox2D());
@@ -117,7 +118,12 @@ public:
 
 };
 
-AF::Application* AF::CreateApplication()
+AF::Application* AF::CreateApplication(ApplicationCommandLineArgs args)
 {
-	return new Sandbox;
+	ApplicationSpecification spec;
+	spec.Name = "Sandbox";
+	spec.WorkingDirectory = "../AF-Editor";
+	spec.CommandLineArgs = args;
+
+	return new Sandbox(spec);
 }

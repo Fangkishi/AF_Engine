@@ -8,6 +8,8 @@ namespace AF {
 	OrthographicCamera::OrthographicCamera(float left, float right, float bottom, float top, float n, float f)
 		:m_L(left), m_R(right), m_B(bottom), m_T(top)
 	{
+		AF_PROFILE_FUNCTION();
+
 		m_Near = n;
 		m_Far = f;
 
@@ -17,6 +19,8 @@ namespace AF {
 
 	void OrthographicCamera::SetProjection(float left, float right, float bottom, float top, float n, float f)
 	{
+		AF_PROFILE_FUNCTION();
+
 		m_L = left;
 		m_R = right;
 		m_B = bottom;
@@ -30,6 +34,8 @@ namespace AF {
 
 	void OrthographicCamera::scale(float Scale)
 	{
+		AF_PROFILE_FUNCTION();
+
 		m_Scale = Scale;
 
 		float scale = std::pow(2.0f, Scale);

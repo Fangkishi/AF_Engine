@@ -8,12 +8,16 @@ namespace AF {
 	OrthographicCamera2D::OrthographicCamera2D(float left, float right, float bottom, float top)
 		:m_L(left), m_R(right), m_B(bottom), m_T(top)
 	{
+		AF_PROFILE_FUNCTION();
+
 		m_ProjectionMatrix = glm::ortho(m_L, m_R, m_B, m_T, -1.0f, 1.0f);
 		RecalculateViewMatrix();
 	}
 
 	void OrthographicCamera2D::SetProjection(float left, float right, float bottom, float top)
 	{
+		AF_PROFILE_FUNCTION();
+
 		m_L = left;
 		m_R = right;
 		m_B = bottom;
@@ -26,6 +30,8 @@ namespace AF {
 
 	void OrthographicCamera2D::RecalculateViewMatrix()
 	{
+		AF_PROFILE_FUNCTION();
+
 		glm::mat4 transform = glm::translate(glm::mat4(1.0f), m_Position) *
 			glm::rotate(glm::mat4(1.0f), glm::radians(m_Rotation), glm::vec3(0, 0, 1));
 
@@ -35,6 +41,8 @@ namespace AF {
 
 	void OrthographicCamera2D::scale(float Scale)
 	{
+		AF_PROFILE_FUNCTION();
+
 		m_Scale = Scale;
 
 		float scale = std::pow(2.0f, Scale);

@@ -14,6 +14,8 @@ namespace AF {
 
 	void OrthographicCamera2DController::OnUpdate(Timestep ts)
 	{
+		AF_PROFILE_FUNCTION();
+
 		glm::vec3 cameraPosition = m_Camera->GetPosition();
 
 		float speed = std::pow(2.0f, m_ZoomLevel) * m_CameraTranslationSpeed;

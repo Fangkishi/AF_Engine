@@ -1,6 +1,6 @@
 workspace "AFEngine"
 	architecture "x64"
-	startproject "Sandbox"
+	startproject "Editor"
 
 	configurations
 	{ 
@@ -112,10 +112,60 @@ project "Sandbox"
 	{
 		"AFEngine/vendor/spdlog/include",
 		"AFEngine/src",
+		"AFEngine/vendor",
 		"%{IncludeDir.glm}",
-		"%{IncludeDir.GLFW}",
-		"%{IncludeDir.GLad}",
-		"%{IncludeDir.ImGui}",
+	}
+
+	links
+	{
+		"AFEngine"
+	}
+
+	filter "system:windows"
+		systemversion "latest"
+
+		defines
+		{
+			"AF_PLATFORM_WINDOWS",
+		}
+
+	filter "configurations:Debug"
+		defines "AF_DEBUG"
+		runtime "Debug"
+		symbols "on"
+
+	filter "configurations:Release"
+		defines "AF_RELEASE"
+		runtime "Release"
+		optimize "on"
+
+	filter "configurations:Dist"
+		defines "AF_DIST"
+		runtime "Release"
+		optimize "on"
+
+project "AF-Editor"
+	location "AF-Editor"
+	kind "ConsoleApp"
+	language "C++"
+	cppdialect "C++17"
+	staticruntime "on"
+
+	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
+	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
+
+	files
+	{
+		"%{prj.name}/src/**.h",
+		"%{prj.name}/src/**.cpp"
+	}
+
+	includedirs
+	{
+		"AFEngine/vendor/spdlog/include",
+		"AFEngine/src",
+		"AFEngine/vendor",
+		"%{IncludeDir.glm}",
 	}
 
 	links

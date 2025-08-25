@@ -14,6 +14,8 @@ namespace AF {
 
 	void GameCameraController::OnUpdate(Timestep ts)
 	{
+		AF_PROFILE_FUNCTION();
+
 		ts = ts > 1 / 200.0f ? 1 / 200.0f : ts;//根据每帧耗时决定，过滤突变帧
 		auto [xpos, ypos] = AF::Input::GetMousePosition();
 		bool mouseMoved = false;

@@ -6,8 +6,8 @@
 
 namespace AF {
 
-	GameCameraController::GameCameraController(Ref<Camera> camera)
-		:CameraController(camera)
+	GameCameraController::GameCameraController(Ref<PerspectiveCamera> camera)
+		: CameraController(), m_Camera(camera)
 	{
 
 	}
@@ -17,33 +17,33 @@ namespace AF {
 		AF_PROFILE_FUNCTION();
 
 		ts = ts > 1 / 200.0f ? 1 / 200.0f : ts;//根据每帧耗时决定，过滤突变帧
-		auto [xpos, ypos] = AF::Input::GetMousePosition();
+		auto mousePosition = AF::Input::GetMousePosition();
 		bool mouseMoved = false;
 		if (AF::Input::IsMouseButtonPressed(Mouse::ButtonRight)) {
-			float deltaX = (xpos - m_CurrentX) * m_Sensitivity * 1.0f /200.0f;
-			float deltaY = (ypos - m_CurrentY) * m_Sensitivity * 1.0f / 200.0f;
+			float deltaX = (mousePosition.x - m_CurrentX) * m_Sensitivity * 1.0f /200.0f;
+			float deltaY = (mousePosition.y - m_CurrentY) * m_Sensitivity * 1.0f / 200.0f;
 
 			Pitch(-deltaY);
 			Yaw(-deltaX);
 
-			m_CurrentX = xpos;
-			m_CurrentY = ypos;
+			m_CurrentX = mousePosition.x;
+			m_CurrentY = mousePosition.y;
 			mouseMoved = true;
 		}
 		else {
 			// 如果没有按下右键，更新鼠标位置但不旋转相机
-			m_CurrentX = xpos;
-			m_CurrentY = ypos;
+			m_CurrentX = mousePosition.x;
+			m_CurrentY = mousePosition.y;
 		}
 
 		//最终移动方向
 		glm::vec3 direction(0.0f);
 
-		auto front = glm::cross(GetCamera().GetUp(), GetCamera().GetRight());
+		auto front = glm::cross(m_Camera->GetUp(), m_Camera->GetRight());
 
-		auto up = GetCamera().GetUp();
+		auto up = m_Camera->GetUp();
 
-		auto right = GetCamera().GetRight();
+		auto right = m_Camera->GetRight();
 
 		if (Input::IsKeyPressed(Key::W)) {
 			direction += front;
@@ -72,15 +72,49 @@ namespace AF {
 		//归一化
 		if (glm::length(direction) != 0) {
 			direction = glm::normalize(direction);
-			glm::vec3 position = GetCamera().GetPosition() + direction * m_CameraTranslationSpeed * (float)ts;
-			GetCamera().SetPosition(position);
+			glm::vec3 position = m_Camera->GetPosition() + direction * m_CameraTranslationSpeed * (float)ts;
+			m_Camera->SetPosition(position);
 		}
 		
 		if (mouseMoved) {
 			//仅当鼠标移动但没有位置变化时，手动更新视图矩阵
-			GetCamera().RecalculateViewMatrix();
+			m_Camera->RecalculateViewMatrix();
 		}
 
+	}
+
+	void GameCameraController::OnEvent(Event& e)
+	{
+		AF_PROFILE_FUNCTION();
+
+		EventDispatcher dispatcher(e);
+		dispatcher.Dispatch<MouseScrolledEvent>(AF_BIND_EVENT_FN(GameCameraController::OnMouseScrolled));
+		dispatcher.Dispatch<WindowResizeEvent>(AF_BIND_EVENT_FN(GameCameraController::OnWindowResized));
+	}
+
+	void GameCameraController::OnResize(float width, float height)
+	{
+		float aspect = width / height;
+		m_Camera->SetAspect(aspect);
+		m_Camera->SetProjection(m_Camera->GetFovy(), aspect, m_Camera->GetNear(), m_Camera->GetFar());
+	}
+
+	bool GameCameraController::OnMouseScrolled(MouseScrolledEvent& e)
+	{
+		float deltaZoom = e.GetYOffset() * 0.25f;
+		m_Camera->SetZoomLevel(m_Camera->GetZoomLevel() - (m_ScaleSpeed * deltaZoom));
+		m_Camera->Scale(deltaZoom);
+
+		return false;
+	}
+
+	bool GameCameraController::OnWindowResized(WindowResizeEvent& e)
+	{
+		AF_PROFILE_FUNCTION();
+
+		float width = (float)e.GetWidth(), height = (float)e.GetHeight();
+		OnResize(width, height);
+		return false;
 	}
 
 	void GameCameraController::Pitch(float angle)

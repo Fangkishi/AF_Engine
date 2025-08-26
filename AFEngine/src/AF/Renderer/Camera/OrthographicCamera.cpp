@@ -5,19 +5,16 @@
 
 namespace AF {
 
-	OrthographicCamera::OrthographicCamera(float left, float right, float bottom, float top, float n, float f)
+	OrthographicCamera::OrthographicCamera(float left, float right, float bottom, float top)
 		:m_L(left), m_R(right), m_B(bottom), m_T(top)
 	{
 		AF_PROFILE_FUNCTION();
 
-		m_Near = n;
-		m_Far = f;
-
-		m_ProjectionMatrix = glm::ortho(m_L, m_R, m_B, m_T, m_Near, m_Far);
+		m_ProjectionMatrix = glm::ortho(m_L, m_R, m_B, m_T, -1.0f, 1.0f);
 		RecalculateViewMatrix();
 	}
 
-	void OrthographicCamera::SetProjection(float left, float right, float bottom, float top, float n, float f)
+	void OrthographicCamera::SetProjection(float left, float right, float bottom, float top)
 	{
 		AF_PROFILE_FUNCTION();
 
@@ -25,21 +22,20 @@ namespace AF {
 		m_R = right;
 		m_B = bottom;
 		m_T = top;
-		m_Near = n;
-		m_Far = f;
+		m_Scale = 0.0f;
 
-		m_ProjectionMatrix = glm::ortho(m_L, m_R, m_B, m_T, m_Near, m_Far);
+		m_ProjectionMatrix = glm::ortho(m_L, m_R, m_B, m_T, -1.0f, 1.0f);
 		m_ViewProjectionMatrix = m_ProjectionMatrix * m_ViewMatrix;
 	}
 
-	void OrthographicCamera::scale(float Scale)
+	void OrthographicCamera::RecalculateViewMatrix()
 	{
 		AF_PROFILE_FUNCTION();
 
-		m_Scale = Scale;
+		glm::mat4 transform = glm::translate(glm::mat4(1.0f), m_Position) *
+			glm::rotate(glm::mat4(1.0f), glm::radians(m_Rotation), glm::vec3(0, 0, 1));
 
-		float scale = std::pow(2.0f, Scale);
-		m_ProjectionMatrix = glm::ortho(m_L * scale, m_R * scale, m_B * scale, m_T * scale, m_Near, m_Far);
+		m_ViewMatrix = glm::inverse(transform);
 		m_ViewProjectionMatrix = m_ProjectionMatrix * m_ViewMatrix;
 	}
 

@@ -4,7 +4,7 @@
 
 #include "AF/Renderer/Texture.h"
 
-#include "Camera/OrthographicCamera2D.h"
+#include "Camera/OrthographicCamera.h"
 
 namespace AF {
 
@@ -14,7 +14,7 @@ namespace AF {
 		static void Init();
 		static void Shutdown();
 
-		static void BeginScene(const Camera& camera);
+		static void BeginScene(const Ref<Camera> camera);
 		static void EndScene();
 		static void Flush();
 

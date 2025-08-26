@@ -135,10 +135,7 @@
     <ClInclude Include="src\AF\Renderer\Camera\OrthographicCamera.h">
       <Filter>src\AF\Renderer\Camera</Filter>
     </ClInclude>
-    <ClInclude Include="src\AF\Renderer\Camera\OrthographicCamera2D.h">
-      <Filter>src\AF\Renderer\Camera</Filter>
-    </ClInclude>
-    <ClInclude Include="src\AF\Renderer\Camera\OrthographicCamera2DController.h">
+    <ClInclude Include="src\AF\Renderer\Camera\OrthographicCameraController.h">
       <Filter>src\AF\Renderer\Camera</Filter>
     </ClInclude>
     <ClInclude Include="src\AF\Renderer\Camera\PerspectiveCamera.h">
@@ -191,9 +188,6 @@
     </ClInclude>
     <ClInclude Include="src\Platform\OpenGL\OpenGLVertexArray.h">
       <Filter>src\Platform\OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Platform\Windows\WindowsInput.h">
-      <Filter>src\Platform\Windows</Filter>
     </ClInclude>
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h">
       <Filter>src\Platform\Windows</Filter>
@@ -1481,22 +1475,13 @@
     <ClCompile Include="src\AF\Renderer\Buffer.cpp">
       <Filter>src\AF\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="src\AF\Renderer\Camera\Camera.cpp">
-      <Filter>src\AF\Renderer\Camera</Filter>
-    </ClCompile>
-    <ClCompile Include="src\AF\Renderer\Camera\CameraController.cpp">
-      <Filter>src\AF\Renderer\Camera</Filter>
-    </ClCompile>
     <ClCompile Include="src\AF\Renderer\Camera\GameCameraController.cpp">
       <Filter>src\AF\Renderer\Camera</Filter>
     </ClCompile>
     <ClCompile Include="src\AF\Renderer\Camera\OrthographicCamera.cpp">
       <Filter>src\AF\Renderer\Camera</Filter>
     </ClCompile>
-    <ClCompile Include="src\AF\Renderer\Camera\OrthographicCamera2D.cpp">
-      <Filter>src\AF\Renderer\Camera</Filter>
-    </ClCompile>
-    <ClCompile Include="src\AF\Renderer\Camera\OrthographicCamera2DController.cpp">
+    <ClCompile Include="src\AF\Renderer\Camera\OrthographicCameraController.cpp">
       <Filter>src\AF\Renderer\Camera</Filter>
     </ClCompile>
     <ClCompile Include="src\AF\Renderer\Camera\PerspectiveCamera.cpp">
@@ -1562,5 +1547,6 @@
     <ClCompile Include="vendor\stb_image\stb_image.cpp">
       <Filter>vendor\stb_image</Filter>
     </ClCompile>
+    <ClCompile Include="src\AF\Core\Window.cpp" />
   </ItemGroup>
 </Project>

@@ -26,9 +26,8 @@
 #include "AF/Renderer/Buffer.h"
 
 #include "AF/Renderer/Camera/OrthographicCamera.h"
-#include "AF/Renderer/Camera/OrthographicCamera2D.h"
 #include "AF/Renderer/Camera/PerspectiveCamera.h"
 
 #include "AF/Renderer/Camera/GameCameraController.h"
-#include "AF/Renderer/Camera/OrthographicCamera2DController.h"
+#include "AF/Renderer/Camera/OrthographicCameraController.h"
 //--------

@@ -171,8 +171,7 @@
     <ClInclude Include="src\AF\Renderer\Camera\CameraController.h" />
     <ClInclude Include="src\AF\Renderer\Camera\GameCameraController.h" />
     <ClInclude Include="src\AF\Renderer\Camera\OrthographicCamera.h" />
-    <ClInclude Include="src\AF\Renderer\Camera\OrthographicCamera2D.h" />
-    <ClInclude Include="src\AF\Renderer\Camera\OrthographicCamera2DController.h" />
+    <ClInclude Include="src\AF\Renderer\Camera\OrthographicCameraController.h" />
     <ClInclude Include="src\AF\Renderer\Camera\PerspectiveCamera.h" />
     <ClInclude Include="src\AF\Renderer\Framebuffer.h" />
     <ClInclude Include="src\AF\Renderer\GraphicsContext.h" />
@@ -190,7 +189,6 @@
     <ClInclude Include="src\Platform\OpenGL\OpenGLShader.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLTexture.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLVertexArray.h" />
-    <ClInclude Include="src\Platform\Windows\WindowsInput.h" />
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h" />
     <ClInclude Include="src\afpch.h" />
     <ClInclude Include="vendor\glm\glm\common.hpp" />
@@ -618,15 +616,13 @@
     <ClCompile Include="src\AF\Core\Layer.cpp" />
     <ClCompile Include="src\AF\Core\LayerStack.cpp" />
     <ClCompile Include="src\AF\Core\Log.cpp" />
+    <ClCompile Include="src\AF\Core\Window.cpp" />
     <ClCompile Include="src\AF\ImGui\ImGuiBuild.cpp" />
     <ClCompile Include="src\AF\ImGui\ImGuiLayer.cpp" />
     <ClCompile Include="src\AF\Renderer\Buffer.cpp" />
-    <ClCompile Include="src\AF\Renderer\Camera\Camera.cpp" />
-    <ClCompile Include="src\AF\Renderer\Camera\CameraController.cpp" />
     <ClCompile Include="src\AF\Renderer\Camera\GameCameraController.cpp" />
     <ClCompile Include="src\AF\Renderer\Camera\OrthographicCamera.cpp" />
-    <ClCompile Include="src\AF\Renderer\Camera\OrthographicCamera2D.cpp" />
-    <ClCompile Include="src\AF\Renderer\Camera\OrthographicCamera2DController.cpp" />
+    <ClCompile Include="src\AF\Renderer\Camera\OrthographicCameraController.cpp" />
     <ClCompile Include="src\AF\Renderer\Camera\PerspectiveCamera.cpp" />
     <ClCompile Include="src\AF\Renderer\Framebuffer.cpp" />
     <ClCompile Include="src\AF\Renderer\GraphicsContext.cpp" />

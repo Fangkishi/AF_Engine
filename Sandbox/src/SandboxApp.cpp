@@ -1,7 +1,7 @@
 #include <AF.h>
 #include <AF/Core/EntryPoint.h>
 
-#include "Sandbox2D.h"
+//#include "Sandbox2D.h"
 
 class ExampleLayer : public AF::Layer
 {
@@ -9,11 +9,11 @@ public:
 	ExampleLayer()
 		:Layer("Example")
 	{
-		m_Camera = AF::CreateRef<AF::PerspectiveCamera>(45.0f, 1.6f / 0.9f, 0.1f, 100.0f);
-		m_CameraController = AF::CreateRef<AF::GameCameraController>(m_Camera);
+		//m_Camera = AF::CreateRef<AF::PerspectiveCamera>(45.0f, 1.6f / 0.9f, 0.1f, 100.0f);
+		//m_CameraController = AF::CreateRef<AF::GameCameraController>(std::static_pointer_cast<AF::PerspectiveCamera>(m_Camera));
 
-		//m_Camera = new AF::OrthographicCamera2D(-1.6f, 1.6f, -0.9f, 0.9f);
-		//m_CameraController = new AF::OrthographicCamera2DController(static_cast<AF::OrthographicCamera2D*>(m_Camera), true);
+		m_Camera = AF::CreateRef<AF::OrthographicCamera>(-1.6f, 1.6f, -0.9f, 0.9f);
+		m_CameraController = AF::CreateRef<AF::OrthographicCameraController>(std::static_pointer_cast<AF::OrthographicCamera>(m_Camera), true);
 
 		//Vertex Array
 		m_VertexArray = AF::VertexArray::Create();
@@ -70,7 +70,7 @@ public:
 
 		m_CameraController->OnUpdate(ts);
 
-		AF::Renderer::BeginScene(*m_Camera);
+		AF::Renderer::BeginScene(m_Camera);
 
 		auto shader = m_ShaderLibrary.Get("Texture");
 
@@ -107,8 +107,8 @@ public:
 	Sandbox(const AF::ApplicationSpecification& specification)
 		: AF::Application(specification)
 	{
-		//PushLayer(new ExampleLayer());
-		PushLayer(new Sandbox2D());
+		PushLayer(new ExampleLayer());
+		//PushLayer(new Sandbox2D());
 	}
 
 	~Sandbox()

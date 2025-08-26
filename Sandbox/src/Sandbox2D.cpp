@@ -5,7 +5,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 Sandbox2D::Sandbox2D()
-	: Layer("Sandbox2D"), m_CameraController(), m_SquareColor({ 0.2f, 0.3f, 0.8f, 1.0f })
+	: Layer("Sandbox2D"), m_CameraController(AF::CreateRef<AF::OrthographicCamera>(-1.6f, 1.6f, -0.9f, 0.9f), true), m_SquareColor({0.2f, 0.3f, 0.8f, 1.0f})
 {
 }
 

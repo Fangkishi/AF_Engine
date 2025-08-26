@@ -15,7 +15,7 @@ public:
 	virtual void OnImGuiRender() override;
 	void OnEvent(AF::Event& e) override;
 private:
-	AF::OrthographicCamera2DController m_CameraController;
+	AF::OrthographicCameraController m_CameraController;
 
 	AF::Ref<AF::Shader> m_FlatColorShader;
 	AF::Ref<AF::VertexArray> m_SquareVA;

@@ -19,7 +19,7 @@ namespace AF {
 		RenderCommand::SetViewport(0, 0, width, height);
 	}
 
-	void Renderer::BeginScene(Ref<Camera> camera)
+	void Renderer::BeginScene(Ref<CameraBase> camera)
 	{
 		m_SceneData->ViewProjectionMatrix = camera->GetViewProjectionMatrix();
 	}

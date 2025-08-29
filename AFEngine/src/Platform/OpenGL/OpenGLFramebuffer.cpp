@@ -84,7 +84,7 @@ namespace AF {
 			case FramebufferTextureFormat::RED_INTEGER: return GL_RED_INTEGER;
 			}
 
-			AF_CORE_ASSERT(false, "");
+			AF_CORE_ASSERT(false);
 			return 0;
 		}
 
@@ -163,7 +163,7 @@ namespace AF {
 
 		if (m_ColorAttachments.size() > 1)
 		{
-			AF_CORE_ASSERT(m_ColorAttachments.size() <= 4, "");
+			AF_CORE_ASSERT(m_ColorAttachments.size() <= 4);
 			GLenum buffers[4] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 };
 			glDrawBuffers(m_ColorAttachments.size(), buffers);
 		}
@@ -204,7 +204,7 @@ namespace AF {
 
 	int OpenGLFramebuffer::ReadPixel(uint32_t attachmentIndex, int x, int y)
 	{
-		AF_CORE_ASSERT(attachmentIndex < m_ColorAttachments.size(), "");
+		AF_CORE_ASSERT(attachmentIndex < m_ColorAttachments.size());
 
 		glReadBuffer(GL_COLOR_ATTACHMENT0 + attachmentIndex);
 		int pixelData;
@@ -215,7 +215,7 @@ namespace AF {
 
 	void OpenGLFramebuffer::ClearAttachment(uint32_t attachmentIndex, int value)
 	{
-		AF_CORE_ASSERT(attachmentIndex < m_ColorAttachments.size(), "");
+		AF_CORE_ASSERT(attachmentIndex < m_ColorAttachments.size());
 
 		auto& spec = m_ColorAttachmentSpecifications[attachmentIndex];
 		glClearTexImage(m_ColorAttachments[attachmentIndex], 0,

@@ -58,7 +58,6 @@ namespace AF {
 	void Application::OnEvent(Event& e)
 	{
 		AF_PROFILE_FUNCTION();
-
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<WindowCloseEvent>(AF_BIND_EVENT_FN(Application::OnWindowClose));
 		dispatcher.Dispatch<WindowResizeEvent>(AF_BIND_EVENT_FN(Application::OnWindowResize));

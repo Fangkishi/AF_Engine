@@ -108,11 +108,24 @@ namespace AF {
 		delete[] s_Data.QuadVertexBufferBase;
 	}
 
-	void Renderer2D::BeginScene(const Ref<Camera> camera)
+	void Renderer2D::BeginScene(const OrthographicCamera& camera)
 	{
 		AF_PROFILE_FUNCTION();
 
-		s_Data.CameraBuffer.ViewProjection = camera->GetViewProjectionMatrix();
+		s_Data.CameraBuffer.ViewProjection = camera.GetViewProjectionMatrix();
+		s_Data.QuadShader->Bind();
+		s_Data.QuadShader->SetMat4("u_ViewProjection", s_Data.CameraBuffer.ViewProjection);
+
+		StartBatch();
+	}
+
+	void Renderer2D::BeginScene(const Camera& camera, const glm::mat4& transform)
+	{
+		AF_PROFILE_FUNCTION();
+
+		glm::mat4 viewProj = camera.GetProjection() * glm::inverse(transform);
+
+		s_Data.CameraBuffer.ViewProjection = viewProj;
 		s_Data.QuadShader->Bind();
 		s_Data.QuadShader->SetMat4("u_ViewProjection", s_Data.CameraBuffer.ViewProjection);
 

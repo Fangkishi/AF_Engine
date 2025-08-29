@@ -20,6 +20,7 @@ IncludeDir["GLad"] = "AFEngine/vendor/GLad/include"
 IncludeDir["ImGui"] = "AFEngine/vendor/imgui"
 IncludeDir["glm"] = "AFEngine/vendor/glm"
 IncludeDir["stb_image"] = "AFEngine/vendor/stb_image"
+IncludeDir["entt"] = "AFEngine/vendor/entt/include"
 
 include "AFEngine/vendor/GLFW"
 include "AFEngine/vendor/GLad"
@@ -57,6 +58,7 @@ project "AFEngine"
 		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.stb_image}",
+		"%{IncludeDir.entt}",
 	}
 
 	links
@@ -114,6 +116,8 @@ project "Sandbox"
 		"AFEngine/src",
 		"AFEngine/vendor",
 		"%{IncludeDir.glm}",
+		"%{IncludeDir.entt}",
+		"%{IncludeDir.ImGui}",
 	}
 
 	links
@@ -166,6 +170,8 @@ project "AF-Editor"
 		"AFEngine/src",
 		"AFEngine/vendor",
 		"%{IncludeDir.glm}",
+		"%{IncludeDir.entt}",
+		"%{IncludeDir.ImGui}",
 	}
 
 	links

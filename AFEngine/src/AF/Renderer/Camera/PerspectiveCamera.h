@@ -1,12 +1,12 @@
 #pragma once
 
-#include "Camera.h"
+#include "CameraBase.h"
 
 namespace AF {
-	class PerspectiveCamera : public Camera
+	class PerspectiveCamera : public CameraBase
 	{
 	public:
-		PerspectiveCamera(float fovy, float aspect, float n, float f);
+		PerspectiveCamera(float fovy, float aspect, float n = 0.1f, float f = 100.0f);
 
 		virtual void SetProjection(float fovy, float aspect, float n, float f) override;
 

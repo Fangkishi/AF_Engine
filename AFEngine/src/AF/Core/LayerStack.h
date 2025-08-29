@@ -1,6 +1,6 @@
 #pragma once
 
-#include "AF/Core/Core.h"
+#include "AF/Core/Base.h"
 #include "Layer.h"
 
 namespace AF {

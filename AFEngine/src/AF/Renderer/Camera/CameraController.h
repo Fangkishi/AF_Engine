@@ -1,6 +1,6 @@
 #pragma once
 
-#include "AF/Renderer/Camera/Camera.h"
+#include "AF/Renderer/Camera/CameraBase.h"
 #include "AF/Renderer/Camera/OrthographicCamera.h"
 #include "AF/Renderer/Camera/PerspectiveCamera.h"
 //#include "AF/Core/Timestep.h"
@@ -33,8 +33,6 @@ namespace AF {
 		virtual bool OnMouseScrolled(MouseScrolledEvent& e) = 0;
 		virtual bool OnWindowResized(WindowResizeEvent& e) = 0;
 	protected:
-		float m_CurrentX = 0.0f, m_CurrentY = 0.0f;
-
 		//相机：鼠标灵敏度 缩放速度 移动速度
 		float m_Sensitivity = 40.0f;
 		float m_ScaleSpeed = 0.2f;

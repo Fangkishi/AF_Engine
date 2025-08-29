@@ -2,7 +2,7 @@
 
 #include "RenderCommand.h"
 
-#include "AF/Renderer/Camera/Camera.h"
+#include "AF/Renderer/Camera/CameraBase.h"
 #include "Shader.h"
 
 namespace AF {
@@ -14,7 +14,7 @@ namespace AF {
 
 		static void OnWindowResize(uint32_t width, uint32_t height);
 
-		static void BeginScene(Ref<Camera> camera);
+		static void BeginScene(Ref<CameraBase> camera);
 		static void EndScene();
 
 		static void Submit(const Ref<Shader>& shader, const AF::Ref<VertexArray>& vexterArray);

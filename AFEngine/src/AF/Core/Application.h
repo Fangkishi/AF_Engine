@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core.h"
+#include "Base.h"
 
 #include "Window.h"
 #include "AF/Events/Event.h"
@@ -20,7 +20,7 @@ namespace AF {
 
 		const char* operator[](int index) const
 		{
-			AF_CORE_ASSERT(index < Count, "");
+			AF_CORE_ASSERT(index < Count);
 			return Args[index];
 		}
 	};

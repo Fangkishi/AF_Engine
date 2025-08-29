@@ -1,6 +1,7 @@
 #pragma once
 
 #include "AF.h"
+#include "Panels/SceneHierarchyPanel.h"
 
 namespace AF {
 
@@ -23,12 +24,19 @@ namespace AF {
 		Ref<VertexArray> m_SquareVA;
 		Ref<Framebuffer> m_Framebuffer;
 
+		Ref<Scene> m_ActiveScene;
+		Entity m_SquareEntity;
+		Entity m_Camera;
+
 		Ref<Texture2D> m_CheckerboardTexture;
 
 		bool m_ViewportFocused = false, m_ViewportHovered = false;//ÊÓ¿ÚµÄ¾Û½¹/Ðü¸¡×´Ì¬
 		glm::vec2 m_ViewportSize = { 0.0f, 0.0f };
 
 		glm::vec4 m_SquareColor = { 0.2f, 0.3f, 0.8f, 1.0f };
+
+		// Panels
+		SceneHierarchyPanel m_SceneHierarchyPanel;
 	};
 
 }

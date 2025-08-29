@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include "AF/Core/Core.h"
+#include "AF/Core/Base.h"
 
 namespace AF {
 

@@ -6,8 +6,8 @@
 
 namespace AF {
 
-	GameCameraController::GameCameraController(Ref<PerspectiveCamera> camera)
-		: CameraController(), m_Camera(camera)
+	GameCameraController::GameCameraController(float fovy, float aspectRatio)
+		: CameraController(), m_Camera(fovy, aspectRatio)
 	{
 
 	}
@@ -39,11 +39,11 @@ namespace AF {
 		//最终移动方向
 		glm::vec3 direction(0.0f);
 
-		auto front = glm::cross(m_Camera->GetUp(), m_Camera->GetRight());
+		auto front = glm::cross(m_Camera.GetUp(), m_Camera.GetRight());
 
-		auto up = m_Camera->GetUp();
+		auto up = m_Camera.GetUp();
 
-		auto right = m_Camera->GetRight();
+		auto right = m_Camera.GetRight();
 
 		if (Input::IsKeyPressed(Key::W)) {
 			direction += front;
@@ -72,13 +72,13 @@ namespace AF {
 		//归一化
 		if (glm::length(direction) != 0) {
 			direction = glm::normalize(direction);
-			glm::vec3 position = m_Camera->GetPosition() + direction * m_CameraTranslationSpeed * (float)ts;
-			m_Camera->SetPosition(position);
+			glm::vec3 position = m_Camera.GetPosition() + direction * m_CameraTranslationSpeed * (float)ts;
+			m_Camera.SetPosition(position);
 		}
 		
 		if (mouseMoved) {
 			//仅当鼠标移动但没有位置变化时，手动更新视图矩阵
-			m_Camera->RecalculateViewMatrix();
+			m_Camera.RecalculateViewMatrix();
 		}
 
 	}
@@ -95,15 +95,14 @@ namespace AF {
 	void GameCameraController::OnResize(float width, float height)
 	{
 		float aspect = width / height;
-		m_Camera->SetAspect(aspect);
-		m_Camera->SetProjection(m_Camera->GetFovy(), aspect, m_Camera->GetNear(), m_Camera->GetFar());
+		m_Camera.SetAspect(aspect);
+		m_Camera.SetProjection(m_Camera.GetFovy(), aspect, m_Camera.GetNear(), m_Camera.GetFar());
 	}
 
 	bool GameCameraController::OnMouseScrolled(MouseScrolledEvent& e)
 	{
 		float deltaZoom = e.GetYOffset() * 0.25f;
-		m_Camera->SetZoomLevel(m_Camera->GetZoomLevel() - (m_ScaleSpeed * deltaZoom));
-		m_Camera->Scale(deltaZoom);
+		m_Camera.Scale(deltaZoom * m_ScaleSpeed);
 
 		return false;
 	}
@@ -125,17 +124,17 @@ namespace AF {
 			return;
 		}
 
-		auto mat = glm::rotate(glm::mat4(1.0f), glm::radians(angle), m_Camera->GetRight());
+		auto mat = glm::rotate(glm::mat4(1.0f), glm::radians(angle), m_Camera.GetRight());
 
-		m_Camera->SetUp(mat * glm::vec4(m_Camera->GetUp(), 0.0f));
+		m_Camera.SetUp(mat * glm::vec4(m_Camera.GetUp(), 0.0f));
 	}
 
 	void GameCameraController::Yaw(float angle)
 	{
 		auto mat = glm::rotate(glm::mat4(1.0f), glm::radians(angle), glm::vec3(0.0f, 1.0f, 0.0f));
 
-		m_Camera->SetUp(mat * glm::vec4(m_Camera->GetUp(), 0.0f));
-		m_Camera->SetRight(mat * glm::vec4(m_Camera->GetRight(), 0.0f));
+		m_Camera.SetUp(mat * glm::vec4(m_Camera.GetUp(), 0.0f));
+		m_Camera.SetRight(mat * glm::vec4(m_Camera.GetRight(), 0.0f));
 	}
 
 }

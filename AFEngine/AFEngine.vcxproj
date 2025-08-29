@@ -77,7 +77,7 @@
       <PrecompiledHeaderFile>afpch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>AF_PLATFORM_WINDOWS;AF_BUILD_DLL;GLFW_INCLUDE_NONE;AF_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\GLFW\include;vendor\GLad\include;vendor\imgui;vendor\glm;vendor\stb_image;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\GLFW\include;vendor\GLad\include;vendor\imgui;vendor\glm;vendor\stb_image;vendor\entt\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -99,7 +99,7 @@
       <PrecompiledHeaderFile>afpch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>AF_PLATFORM_WINDOWS;AF_BUILD_DLL;GLFW_INCLUDE_NONE;AF_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\GLFW\include;vendor\GLad\include;vendor\imgui;vendor\glm;vendor\stb_image;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\GLFW\include;vendor\GLad\include;vendor\imgui;vendor\glm;vendor\stb_image;vendor\entt\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -125,7 +125,7 @@
       <PrecompiledHeaderFile>afpch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>AF_PLATFORM_WINDOWS;AF_BUILD_DLL;GLFW_INCLUDE_NONE;AF_DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\GLFW\include;vendor\GLad\include;vendor\imgui;vendor\glm;vendor\stb_image;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\GLFW\include;vendor\GLad\include;vendor\imgui;vendor\glm;vendor\stb_image;vendor\entt\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -148,7 +148,8 @@
   <ItemGroup>
     <ClInclude Include="src\AF.h" />
     <ClInclude Include="src\AF\Core\Application.h" />
-    <ClInclude Include="src\AF\Core\Core.h" />
+    <ClInclude Include="src\AF\Core\Assert.h" />
+    <ClInclude Include="src\AF\Core\Base.h" />
     <ClInclude Include="src\AF\Core\EntryPoint.h" />
     <ClInclude Include="src\AF\Core\Input.h" />
     <ClInclude Include="src\AF\Core\KeyCodes.h" />
@@ -156,8 +157,10 @@
     <ClInclude Include="src\AF\Core\LayerStack.h" />
     <ClInclude Include="src\AF\Core\Log.h" />
     <ClInclude Include="src\AF\Core\MouseCodes.h" />
+    <ClInclude Include="src\AF\Core\PlatformDetection.h" />
     <ClInclude Include="src\AF\Core\Timer.h" />
     <ClInclude Include="src\AF\Core\Timestep.h" />
+    <ClInclude Include="src\AF\Core\UUID.h" />
     <ClInclude Include="src\AF\Core\Window.h" />
     <ClInclude Include="src\AF\Debug\Instrumentor.h" />
     <ClInclude Include="src\AF\Events\ApplicationEvent.h" />
@@ -167,7 +170,8 @@
     <ClInclude Include="src\AF\Events\MouseEvent.h" />
     <ClInclude Include="src\AF\ImGui\ImGuiLayer.h" />
     <ClInclude Include="src\AF\Renderer\Buffer.h" />
-    <ClInclude Include="src\AF\Renderer\Camera\Camera.h" />
+    <ClInclude Include="src\AF\Renderer\Camera.h" />
+    <ClInclude Include="src\AF\Renderer\Camera\CameraBase.h" />
     <ClInclude Include="src\AF\Renderer\Camera\CameraController.h" />
     <ClInclude Include="src\AF\Renderer\Camera\GameCameraController.h" />
     <ClInclude Include="src\AF\Renderer\Camera\OrthographicCamera.h" />
@@ -182,6 +186,11 @@
     <ClInclude Include="src\AF\Renderer\Shader.h" />
     <ClInclude Include="src\AF\Renderer\Texture.h" />
     <ClInclude Include="src\AF\Renderer\VertexArray.h" />
+    <ClInclude Include="src\AF\Scene\Components.h" />
+    <ClInclude Include="src\AF\Scene\Entity.h" />
+    <ClInclude Include="src\AF\Scene\Scene.h" />
+    <ClInclude Include="src\AF\Scene\SceneCamera.h" />
+    <ClInclude Include="src\AF\Scene\ScriptableEntity.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLBuffer.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLContext.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLFramebuffer.h" />
@@ -616,6 +625,7 @@
     <ClCompile Include="src\AF\Core\Layer.cpp" />
     <ClCompile Include="src\AF\Core\LayerStack.cpp" />
     <ClCompile Include="src\AF\Core\Log.cpp" />
+    <ClCompile Include="src\AF\Core\UUID.cpp" />
     <ClCompile Include="src\AF\Core\Window.cpp" />
     <ClCompile Include="src\AF\ImGui\ImGuiBuild.cpp" />
     <ClCompile Include="src\AF\ImGui\ImGuiLayer.cpp" />
@@ -633,6 +643,9 @@
     <ClCompile Include="src\AF\Renderer\Shader.cpp" />
     <ClCompile Include="src\AF\Renderer\Texture.cpp" />
     <ClCompile Include="src\AF\Renderer\VertexArray.cpp" />
+    <ClCompile Include="src\AF\Scene\Entity.cpp" />
+    <ClCompile Include="src\AF\Scene\Scene.cpp" />
+    <ClCompile Include="src\AF\Scene\SceneCamera.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLBuffer.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLContext.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLFramebuffer.cpp" />

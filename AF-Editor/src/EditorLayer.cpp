@@ -7,7 +7,7 @@
 namespace AF {
 
 	EditorLayer::EditorLayer()
-		: Layer("EditorLayer"), m_CameraController(), m_SquareColor({ 0.2f, 0.3f, 0.8f, 1.0f })
+		: Layer("EditorLayer"), m_CameraController(16.0f / 9.0f, true), m_SquareColor({ 0.2f, 0.3f, 0.8f, 1.0f })
 	{
 	}
 
@@ -20,6 +20,18 @@ namespace AF {
 		fbSpec.Width = 1600;
 		fbSpec.Height = 900;
 		m_Framebuffer = Framebuffer::Create(fbSpec);
+
+		m_ActiveScene = CreateRef<Scene>();
+
+		auto square = m_ActiveScene->CreateEntity("square");
+		square.AddComponent<SpriteRendererComponent>(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+
+		m_SquareEntity = square;
+
+		m_Camera = m_ActiveScene->CreateEntity("Camera Entity");
+		m_Camera.AddComponent<CameraComponent>();
+
+		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
 	}
 
 	void EditorLayer::OnDetach()
@@ -31,6 +43,8 @@ namespace AF {
 	{
 		AF_PROFILE_FUNCTION();
 
+		m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
+
 		// Resize
 		if (FramebufferSpecification spec = m_Framebuffer->GetSpecification();
 			m_ViewportSize.x > 0.0f && m_ViewportSize.y > 0.0f && // zero sized framebuffer is invalid
@@ -40,6 +54,9 @@ namespace AF {
 			m_CameraController.OnResize(m_ViewportSize.x, m_ViewportSize.y);
 		}
 
+		if (m_ViewportFocused)
+			m_CameraController.OnUpdate(ts);
+
 		Renderer2D::ResetStats();
 		{
 			AF_PROFILE_SCOPE("Renderer Prep");
@@ -48,18 +65,9 @@ namespace AF {
 			RenderCommand::Clear();
 		}
 
-		if (m_ViewportFocused)
-			m_CameraController.OnUpdate(ts);
-
 		{
 			AF_PROFILE_SCOPE("Renderer Draw");
-			Renderer2D::BeginScene(m_CameraController.GetCamera());
-
-			Renderer2D::DrawQuad({ 0.0f, 0.0f }, { 1.0f, 1.0f }, m_SquareColor);
-			Renderer2D::DrawQuad({ 1.1f, 0.0f }, { 1.0f, 1.0f }, { 0.5f, 0.3f, 0.2f, 1.0f });
-			Renderer2D::DrawQuad({ 0.0f, 0.0f }, { 10.0f, 10.0f }, m_CheckerboardTexture);
-
-			Renderer2D::EndScene();
+			m_ActiveScene->OnUpdateRuntime(ts);
 			m_Framebuffer->Unbind();
 		}
 	}
@@ -135,6 +143,8 @@ namespace AF {
 				ImGui::EndMenuBar();
 			}
 
+			m_SceneHierarchyPanel.OnImGuiRender();
+
 			ImGui::Begin("Stats");
 			auto stats = Renderer2D::GetStats();
 			ImGui::Text("Renderer2D Stats:");
@@ -142,7 +152,10 @@ namespace AF {
 			ImGui::Text("Quads: %d", stats.QuadCount);
 			ImGui::Text("Vertices: %d", stats.GetTotalVertexCount());
 			ImGui::Text("Indices: %d", stats.GetTotalIndexCount());
-			ImGui::ColorEdit4("Square Color", glm::value_ptr(m_SquareColor));
+
+			auto& color = m_SquareEntity.GetComponent<SpriteRendererComponent>().Color;
+			ImGui::ColorEdit4("Square Color", glm::value_ptr(color));
+
 			ImGui::End();
 
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });

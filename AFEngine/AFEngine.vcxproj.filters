@@ -28,6 +28,9 @@
     <Filter Include="src\AF\Scene">
       <UniqueIdentifier>{00640929-ECC6-98CD-954C-D183818E6450}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\AF\Utils">
+      <UniqueIdentifier>{43F83629-2F5B-C6CD-D8E0-FE83C4229250}</UniqueIdentifier>
+    </Filter>
     <Filter Include="src\Platform">
       <UniqueIdentifier>{21CA02E5-0D2D-9289-B6B2-CA3FA2F45D0C}</UniqueIdentifier>
     </Filter>
@@ -39,6 +42,9 @@
     </Filter>
     <Filter Include="vendor">
       <UniqueIdentifier>{B3738122-9F15-ACF8-88D0-BF4C74113349}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vendor\ImGuizmo">
+      <UniqueIdentifier>{73BF7F4C-DF4A-ED10-E85B-700554664911}</UniqueIdentifier>
     </Filter>
     <Filter Include="vendor\glm">
       <UniqueIdentifier>{829FC5A8-6E57-07F6-D75E-E051C335A2E6}</UniqueIdentifier>
@@ -195,8 +201,14 @@
     <ClInclude Include="src\AF\Scene\SceneCamera.h">
       <Filter>src\AF\Scene</Filter>
     </ClInclude>
+    <ClInclude Include="src\AF\Scene\SceneSerializer.h">
+      <Filter>src\AF\Scene</Filter>
+    </ClInclude>
     <ClInclude Include="src\AF\Scene\ScriptableEntity.h">
       <Filter>src\AF\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AF\Utils\PlatformUtils.h">
+      <Filter>src\AF\Utils</Filter>
     </ClInclude>
     <ClInclude Include="src\Platform\OpenGL\OpenGLBuffer.h">
       <Filter>src\Platform\OpenGL</Filter>
@@ -224,6 +236,9 @@
     </ClInclude>
     <ClInclude Include="src\afpch.h">
       <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="vendor\ImGuizmo\ImGuizmo.h">
+      <Filter>vendor\ImGuizmo</Filter>
     </ClInclude>
     <ClInclude Include="vendor\glm\glm\common.hpp">
       <Filter>vendor\glm\glm</Filter>
@@ -1482,6 +1497,8 @@
     <ClInclude Include="vendor\stb_image\stb_image.h">
       <Filter>vendor\stb_image</Filter>
     </ClInclude>
+    <ClInclude Include="src\AF\Math\Math.h" />
+    <ClInclude Include="src\AF\Renderer\EditorCamera.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\AF\Core\Application.cpp">
@@ -1559,6 +1576,9 @@
     <ClCompile Include="src\AF\Scene\SceneCamera.cpp">
       <Filter>src\AF\Scene</Filter>
     </ClCompile>
+    <ClCompile Include="src\AF\Scene\SceneSerializer.cpp">
+      <Filter>src\AF\Scene</Filter>
+    </ClCompile>
     <ClCompile Include="src\Platform\OpenGL\OpenGLBuffer.cpp">
       <Filter>src\Platform\OpenGL</Filter>
     </ClCompile>
@@ -1583,14 +1603,22 @@
     <ClCompile Include="src\Platform\Windows\WindowsInput.cpp">
       <Filter>src\Platform\Windows</Filter>
     </ClCompile>
+    <ClCompile Include="src\Platform\Windows\WindowsPlatformUtils.cpp">
+      <Filter>src\Platform\Windows</Filter>
+    </ClCompile>
     <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp">
       <Filter>src\Platform\Windows</Filter>
     </ClCompile>
     <ClCompile Include="src\afpch.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="vendor\ImGuizmo\ImGuizmo.cpp">
+      <Filter>vendor\ImGuizmo</Filter>
+    </ClCompile>
     <ClCompile Include="vendor\stb_image\stb_image.cpp">
       <Filter>vendor\stb_image</Filter>
     </ClCompile>
+    <ClCompile Include="src\AF\Math\Math.cpp" />
+    <ClCompile Include="src\AF\Renderer\EditorCamera.cpp" />
   </ItemGroup>
 </Project>

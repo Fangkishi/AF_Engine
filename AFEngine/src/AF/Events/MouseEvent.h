@@ -4,12 +4,13 @@
 #include "AF/Core/MouseCodes.h"
 
 namespace AF {
-
 	class MouseMovedEvent : public Event
 	{
 	public:
 		MouseMovedEvent(const float x, const float y)
-			: m_MouseX(x), m_MouseY(y) {}
+			: m_MouseX(x), m_MouseY(y)
+		{
+		}
 
 		float GetX() const { return m_MouseX; }
 		float GetY() const { return m_MouseY; }
@@ -22,7 +23,8 @@ namespace AF {
 		}
 
 		EVENT_CLASS_TYPE(MouseMoved)
-			EVENT_CLASS_CATEGORY(EventCategoryMouse | EventCategoryInput)
+		EVENT_CLASS_CATEGORY(EventCategoryMouse | EventCategoryInput)
+
 	private:
 		float m_MouseX, m_MouseY;
 	};
@@ -31,7 +33,9 @@ namespace AF {
 	{
 	public:
 		MouseScrolledEvent(const float xOffset, const float yOffset)
-			: m_XOffset(xOffset), m_YOffset(yOffset) {}
+			: m_XOffset(xOffset), m_YOffset(yOffset)
+		{
+		}
 
 		float GetXOffset() const { return m_XOffset; }
 		float GetYOffset() const { return m_YOffset; }
@@ -44,7 +48,8 @@ namespace AF {
 		}
 
 		EVENT_CLASS_TYPE(MouseScrolled)
-			EVENT_CLASS_CATEGORY(EventCategoryMouse | EventCategoryInput)
+		EVENT_CLASS_CATEGORY(EventCategoryMouse | EventCategoryInput)
+
 	private:
 		float m_XOffset, m_YOffset;
 	};
@@ -55,9 +60,12 @@ namespace AF {
 		MouseCode GetMouseButton() const { return m_Button; }
 
 		EVENT_CLASS_CATEGORY(EventCategoryMouse | EventCategoryInput | EventCategoryMouseButton)
+
 	protected:
 		MouseButtonEvent(const MouseCode button)
-			: m_Button(button) {}
+			: m_Button(button)
+		{
+		}
 
 		MouseCode m_Button;
 	};
@@ -66,7 +74,9 @@ namespace AF {
 	{
 	public:
 		MouseButtonPressedEvent(const MouseCode button)
-			: MouseButtonEvent(button) {}
+			: MouseButtonEvent(button)
+		{
+		}
 
 		std::string ToString() const override
 		{
@@ -82,7 +92,9 @@ namespace AF {
 	{
 	public:
 		MouseButtonReleasedEvent(const MouseCode button)
-			: MouseButtonEvent(button) {}
+			: MouseButtonEvent(button)
+		{
+		}
 
 		std::string ToString() const override
 		{
@@ -93,5 +105,4 @@ namespace AF {
 
 		EVENT_CLASS_TYPE(MouseButtonReleased)
 	};
-
 }

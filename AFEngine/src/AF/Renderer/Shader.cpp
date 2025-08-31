@@ -6,13 +6,13 @@
 #include "Platform/OpenGL/OpenGLShader.h"
 
 namespace AF {
-
 	Ref<Shader> Shader::Create(const std::string& filepath)
 	{
 		switch (Renderer::GetAPI())
 		{
-		case RendererAPI::API::None:    AF_CORE_ASSERT(false, "RendererAPI::None is currently not supported!"); return nullptr;
-		case RendererAPI::API::OpenGL:  return CreateRef<OpenGLShader>(filepath);
+		case RendererAPI::API::None: AF_CORE_ASSERT(false, "RendererAPI::None is currently not supported!");
+			return nullptr;
+		case RendererAPI::API::OpenGL: return CreateRef<OpenGLShader>(filepath);
 		}
 
 		AF_CORE_ASSERT(false, "Unknown RendererAPI!");
@@ -23,8 +23,9 @@ namespace AF {
 	{
 		switch (Renderer::GetAPI())
 		{
-		case RendererAPI::API::None:    AF_CORE_ASSERT(false, "RendererAPI::None is currently not supported!"); return nullptr;
-		case RendererAPI::API::OpenGL:  return CreateRef<OpenGLShader>(name, vertexSrc, fragmentSrc);
+		case RendererAPI::API::None: AF_CORE_ASSERT(false, "RendererAPI::None is currently not supported!");
+			return nullptr;
+		case RendererAPI::API::OpenGL: return CreateRef<OpenGLShader>(name, vertexSrc, fragmentSrc);
 		}
 
 		AF_CORE_ASSERT(false, "Unknown RendererAPI!");
@@ -67,5 +68,4 @@ namespace AF {
 	{
 		return m_Shaders.find(name) != m_Shaders.end();
 	}
-
 }

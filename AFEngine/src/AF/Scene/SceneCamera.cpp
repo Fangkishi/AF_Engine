@@ -4,7 +4,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 namespace AF {
-
 	SceneCamera::SceneCamera()
 	{
 		RecalculateProjection();
@@ -49,8 +48,7 @@ namespace AF {
 			float orthoTop = m_OrthographicSize * 0.5f;
 
 			m_Projection = glm::ortho(orthoLeft, orthoRight,
-				orthoBottom, orthoTop, m_OrthographicNear, m_OrthographicFar);
+			                          orthoBottom, orthoTop, m_OrthographicNear, m_OrthographicFar);
 		}
 	}
-
 }

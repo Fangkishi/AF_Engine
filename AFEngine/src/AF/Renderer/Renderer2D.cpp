@@ -34,6 +34,8 @@ namespace AF {
 		QuadVertex* QuadVertexBufferBase = nullptr;
 		QuadVertex* QuadVertexBufferPtr = nullptr;
 
+		float LineWidth = 2.0f;
+
 		std::array<Ref<Texture2D>, MaxTextureSlots> TextureSlots;
 		uint32_t TextureSlotIndex = 1; // 0 = white texture
 
@@ -45,6 +47,7 @@ namespace AF {
 		{
 			glm::mat4 ViewProjection;
 		};
+
 		CameraData CameraBuffer;
 	};
 
@@ -58,12 +61,12 @@ namespace AF {
 
 		s_Data.QuadVertexBuffer = VertexBuffer::Create(s_Data.MaxVertices * sizeof(QuadVertex));
 		s_Data.QuadVertexBuffer->SetLayout({
-			{ ShaderDataType::Float3, "a_Position"     },
-			{ ShaderDataType::Float4, "a_Color"        },
-			{ ShaderDataType::Float2, "a_TexCoord"     },
-			{ ShaderDataType::Float,  "a_TexIndex"     },
-			{ ShaderDataType::Float,  "a_TilingFactor" },
-			{ ShaderDataType::Int,    "a_EntityID"     }
+			{ShaderDataType::Float3, "a_Position"},
+			{ShaderDataType::Float4, "a_Color"},
+			{ShaderDataType::Float2, "a_TexCoord"},
+			{ShaderDataType::Float, "a_TexIndex"},
+			{ShaderDataType::Float, "a_TilingFactor"},
+			{ShaderDataType::Int, "a_EntityID"}
 		});
 		s_Data.QuadVertexArray->AddVertexBuffer(s_Data.QuadVertexBuffer);
 
@@ -95,10 +98,10 @@ namespace AF {
 
 		s_Data.TextureSlots[0] = s_Data.WhiteTexture;
 
-		s_Data.QuadVertexPositions[0] = { -0.5f, -0.5f, 0.0f, 1.0f };
-		s_Data.QuadVertexPositions[1] = { 0.5f, -0.5f, 0.0f, 1.0f };
-		s_Data.QuadVertexPositions[2] = { 0.5f,  0.5f, 0.0f, 1.0f };
-		s_Data.QuadVertexPositions[3] = { -0.5f,  0.5f, 0.0f, 1.0f };
+		s_Data.QuadVertexPositions[0] = {-0.5f, -0.5f, 0.0f, 1.0f};
+		s_Data.QuadVertexPositions[1] = {0.5f, -0.5f, 0.0f, 1.0f};
+		s_Data.QuadVertexPositions[2] = {0.5f, 0.5f, 0.0f, 1.0f};
+		s_Data.QuadVertexPositions[3] = {-0.5f, 0.5f, 0.0f, 1.0f};
 	}
 
 	void Renderer2D::Shutdown()
@@ -132,6 +135,18 @@ namespace AF {
 		StartBatch();
 	}
 
+	void Renderer2D::BeginScene(const EditorCamera& camera)
+	{
+		AF_PROFILE_FUNCTION();
+
+		s_Data.CameraBuffer.ViewProjection = camera.GetViewProjection();
+		s_Data.QuadShader->Bind();
+		s_Data.QuadShader->SetMat4("u_ViewProjection", s_Data.CameraBuffer.ViewProjection);
+		//s_Data.CameraUniformBuffer->SetData(&s_Data.CameraBuffer, sizeof(Renderer2DData::CameraData));
+
+		StartBatch();
+	}
+
 	void Renderer2D::EndScene()
 	{
 		AF_PROFILE_FUNCTION();
@@ -151,7 +166,8 @@ namespace AF {
 	{
 		if (s_Data.QuadIndexCount)
 		{
-			uint32_t dataSize = (uint32_t)((uint8_t*)s_Data.QuadVertexBufferPtr - (uint8_t*)s_Data.QuadVertexBufferBase);
+			uint32_t dataSize = (uint32_t)((uint8_t*)s_Data.QuadVertexBufferPtr - (uint8_t*)s_Data.
+				QuadVertexBufferBase);
 			s_Data.QuadVertexBuffer->SetData(s_Data.QuadVertexBufferBase, dataSize);
 
 			// Bind textures
@@ -172,7 +188,7 @@ namespace AF {
 
 	void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color)
 	{
-		DrawQuad({ position.x, position.y, 0.0f }, size, color);
+		DrawQuad({position.x, position.y, 0.0f}, size, color);
 	}
 
 	void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color)
@@ -180,23 +196,25 @@ namespace AF {
 		AF_PROFILE_FUNCTION();
 
 		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
-			* glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
+			* glm::scale(glm::mat4(1.0f), {size.x, size.y, 1.0f});
 		s_Data.QuadShader->SetMat4("u_Transform", transform);
 
 		DrawQuad(transform, color);
 	}
 
-	void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
+	void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const Ref<Texture2D>& texture,
+	                          float tilingFactor, const glm::vec4& tintColor)
 	{
-		DrawQuad({ position.x, position.y, 0.0f }, size, texture, tilingFactor, tintColor);
+		DrawQuad({position.x, position.y, 0.0f}, size, texture, tilingFactor, tintColor);
 	}
 
-	void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
+	void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, const Ref<Texture2D>& texture,
+	                          float tilingFactor, const glm::vec4& tintColor)
 	{
 		AF_PROFILE_FUNCTION();
 
 		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
-			* glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
+			* glm::scale(glm::mat4(1.0f), {size.x, size.y, 1.0f});
 		s_Data.QuadShader->SetMat4("u_Transform", transform);
 
 		DrawQuad(transform, texture, tilingFactor, tintColor);
@@ -208,7 +226,7 @@ namespace AF {
 
 		constexpr size_t quadVertexCount = 4;
 		const float textureIndex = 0.0f; // White Texture
-		constexpr glm::vec2 textureCoords[] = { { 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f } };
+		constexpr glm::vec2 textureCoords[] = {{0.0f, 0.0f}, {1.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 1.0f}};
 		const float tilingFactor = 1.0f;
 
 		if (s_Data.QuadIndexCount >= Renderer2DData::MaxIndices)
@@ -230,12 +248,13 @@ namespace AF {
 		s_Data.Stats.QuadCount++;
 	}
 
-	void Renderer2D::DrawQuad(const glm::mat4& transform, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor, int entityID)
+	void Renderer2D::DrawQuad(const glm::mat4& transform, const Ref<Texture2D>& texture, float tilingFactor,
+	                          const glm::vec4& tintColor, int entityID)
 	{
 		AF_PROFILE_FUNCTION();
 
 		constexpr size_t quadVertexCount = 4;
-		constexpr glm::vec2 textureCoords[] = { { 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 1.0f } };
+		constexpr glm::vec2 textureCoords[] = {{0.0f, 0.0f}, {1.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 1.0f}};
 
 		if (s_Data.QuadIndexCount >= Renderer2DData::MaxIndices)
 			NextBatch();
@@ -276,47 +295,61 @@ namespace AF {
 		s_Data.Stats.QuadCount++;
 	}
 
-	void Renderer2D::DrawRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const glm::vec4& color)
+	void Renderer2D::DrawRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation,
+	                                 const glm::vec4& color)
 	{
-		DrawRotatedQuad({ position.x, position.y, 0.0f }, size, rotation, color);
+		DrawRotatedQuad({position.x, position.y, 0.0f}, size, rotation, color);
 	}
 
-	void Renderer2D::DrawRotatedQuad(const glm::vec3& position, const glm::vec2& size, float rotation, const glm::vec4& color)
+	void Renderer2D::DrawRotatedQuad(const glm::vec3& position, const glm::vec2& size, float rotation,
+	                                 const glm::vec4& color)
 	{
 		AF_PROFILE_FUNCTION();
 
 		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
 			* glm::rotate(glm::mat4(1.0f), rotation, {0.0f, 0.0f, 1.0f})
-			* glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
+			* glm::scale(glm::mat4(1.0f), {size.x, size.y, 1.0f});
 		s_Data.QuadShader->SetMat4("u_Transform", transform);
 
 		DrawQuad(transform, color);
 	}
 
-	void Renderer2D::DrawRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
+	void Renderer2D::DrawRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation,
+	                                 const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
 	{
-		DrawRotatedQuad({ position.x, position.y, 0.0f }, size, rotation, texture, tilingFactor, tintColor);
+		DrawRotatedQuad({position.x, position.y, 0.0f}, size, rotation, texture, tilingFactor, tintColor);
 	}
 
-	void Renderer2D::DrawRotatedQuad(const glm::vec3& position, const glm::vec2& size, float rotation, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
+	void Renderer2D::DrawRotatedQuad(const glm::vec3& position, const glm::vec2& size, float rotation,
+	                                 const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
 	{
 		AF_PROFILE_FUNCTION();
 
 		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
-			* glm::rotate(glm::mat4(1.0f), rotation, { 0.0f, 0.0f, 1.0f })
-			* glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
+			* glm::rotate(glm::mat4(1.0f), rotation, {0.0f, 0.0f, 1.0f})
+			* glm::scale(glm::mat4(1.0f), {size.x, size.y, 1.0f});
 		s_Data.QuadShader->SetMat4("u_Transform", transform);
 
 		DrawQuad(transform, texture, tilingFactor, tintColor);
 	}
 
-	//void Renderer2D::DrawSprite(const glm::mat4& transform, SpriteRendererComponent& src, int entityID)
-	//{
-	//	if (src.Texture)
-	//		DrawQuad(transform, src.Texture, src.TilingFactor, src.Color, entityID);
-	//	else
-	//		DrawQuad(transform, src.Color, entityID);
-	//}
+	void Renderer2D::DrawSprite(const glm::mat4& transform, SpriteRendererComponent& src, int entityID)
+	{
+		if (src.Texture)
+			DrawQuad(transform, src.Texture, src.TilingFactor, src.Color, entityID);
+		else
+			DrawQuad(transform, src.Color, entityID);
+	}
+
+	float Renderer2D::GetLineWidth()
+	{
+		return s_Data.LineWidth;
+	}
+
+	void Renderer2D::SetLineWidth(float width)
+	{
+		s_Data.LineWidth = width;
+	}
 
 	void Renderer2D::ResetStats()
 	{
@@ -327,4 +360,5 @@ namespace AF {
 	{
 		return s_Data.Stats;
 	}
+
 }

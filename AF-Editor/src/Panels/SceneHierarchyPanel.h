@@ -5,7 +5,6 @@
 #include "AF/Scene/Entity.h"
 
 namespace AF {
-
 	class SceneHierarchyPanel
 	{
 	public:
@@ -18,15 +17,16 @@ namespace AF {
 
 		Entity GetSelectedEntity() const { return m_SelectionContext; }
 		void SetSelectedEntity(Entity entity);
+
 	private:
-		template<typename T>
+		template <typename T>
 		void DisplayAddComponentEntry(const std::string& entryName);
 
 		void DrawEntityNode(Entity entity);
 		void DrawComponents(Entity entity);
+
 	private:
 		Ref<Scene> m_Context;
 		Entity m_SelectionContext;
 	};
-
 }

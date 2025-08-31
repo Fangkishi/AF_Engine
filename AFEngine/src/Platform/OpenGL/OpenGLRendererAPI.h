@@ -3,7 +3,6 @@
 #include "AF/Renderer/RendererAPI.h"
 
 namespace AF {
-
 	class OpenGLRendererAPI : public RendererAPI
 	{
 	public:
@@ -18,5 +17,4 @@ namespace AF {
 
 		virtual void SetLineWidth(float width) override;
 	};
-
 }

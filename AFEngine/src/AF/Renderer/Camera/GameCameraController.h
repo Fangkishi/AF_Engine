@@ -2,8 +2,8 @@
 #include "CameraController.h"
 
 namespace AF {
-
-	class GameCameraController : public CameraController {
+	class GameCameraController : public CameraController
+	{
 	public:
 		GameCameraController(float fovy, float aspectRatio);
 
@@ -14,12 +14,15 @@ namespace AF {
 
 		PerspectiveCamera& GetCamera() { return m_Camera; }
 		const PerspectiveCamera& GetCamera() const { return m_Camera; }
+
 	protected:
 		virtual bool OnMouseScrolled(MouseScrolledEvent& e) override;
 		virtual bool OnWindowResized(WindowResizeEvent& e) override;
+
 	private:
 		void Pitch(float angle);
 		void Yaw(float angle);
+
 	private:
 		PerspectiveCamera m_Camera;
 

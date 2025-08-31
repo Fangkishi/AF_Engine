@@ -30,7 +30,7 @@ void Sandbox2D::OnUpdate(AF::Timestep ts)
 	AF::Renderer2D::ResetStats();
 	{
 		AF_PROFILE_SCOPE("Renderer Prep");
-		AF::RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
+		AF::RenderCommand::SetClearColor({0.1f, 0.1f, 0.1f, 1});
 		AF::RenderCommand::Clear();
 	}
 
@@ -38,9 +38,9 @@ void Sandbox2D::OnUpdate(AF::Timestep ts)
 		AF_PROFILE_SCOPE("Renderer Draw");
 		AF::Renderer2D::BeginScene(m_CameraController.GetCamera());
 
-		AF::Renderer2D::DrawQuad({ 0.0f, 0.0f }, { 1.0f, 1.0f }, m_SquareColor);
-		AF::Renderer2D::DrawQuad({ 1.1f, 0.0f }, { 1.0f, 1.0f }, { 0.5f, 0.3f, 0.2f, 1.0f });
-		AF::Renderer2D::DrawQuad({ 0.0f, 0.0f, -0.1f }, { 10.0f, 10.0f }, m_CheckerboardTexture);
+		AF::Renderer2D::DrawQuad({0.0f, 0.0f}, {1.0f, 1.0f}, m_SquareColor);
+		AF::Renderer2D::DrawQuad({1.1f, 0.0f}, {1.0f, 1.0f}, {0.5f, 0.3f, 0.2f, 1.0f});
+		AF::Renderer2D::DrawQuad({0.0f, 0.0f, -0.1f}, {10.0f, 10.0f}, m_CheckerboardTexture);
 
 		AF::Renderer2D::EndScene();
 	}
@@ -49,7 +49,7 @@ void Sandbox2D::OnUpdate(AF::Timestep ts)
 void Sandbox2D::OnImGuiRender()
 {
 	AF_PROFILE_FUNCTION();
-	
+
 	ImGui::Begin("Settings");
 
 	auto stats = AF::Renderer2D::GetStats();

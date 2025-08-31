@@ -5,7 +5,6 @@
 #include <glad/glad.h>
 
 namespace AF {
-
 	class OpenGLTexture2D : public Texture2D
 	{
 	public:
@@ -31,6 +30,7 @@ namespace AF {
 		{
 			return m_RendererID == other.GetRendererID();
 		}
+
 	private:
 		TextureSpecification m_Specification;
 
@@ -40,5 +40,4 @@ namespace AF {
 		uint32_t m_RendererID;
 		GLenum m_InternalFormat, m_DataFormat;
 	};
-
 }

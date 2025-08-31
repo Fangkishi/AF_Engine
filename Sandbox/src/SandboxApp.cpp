@@ -7,7 +7,7 @@ class ExampleLayer : public AF::Layer
 {
 public:
 	ExampleLayer()
-		:Layer("Example")
+		: Layer("Example")
 	{
 		//m_Camera = AF::CreateRef<AF::PerspectiveCamera>(45.0f, 1.6f / 0.9f, 0.1f, 100.0f);
 		//m_CameraController = AF::CreateRef<AF::GameCameraController>(std::static_pointer_cast<AF::PerspectiveCamera>(m_Camera));
@@ -20,21 +20,21 @@ public:
 
 		//Vertex Buffer
 		float vertices[] = {
-			-0.5f,  0.5f,  0.0f, 0.0f, 1.0f,
-			-0.5f, -0.5f,  0.0f, 0.0f, 0.0f,
-			 0.5f, -0.5f,  0.0f, 1.0f, 0.0f,
-			 0.5f,  0.5f,  0.0f, 1.0f, 1.0f,
-			-0.5f,  0.5f, -1.0f, 0.0f, 1.0f,
+			-0.5f, 0.5f, 0.0f, 0.0f, 1.0f,
+			-0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
+			0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
+			0.5f, 0.5f, 0.0f, 1.0f, 1.0f,
+			-0.5f, 0.5f, -1.0f, 0.0f, 1.0f,
 			-0.5f, -0.5f, -1.0f, 0.0f, 0.0f,
-			 0.5f, -0.5f, -1.0f, 1.0f, 0.0f,
-			 0.5f,  0.5f, -1.0f, 1.0f, 1.0f,
+			0.5f, -0.5f, -1.0f, 1.0f, 0.0f,
+			0.5f, 0.5f, -1.0f, 1.0f, 1.0f,
 		};
 		AF::Ref<AF::VertexBuffer> VertexBuffer;
 		VertexBuffer = AF::VertexBuffer::Create(vertices, sizeof(vertices));
 
 		AF::BufferLayout layout = {
-			{ AF::ShaderDataType::Float3, "a_Position" },
-			{ AF::ShaderDataType::Float2, "a_Uv" },
+			{AF::ShaderDataType::Float3, "a_Position"},
+			{AF::ShaderDataType::Float2, "a_Uv"},
 		};
 
 		VertexBuffer->SetLayout(layout);
@@ -44,12 +44,12 @@ public:
 		//unsigned int indices[] = { 0, 1, 2, 0, 2, 3 };
 		unsigned int indices[] = {
 			// 前面（第一个面）
-			0, 1, 2,   // 第一个三角形
-			0, 2, 3,   // 第二个三角形
+			0, 1, 2, // 第一个三角形
+			0, 2, 3, // 第二个三角形
 
 			// 后面（第二个面）  
-			4, 5, 6,   // 第一个三角形
-			4, 6, 7,   // 第二个三角形
+			4, 5, 6, // 第一个三角形
+			4, 6, 7, // 第二个三角形
 		};
 		AF::Ref<AF::IndexBuffer> IndexBuffer;
 		IndexBuffer = AF::IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t));
@@ -62,10 +62,10 @@ public:
 
 		m_Texture = AF::Texture2D::Create("assets/textures/defaultTexture.jpg");
 	}
-	
+
 	void OnUpdate(AF::Timestep ts) override
 	{
-		AF::RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
+		AF::RenderCommand::SetClearColor({0.1f, 0.1f, 0.1f, 1});
 		AF::RenderCommand::Clear();
 
 		m_CameraController->OnUpdate(ts);
@@ -90,6 +90,7 @@ public:
 	{
 		m_CameraController->OnEvent(event);
 	}
+
 private:
 	AF::ShaderLibrary m_ShaderLibrary;
 	//AF::Ref<AF::Shader> m_Shader;
@@ -115,7 +116,6 @@ public:
 	{
 
 	}
-
 };
 
 AF::Application* AF::CreateApplication(ApplicationCommandLineArgs args)

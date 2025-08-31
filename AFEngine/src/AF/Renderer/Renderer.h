@@ -6,7 +6,6 @@
 #include "Shader.h"
 
 namespace AF {
-
 	class Renderer
 	{
 	public:
@@ -20,13 +19,13 @@ namespace AF {
 		static void Submit(const Ref<Shader>& shader, const AF::Ref<VertexArray>& vexterArray);
 
 		inline static RendererAPI::API GetAPI() { return RendererAPI::GetAPI(); }
+
 	private:
 		struct SceneData
 		{
 			glm::mat4 ViewProjectionMatrix;
 		};
+
 		static SceneData* m_SceneData;
 	};
 }
-
-

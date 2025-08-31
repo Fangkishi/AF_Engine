@@ -1,203 +1,50 @@
-workspace "AFEngine"
-	architecture "x64"
-	startproject "Editor"
+include "./vendor/premake/premake_customization/solution_items.lua"
+include "Dependencies.lua"
 
-	configurations
-	{ 
-		"Debug", 
-		"Release" ,
-		"Dist"
-	}
+workspace "AFEngine"
+	architecture "x86_64"
+	startproject "AF-Editor"
 
 	filter "system:windows"
 		buildoptions { "/utf-8" }
 
+	configurations
+	{
+		"Debug",
+		"Release",
+		"Dist"
+	}
+
+	solution_items
+	{
+		".editorconfig"
+	}
+
+	flags
+	{
+		"MultiProcessorCompile"
+	}
+
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
-IncludeDir = {}
-IncludeDir["GLFW"] = "AFEngine/vendor/GLFW/include"
-IncludeDir["GLad"] = "AFEngine/vendor/GLad/include"
-IncludeDir["ImGui"] = "AFEngine/vendor/imgui"
-IncludeDir["glm"] = "AFEngine/vendor/glm"
-IncludeDir["stb_image"] = "AFEngine/vendor/stb_image"
-IncludeDir["entt"] = "AFEngine/vendor/entt/include"
+group "Dependencies"
+	include "vendor/premake"
 
-include "AFEngine/vendor/GLFW"
-include "AFEngine/vendor/GLad"
-include "AFEngine/vendor/imgui"
+	include "AFEngine/vendor/GLFW"
+	include "AFEngine/vendor/Glad"
 
-project "AFEngine"
-	location "AFEngine"
-	kind "StaticLib"
-	language "C++"
-	cppdialect "C++17"
-	staticruntime "on"
+	include "AFEngine/vendor/imgui"
+	include "AFEngine/vendor/yaml-cpp"
+group ""
 
-	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
-	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
+group "Core"
+	include "AFEngine"
+group ""
 
-	pchheader "afpch.h"
-	pchsource "AFEngine/src/afpch.cpp"
+group "Tools"
+	include "AF-Editor"
+group ""
 
-	files
-	{
-		"%{prj.name}/src/**.h",
-		"%{prj.name}/src/**.cpp",
-		"%{prj.name}/vendor/glm/glm/**.hpp",
-		"%{prj.name}/vendor/glm/glm/**.inl",
-		"%{prj.name}/vendor/stb_image/**.h",
-		"%{prj.name}/vendor/stb_image/**.cpp",
-	}
-
-	includedirs
-	{
-		"%{prj.name}/src",
-		"%{prj.name}/vendor/spdlog/include",
-		"%{IncludeDir.GLFW}",
-		"%{IncludeDir.GLad}",
-		"%{IncludeDir.ImGui}",
-		"%{IncludeDir.glm}",
-		"%{IncludeDir.stb_image}",
-		"%{IncludeDir.entt}",
-	}
-
-	links
-	{
-		"GLFW",
-		"GLad",
-		"ImGui",
-		"opengl32.lib"
-	}
-
-	filter "system:windows"
-		systemversion "latest"
-
-		defines
-		{
-			"AF_PLATFORM_WINDOWS",
-			"AF_BUILD_DLL",
-			"GLFW_INCLUDE_NONE"
-		}
-
-	filter "configurations:Debug"
-		defines "AF_DEBUG"
-		runtime "Debug"
-		symbols "on"
-
-	filter "configurations:Release"
-		defines "AF_RELEASE"
-		runtime "Release"
-		optimize "on"
-
-	filter "configurations:Dist"
-		defines "AF_DIST"
-		runtime "Release"
-		optimize "on"
-
-project "Sandbox"
-	location "Sandbox"
-	kind "ConsoleApp"
-	language "C++"
-	cppdialect "C++17"
-	staticruntime "on"
-
-	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
-	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
-
-	files
-	{
-		"%{prj.name}/src/**.h",
-		"%{prj.name}/src/**.cpp"
-	}
-
-	includedirs
-	{
-		"AFEngine/vendor/spdlog/include",
-		"AFEngine/src",
-		"AFEngine/vendor",
-		"%{IncludeDir.glm}",
-		"%{IncludeDir.entt}",
-		"%{IncludeDir.ImGui}",
-	}
-
-	links
-	{
-		"AFEngine"
-	}
-
-	filter "system:windows"
-		systemversion "latest"
-
-		defines
-		{
-			"AF_PLATFORM_WINDOWS",
-		}
-
-	filter "configurations:Debug"
-		defines "AF_DEBUG"
-		runtime "Debug"
-		symbols "on"
-
-	filter "configurations:Release"
-		defines "AF_RELEASE"
-		runtime "Release"
-		optimize "on"
-
-	filter "configurations:Dist"
-		defines "AF_DIST"
-		runtime "Release"
-		optimize "on"
-
-project "AF-Editor"
-	location "AF-Editor"
-	kind "ConsoleApp"
-	language "C++"
-	cppdialect "C++17"
-	staticruntime "on"
-
-	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
-	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
-
-	files
-	{
-		"%{prj.name}/src/**.h",
-		"%{prj.name}/src/**.cpp"
-	}
-
-	includedirs
-	{
-		"AFEngine/vendor/spdlog/include",
-		"AFEngine/src",
-		"AFEngine/vendor",
-		"%{IncludeDir.glm}",
-		"%{IncludeDir.entt}",
-		"%{IncludeDir.ImGui}",
-	}
-
-	links
-	{
-		"AFEngine"
-	}
-
-	filter "system:windows"
-		systemversion "latest"
-
-		defines
-		{
-			"AF_PLATFORM_WINDOWS",
-		}
-
-	filter "configurations:Debug"
-		defines "AF_DEBUG"
-		runtime "Debug"
-		symbols "on"
-
-	filter "configurations:Release"
-		defines "AF_RELEASE"
-		runtime "Release"
-		optimize "on"
-
-	filter "configurations:Dist"
-		defines "AF_DIST"
-		runtime "Release"
-		optimize "on"
+group "Misc"
+	include "Sandbox"
+group ""

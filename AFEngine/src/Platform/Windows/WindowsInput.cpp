@@ -5,7 +5,6 @@
 #include <GLFW/glfw3.h>
 
 namespace AF {
-
 	bool Input::IsKeyPressed(const KeyCode key)
 	{
 		auto* window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
@@ -26,7 +25,7 @@ namespace AF {
 		double xpos, ypos;
 		glfwGetCursorPos(window, &xpos, &ypos);
 
-		return { (float)xpos, (float)ypos };
+		return {(float)xpos, (float)ypos};
 	}
 
 	float Input::GetMouseX()
@@ -38,5 +37,4 @@ namespace AF {
 	{
 		return GetMousePosition().y;
 	}
-
 }

@@ -6,7 +6,6 @@
 #include <glm/glm.hpp>
 
 namespace AF {
-
 	class Input
 	{
 	public:
@@ -17,5 +16,4 @@ namespace AF {
 		static float GetMouseX();
 		static float GetMouseY();
 	};
-
 }

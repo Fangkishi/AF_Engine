@@ -5,9 +5,10 @@
 #include "AF/Core/KeyCodes.h"
 
 namespace AF {
-
 	OrthographicCameraController::OrthographicCameraController(float aspectRatio, bool rotation)
-		: m_AspectRatio(aspectRatio), m_Camera(-m_AspectRatio * m_ZoomLevel, m_AspectRatio * m_ZoomLevel, -m_ZoomLevel, m_ZoomLevel), m_Rotation(rotation)
+		: m_AspectRatio(aspectRatio),
+		  m_Camera(-m_AspectRatio * m_ZoomLevel, m_AspectRatio * m_ZoomLevel, -m_ZoomLevel, m_ZoomLevel),
+		  m_Rotation(rotation)
 	{
 	}
 
@@ -94,5 +95,4 @@ namespace AF {
 		OnResize((float)e.GetWidth(), (float)e.GetHeight());
 		return false;
 	}
-
 }

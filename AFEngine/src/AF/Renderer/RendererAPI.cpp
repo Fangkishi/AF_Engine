@@ -3,7 +3,5 @@
 
 
 namespace AF {
-
 	RendererAPI::API RendererAPI::s_API = RendererAPI::API::OpenGL;
-
 }

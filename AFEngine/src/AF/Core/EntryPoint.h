@@ -9,7 +9,7 @@ int main(int argc, char** argv)
 	AF::Log::Init();
 
 	AF_PROFILE_BEGIN_SESSION("Startup", "AF-Profile-Startup.json");
-	auto app = AF::CreateApplication({ argc, argv });
+	auto app = AF::CreateApplication({argc, argv});
 	AF_PROFILE_END_SESSION();
 
 	AF_PROFILE_BEGIN_SESSION("Runtime", "AF-Profile-Runtime.json");

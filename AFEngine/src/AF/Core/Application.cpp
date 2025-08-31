@@ -4,11 +4,9 @@
 #include "AF/Renderer/Renderer.h"
 
 #include "Input.h"
-
-#include <GLFW/glfw3.h>
+#include "AF/Utils/PlatformUtils.h"
 
 namespace AF {
-
 	Application* Application::s_Instance = nullptr;
 
 	Application::Application(const ApplicationSpecification& specification)
@@ -78,7 +76,7 @@ namespace AF {
 		{
 			AF_PROFILE_SCOPE("RunLoop");
 
-			float time = (float)glfwGetTime();
+			float time = Time::GetTime();
 			Timestep timestep = time - m_LastFrameTime;
 			m_LastFrameTime = time;
 
@@ -126,5 +124,4 @@ namespace AF {
 
 		return false;
 	}
-
 }

@@ -3,7 +3,6 @@
 #include "AF/Core/Base.h"
 
 namespace AF {
-
 	enum class FramebufferTextureFormat
 	{
 		None = 0,
@@ -22,8 +21,11 @@ namespace AF {
 	struct FramebufferTextureSpecification
 	{
 		FramebufferTextureSpecification() = default;
+
 		FramebufferTextureSpecification(FramebufferTextureFormat format)
-			: TextureFormat(format) {}
+			: TextureFormat(format)
+		{
+		}
 
 		FramebufferTextureFormat TextureFormat = FramebufferTextureFormat::None;
 		// TODO: filtering/wrap
@@ -32,8 +34,11 @@ namespace AF {
 	struct FramebufferAttachmentSpecification
 	{
 		FramebufferAttachmentSpecification() = default;
+
 		FramebufferAttachmentSpecification(std::initializer_list<FramebufferTextureSpecification> attachments)
-			: Attachments(attachments) {}
+			: Attachments(attachments)
+		{
+		}
 
 		std::vector<FramebufferTextureSpecification> Attachments;
 	};
@@ -66,6 +71,4 @@ namespace AF {
 
 		static Ref<Framebuffer> Create(const FramebufferSpecification& spec);
 	};
-
-
 }

@@ -6,7 +6,6 @@
 #include <glm/glm.hpp>
 
 namespace AF {
-
 	class Shader
 	{
 	public:
@@ -27,7 +26,8 @@ namespace AF {
 		virtual const std::string& GetName() const = 0;
 
 		static Ref<Shader> Create(const std::string& filepath);
-		static Ref<Shader> Create(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc);
+		static Ref<Shader> Create(const std::string& name, const std::string& vertexSrc,
+		                          const std::string& fragmentSrc);
 	};
 
 	class ShaderLibrary
@@ -41,8 +41,8 @@ namespace AF {
 		Ref<Shader> Get(const std::string& name);
 
 		bool Exists(const std::string& name) const;
+
 	private:
 		std::unordered_map<std::string, Ref<Shader>> m_Shaders;
 	};
-
 }

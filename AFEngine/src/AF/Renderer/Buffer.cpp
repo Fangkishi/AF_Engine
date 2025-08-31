@@ -6,13 +6,13 @@
 #include "Platform/OpenGL/OpenGLBuffer.h"
 
 namespace AF {
-
 	Ref<VertexBuffer> VertexBuffer::Create(uint32_t size)
 	{
 		switch (Renderer::GetAPI())
 		{
-		case RendererAPI::API::None:    AF_CORE_ASSERT(false, "RendererAPI::None is currently not supported!"); return nullptr;
-		case RendererAPI::API::OpenGL:  return CreateRef<OpenGLVertexBuffer>(size);
+		case RendererAPI::API::None: AF_CORE_ASSERT(false, "RendererAPI::None is currently not supported!");
+			return nullptr;
+		case RendererAPI::API::OpenGL: return CreateRef<OpenGLVertexBuffer>(size);
 		}
 
 		AF_CORE_ASSERT(false, "Unknown RendererAPI!");
@@ -23,8 +23,9 @@ namespace AF {
 	{
 		switch (Renderer::GetAPI())
 		{
-		case RendererAPI::API::None:	AF_CORE_ASSERT(false, "RendererAPI::None is currently not supported!") return nullptr;
-			case RendererAPI::API::OpenGL: return CreateRef<OpenGLVertexBuffer>(vertices, size);
+		case RendererAPI::API::None: AF_CORE_ASSERT(false, "RendererAPI::None is currently not supported!")
+			return nullptr;
+		case RendererAPI::API::OpenGL: return CreateRef<OpenGLVertexBuffer>(vertices, size);
 		}
 
 		AF_CORE_ASSERT(false, "Unknown RenderAPI!");
@@ -35,12 +36,12 @@ namespace AF {
 	{
 		switch (Renderer::GetAPI())
 		{
-		case RendererAPI::API::None:	AF_CORE_ASSERT(false, "RendererAPI::None is currently not supported!") return nullptr;
+		case RendererAPI::API::None: AF_CORE_ASSERT(false, "RendererAPI::None is currently not supported!")
+			return nullptr;
 		case RendererAPI::API::OpenGL: return CreateRef<OpenGLIndexBuffer>(indices, count);
 		}
 
 		AF_CORE_ASSERT(false, "Unknown RenderAPI!");
 		return nullptr;
 	}
-
 }

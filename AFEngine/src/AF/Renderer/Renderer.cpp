@@ -3,7 +3,6 @@
 #include "AF/Renderer/Renderer2D.h"
 
 namespace AF {
-	
 	Renderer::SceneData* Renderer::m_SceneData = new Renderer::SceneData;
 
 	void Renderer::Init()
@@ -38,5 +37,4 @@ namespace AF {
 		vexterArray->Bind();
 		RenderCommand::DrawIndexed(vexterArray);
 	}
-
 }

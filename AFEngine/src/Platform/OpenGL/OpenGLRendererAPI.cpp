@@ -16,10 +16,14 @@ namespace AF {
 	{
 		switch (severity)
 		{
-		case GL_DEBUG_SEVERITY_HIGH:         AF_CORE_CRITICAL(message); return;
-		case GL_DEBUG_SEVERITY_MEDIUM:       AF_CORE_ERROR(message); return;
-		case GL_DEBUG_SEVERITY_LOW:          AF_CORE_WARN(message); return;
-		case GL_DEBUG_SEVERITY_NOTIFICATION: AF_CORE_TRACE(message); return;
+		case GL_DEBUG_SEVERITY_HIGH: AF_CORE_CRITICAL(message);
+			return;
+		case GL_DEBUG_SEVERITY_MEDIUM: AF_CORE_ERROR(message);
+			return;
+		case GL_DEBUG_SEVERITY_LOW: AF_CORE_WARN(message);
+			return;
+		case GL_DEBUG_SEVERITY_NOTIFICATION: AF_CORE_TRACE(message);
+			return;
 		}
 
 		AF_CORE_ASSERT(false, "Unknown severity level!");
@@ -29,13 +33,13 @@ namespace AF {
 	{
 		AF_PROFILE_FUNCTION();
 
-	#ifdef AF_DEBUG
+#ifdef AF_DEBUG
 		glEnable(GL_DEBUG_OUTPUT);
 		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 		glDebugMessageCallback(OpenGLMessageCallback, nullptr);
 
 		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, NULL, GL_FALSE);
-	#endif
+#endif
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 

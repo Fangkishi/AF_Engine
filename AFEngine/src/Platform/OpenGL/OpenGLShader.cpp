@@ -6,7 +6,6 @@
 #include <glm/gtc/type_ptr.hpp>
 
 namespace AF {
-
 	namespace Utils {
 		static GLenum ShaderTypeFromString(const std::string& type)
 		{
@@ -97,7 +96,9 @@ namespace AF {
 			AF_CORE_ASSERT(nextLinePos != std::string::npos, "Syntax error");
 			pos = source.find(typeToken, nextLinePos); // 下一个着色器类型声明行的开始位置
 
-			shaderSources[Utils::ShaderTypeFromString(type)] = (pos == std::string::npos) ? source.substr(nextLinePos) : source.substr(nextLinePos, pos - nextLinePos);
+			shaderSources[Utils::ShaderTypeFromString(type)] = (pos == std::string::npos)
+				                                                   ? source.substr(nextLinePos)
+				                                                   : source.substr(nextLinePos, pos - nextLinePos);
 		}
 
 		return shaderSources;
@@ -310,5 +311,4 @@ namespace AF {
 		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
 		glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
 	}
-
 }

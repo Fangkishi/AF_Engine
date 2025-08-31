@@ -2,7 +2,6 @@
 #include "LayerStack.h"
 
 namespace AF {
-
 	LayerStack::~LayerStack()
 	{
 		for (Layer* layer : m_Layers)
@@ -43,5 +42,4 @@ namespace AF {
 			m_Layers.erase(it);
 		}
 	}
-
 }

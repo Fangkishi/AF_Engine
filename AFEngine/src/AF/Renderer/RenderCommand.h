@@ -3,7 +3,6 @@
 #include "RendererAPI.h"
 
 namespace AF {
-
 	class RenderCommand
 	{
 	public:
@@ -41,8 +40,8 @@ namespace AF {
 		{
 			s_RendererAPI->SetLineWidth(width);
 		}
+
 	private:
 		static RendererAPI* s_RendererAPI;
 	};
-
 }

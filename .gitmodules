@@ -10,3 +10,9 @@
 [submodule "AFEngine/vendor/imgui"]
 	path = AFEngine/vendor/imgui
 	url = https://github.com/TheCherno/imgui
+[submodule "AFEngine/vendor/yaml-cpp"]
+	path = AFEngine/vendor/yaml-cpp
+	url = https://github.com/TheCherno/yaml-cpp
+[submodule "AFEngine/vendor/ImGuizmo"]
+	path = AFEngine/vendor/ImGuizmo
+	url = https://github.com/TheCherno/ImGuizmo

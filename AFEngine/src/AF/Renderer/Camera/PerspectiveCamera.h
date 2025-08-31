@@ -31,9 +31,10 @@ namespace AF {
 		void SetFar(const float& f) { m_Far = f; }
 
 		virtual void RecalculateViewMatrix() override;
+
 	private:
-		glm::vec3 m_Up{ 0.0f, 1.0f, 0.0f };
-		glm::vec3 m_Right{ 1.0f, 0.0f, 0.0f };
+		glm::vec3 m_Up{0.0f, 1.0f, 0.0f};
+		glm::vec3 m_Right{1.0f, 0.0f, 0.0f};
 
 		float m_Fovy = 0.0f;
 		float m_Aspect = 0.0f;
@@ -41,5 +42,4 @@ namespace AF {
 		float m_Near = 0.1f;
 		float m_Far = 100.0f;
 	};
-
 }

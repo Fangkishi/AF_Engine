@@ -1,0 +1,59 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="..">
+      <UniqueIdentifier>{61705900-4DFC-870B-B6AA-880BA255880B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\AF-Editor">
+      <UniqueIdentifier>{2B6DCD36-17D0-5CDB-C055-9591AC97285E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\AFEngine">
+      <UniqueIdentifier>{AD99E9B0-194F-62A6-A243-5C7D0EF858AA}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\AFEngine\vendor">
+      <UniqueIdentifier>{6AEB13AE-56CF-D403-BF2F-CF56AB32BF85}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\AFEngine\vendor\GLFW">
+      <UniqueIdentifier>{E958FC98-5590-4430-5E9A-A853CA506B29}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\AFEngine\vendor\GLad">
+      <UniqueIdentifier>{715CFC98-DD93-4430-E69D-A85352546B29}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\AFEngine\vendor\imgui">
+      <UniqueIdentifier>{546001BB-4085-503B-69D0-35CB55544F59}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\AFEngine\vendor\yaml-cpp">
+      <UniqueIdentifier>{5CC9D2D1-C8D6-00B8-51BD-FCA2BDC9CC6E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="..\Sandbox">
+      <UniqueIdentifier>{3F7B6B1D-2B33-AD6A-943A-86C68011485B}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\AF-Editor\premake5.lua">
+      <Filter>..\AF-Editor</Filter>
+    </None>
+    <None Include="..\..\AFEngine\premake5.lua">
+      <Filter>..\AFEngine</Filter>
+    </None>
+    <None Include="..\..\AFEngine\vendor\GLFW\premake5.lua">
+      <Filter>..\AFEngine\vendor\GLFW</Filter>
+    </None>
+    <None Include="..\..\AFEngine\vendor\GLad\premake5.lua">
+      <Filter>..\AFEngine\vendor\GLad</Filter>
+    </None>
+    <None Include="..\..\AFEngine\vendor\imgui\premake5.lua">
+      <Filter>..\AFEngine\vendor\imgui</Filter>
+    </None>
+    <None Include="..\..\AFEngine\vendor\yaml-cpp\premake5.lua">
+      <Filter>..\AFEngine\vendor\yaml-cpp</Filter>
+    </None>
+    <None Include="..\..\Sandbox\premake5.lua">
+      <Filter>..\Sandbox</Filter>
+    </None>
+    <None Include="..\..\premake5.lua">
+      <Filter>..</Filter>
+    </None>
+    <None Include="premake5.lua" />
+  </ItemGroup>
+</Project>

@@ -4,7 +4,6 @@
 #include "EditorLayer.h"
 
 namespace AF {
-
 	class AFEditor : public Application
 	{
 	public:
@@ -18,7 +17,6 @@ namespace AF {
 		{
 
 		}
-
 	};
 
 	Application* CreateApplication(ApplicationCommandLineArgs args)
@@ -29,6 +27,4 @@ namespace AF {
 
 		return new AFEditor(spec);
 	}
-
 }
-

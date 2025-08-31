@@ -5,8 +5,7 @@
 #include "Platform/Windows/WindowsWindow.h"
 #endif
 
-namespace AF
-{
+namespace AF {
 	Scope<Window> Window::Create(const WindowProps& props)
 	{
 #ifdef AF_PLATFORM_WINDOWS
@@ -16,5 +15,4 @@ namespace AF
 		return nullptr;
 #endif
 	}
-
 }

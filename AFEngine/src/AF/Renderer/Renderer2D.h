@@ -5,10 +5,12 @@
 #include "AF/Renderer/Texture.h"
 
 #include "AF/Renderer/Camera.h"
+#include "AF/Renderer/EditorCamera.h"
 #include "Camera/OrthographicCamera.h"
 
-namespace AF {
+#include "AF/Scene/Components.h"
 
+namespace AF {
 	class Renderer2D
 	{
 	public:
@@ -16,25 +18,38 @@ namespace AF {
 		static void Shutdown();
 
 		static void BeginScene(const Camera& camera, const glm::mat4& transform);
-		static void BeginScene(const OrthographicCamera& camera);//TODO: ÒÆ³ý
+		static void BeginScene(const EditorCamera& camera);
+		static void BeginScene(const OrthographicCamera& camera); //TODO: ÒÆ³ý
 		static void EndScene();
 		static void Flush();
 
 		//³õÊ¼ÀàÐÍ
 		static void DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color);
 		static void DrawQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color);
-		static void DrawQuad(const glm::vec2& position, const glm::vec2& size, const Ref<Texture2D>& texture, float tilingFactor = 1.0f, const glm::vec4& tintColor = glm::vec4(1.0f));
-		static void DrawQuad(const glm::vec3& position, const glm::vec2& size, const Ref<Texture2D>& texture, float tilingFactor = 1.0f, const glm::vec4& tintColor = glm::vec4(1.0f));
+		static void DrawQuad(const glm::vec2& position, const glm::vec2& size, const Ref<Texture2D>& texture,
+		                     float tilingFactor = 1.0f, const glm::vec4& tintColor = glm::vec4(1.0f));
+		static void DrawQuad(const glm::vec3& position, const glm::vec2& size, const Ref<Texture2D>& texture,
+		                     float tilingFactor = 1.0f, const glm::vec4& tintColor = glm::vec4(1.0f));
 
 		static void DrawQuad(const glm::mat4& transform, const glm::vec4& color, int entityID = -1);
-		static void DrawQuad(const glm::mat4& transform, const Ref<Texture2D>& texture, float tilingFactor = 1.0f, const glm::vec4& tintColor = glm::vec4(1.0f), int entityID = -1);
+		static void DrawQuad(const glm::mat4& transform, const Ref<Texture2D>& texture, float tilingFactor = 1.0f,
+		                     const glm::vec4& tintColor = glm::vec4(1.0f), int entityID = -1);
 
-		static void DrawRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const glm::vec4& color);
-		static void DrawRotatedQuad(const glm::vec3& position, const glm::vec2& size, float rotation, const glm::vec4& color);
-		static void DrawRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const Ref<Texture2D>& texture, float tilingFactor = 1.0f, const glm::vec4& tintColor = glm::vec4(1.0f));
-		static void DrawRotatedQuad(const glm::vec3& position, const glm::vec2& size, float rotation, const Ref<Texture2D>& texture, float tilingFactor = 1.0f, const glm::vec4& tintColor = glm::vec4(1.0f));
-	
-		//static void DrawSprite(const glm::mat4& transform, SpriteRendererComponent& src, int entityID);//TODO: SpriteRendererComponent
+		static void DrawRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation,
+		                            const glm::vec4& color);
+		static void DrawRotatedQuad(const glm::vec3& position, const glm::vec2& size, float rotation,
+		                            const glm::vec4& color);
+		static void DrawRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation,
+		                            const Ref<Texture2D>& texture, float tilingFactor = 1.0f,
+		                            const glm::vec4& tintColor = glm::vec4(1.0f));
+		static void DrawRotatedQuad(const glm::vec3& position, const glm::vec2& size, float rotation,
+		                            const Ref<Texture2D>& texture, float tilingFactor = 1.0f,
+		                            const glm::vec4& tintColor = glm::vec4(1.0f));
+
+		static void DrawSprite(const glm::mat4& transform, SpriteRendererComponent& src, int entityID);//TODO: SpriteRendererComponent
+
+		static float GetLineWidth();
+		static void SetLineWidth(float width);
 
 		struct Statistics
 		{
@@ -44,6 +59,7 @@ namespace AF {
 			uint32_t GetTotalVertexCount() const { return QuadCount * 4; }
 			uint32_t GetTotalIndexCount() const { return QuadCount * 6; }
 		};
+
 		static void ResetStats();
 		static Statistics GetStats();
 
@@ -51,5 +67,4 @@ namespace AF {
 		static void StartBatch();
 		static void NextBatch();
 	};
-
 }

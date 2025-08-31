@@ -6,7 +6,6 @@
 #include "AF/Events/Event.h"
 
 namespace AF {
-
 	struct WindowProps
 	{
 		std::string Title;
@@ -14,8 +13,8 @@ namespace AF {
 		uint32_t Height;
 
 		WindowProps(const std::string& title = "AF Engine",
-			uint32_t width = 1600,
-			uint32_t height = 900)
+		            uint32_t width = 1600,
+		            uint32_t height = 900)
 			: Title(title), Width(width), Height(height)
 		{
 		}
@@ -43,5 +42,4 @@ namespace AF {
 
 		static Scope<Window> Create(const WindowProps& props = WindowProps());
 	};
-
 }

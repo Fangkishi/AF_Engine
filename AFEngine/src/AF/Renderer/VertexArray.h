@@ -4,7 +4,6 @@
 #include "AF/Renderer/Buffer.h"
 
 namespace AF {
-
 	class VertexArray
 	{
 	public:
@@ -16,7 +15,7 @@ namespace AF {
 		virtual void AddVertexBuffer(const Ref<VertexBuffer>& vertexBuffer) = 0;
 		virtual void SetIndexBuffer(const Ref<IndexBuffer>& indexBuffer) = 0;
 
-		virtual const std::vector <Ref<VertexBuffer>> GetVertexBuffers() const = 0;
+		virtual const std::vector<Ref<VertexBuffer>> GetVertexBuffers() const = 0;
 		virtual const Ref<IndexBuffer> GetIndexBuffer() const = 0;
 
 		static Ref<VertexArray> Create();

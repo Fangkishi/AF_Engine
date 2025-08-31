@@ -4,7 +4,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 namespace AF {
-
 	OrthographicCamera::OrthographicCamera(float left, float right, float bottom, float top)
 	{
 		AF_PROFILE_FUNCTION();
@@ -32,5 +31,4 @@ namespace AF {
 		m_ViewMatrix = glm::inverse(transform);
 		m_ViewProjectionMatrix = m_ProjectionMatrix * m_ViewMatrix;
 	}
-
 }

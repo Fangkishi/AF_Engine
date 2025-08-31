@@ -14,11 +14,12 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 namespace AF {
-
 	class CameraController
 	{
 	public:
-		CameraController() {};
+		CameraController()
+		{
+		};
 		virtual ~CameraController() = default;
 
 		virtual void OnUpdate(Timestep ts) = 0;
@@ -29,14 +30,15 @@ namespace AF {
 		void setSensitivity(float s) { m_Sensitivity = s; }
 		void setScaleSpeed(float s) { m_ScaleSpeed = s; }
 		void SetSpeed(float s) { m_CameraTranslationSpeed = s; }
+
 	protected:
 		virtual bool OnMouseScrolled(MouseScrolledEvent& e) = 0;
 		virtual bool OnWindowResized(WindowResizeEvent& e) = 0;
+
 	protected:
 		//相机：鼠标灵敏度 缩放速度 移动速度
 		float m_Sensitivity = 40.0f;
 		float m_ScaleSpeed = 0.2f;
 		float m_CameraTranslationSpeed = 5.0f;
 	};
-
 }

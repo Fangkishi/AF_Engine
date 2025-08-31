@@ -1,7 +1,6 @@
 #pragma once
 
 namespace AF {
-
 	class GraphicsContext
 	{
 	public:
@@ -12,5 +11,4 @@ namespace AF {
 
 		static Scope<GraphicsContext> Create(void* window);
 	};
-
 }

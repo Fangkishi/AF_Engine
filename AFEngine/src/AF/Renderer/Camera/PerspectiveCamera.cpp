@@ -2,9 +2,8 @@
 #include "PerspectiveCamera.h"
 
 namespace AF {
-
 	PerspectiveCamera::PerspectiveCamera(float fovy, float aspect, float n, float f)
-		:m_Fovy(fovy), m_Aspect(aspect)
+		: m_Fovy(fovy), m_Aspect(aspect)
 	{
 		AF_PROFILE_FUNCTION();
 
@@ -47,5 +46,4 @@ namespace AF {
 		glm::vec3 position = m_Position += (front * deltaScale);
 		SetPosition(position);
 	}
-
 }

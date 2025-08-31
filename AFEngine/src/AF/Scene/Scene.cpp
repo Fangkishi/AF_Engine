@@ -21,6 +21,22 @@ namespace AF {
 
 	}
 
+	template <typename... Component>
+	static void CopyComponentIfExists(Entity dst, Entity src)
+	{
+		([&]()
+		{
+			if (src.HasComponent<Component>())
+				dst.AddOrReplaceComponent<Component>(src.GetComponent<Component>());
+		}(), ...);
+	}
+
+	template <typename... Component>
+	static void CopyComponentIfExists(ComponentGroup<Component...>, Entity dst, Entity src)
+	{
+		CopyComponentIfExists<Component...>(dst, src);
+	}
+
 	Entity Scene::CreateEntity(const std::string& name)
 	{
 		return CreateEntityWithUUID(UUID(), name);
@@ -28,7 +44,7 @@ namespace AF {
 
 	Entity Scene::CreateEntityWithUUID(UUID uuid, const std::string& name)
 	{
-		Entity entity = { m_Registry.create(), this };
+		Entity entity = {m_Registry.create(), this};
 		entity.AddComponent<IDComponent>(uuid);
 		entity.AddComponent<TransformComponent>();
 		auto& tag = entity.AddComponent<TagComponent>();
@@ -47,62 +63,120 @@ namespace AF {
 
 	void Scene::OnUpdateRuntime(Timestep ts)
 	{
-		// Update scripts
+		if (!m_IsPaused || m_StepFrames-- > 0)
 		{
-			// C# Entity OnUpdate
-			auto view = m_Registry.view<ScriptComponent>();
-			for (auto e : view)
+			// Update scripts
 			{
-				Entity entity = { e, this };
-				//ScriptEngine::OnUpdateEntity(entity, ts);
-			}
-
-			m_Registry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
-			{
-				// TODO: Move to Scene::OnScenePlay
-				if (!nsc.Instance)
+				// C# Entity OnUpdate
+				auto view = m_Registry.view<ScriptComponent>();
+				for (auto e : view)
 				{
-					nsc.Instance = nsc.InstantiateScript();
-					nsc.Instance->m_Entity = Entity{ entity, this };
-					nsc.Instance->OnCreate();
+					Entity entity = { e, this };
+					//ScriptEngine::OnUpdateEntity(entity, ts);
 				}
 
-				nsc.Instance->OnUpdate(ts);
-			});
+				m_Registry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
+					{
+						// TODO: Move to Scene::OnScenePlay
+						if (!nsc.Instance)
+						{
+							nsc.Instance = nsc.InstantiateScript();
+							nsc.Instance->m_Entity = Entity{ entity, this };
+							nsc.Instance->OnCreate();
+						}
+
+						nsc.Instance->OnUpdate(ts);
+					});
+			}
+
+			// Physics
+			//{
+			//	const int32_t velocityIterations = 6;
+			//	const int32_t positionIterations = 2;
+			//	m_PhysicsWorld->Step(ts, velocityIterations, positionIterations);
+
+			//	// Retrieve transform from Box2D
+			//	auto view = m_Registry.view<Rigidbody2DComponent>();
+			//	for (auto e : view)
+			//	{
+			//		Entity entity = { e, this };
+			//		auto& transform = entity.GetComponent<TransformComponent>();
+			//		auto& rb2d = entity.GetComponent<Rigidbody2DComponent>();
+
+			//		b2Body* body = (b2Body*)rb2d.RuntimeBody;
+
+			//		const auto& position = body->GetPosition();
+			//		transform.Translation.x = position.x;
+			//		transform.Translation.y = position.y;
+			//		transform.Rotation.z = body->GetAngle();
+			//	}
+			//}
 		}
 
+		// Render 2D
 		Camera* mainCamera = nullptr;
-		glm::mat4* cameratransform = nullptr;
+		glm::mat4 cameraTransform;
 		{
 			auto view = m_Registry.view<TransformComponent, CameraComponent>();
-			for (auto entity : view) {
+			for (auto entity : view)
+			{
 				auto [transform, camera] = view.get<TransformComponent, CameraComponent>(entity);
 
 				if (camera.Primary)
 				{
 					mainCamera = &camera.Camera;
-					cameratransform = &transform.GetTransform();
+					cameraTransform = transform.GetTransform();
 					break;
 				}
 			}
 		}
 
-		// Render sprites
-		if(mainCamera)
+		if (mainCamera)
 		{
-			Renderer2D::BeginScene(mainCamera->GetProjection(), *cameratransform);
+			Renderer2D::BeginScene(*mainCamera, cameraTransform);
 
-			auto group = m_Registry.group<TransformComponent>(entt::get<SpriteRendererComponent>);
-			for (auto entity : group)
+			// Draw sprites
 			{
-				auto [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);
+				auto group = m_Registry.group<TransformComponent>(entt::get<SpriteRendererComponent>);
+				for (auto entity : group)
+				{
+					auto [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);
 
-				Renderer2D::DrawQuad(transform.GetTransform(), sprite.Color);
+					Renderer2D::DrawSprite(transform.GetTransform(), sprite, (int)entity);
+				}
 			}
+
+			// Draw circles
+			//{
+			//	auto view = m_Registry.view<TransformComponent, CircleRendererComponent>();
+			//	for (auto entity : view)
+			//	{
+			//		auto [transform, circle] = view.get<TransformComponent, CircleRendererComponent>(entity);
+
+			//		Renderer2D::DrawCircle(transform.GetTransform(), circle.Color, circle.Thickness, circle.Fade, (int)entity);
+			//	}
+			//}
+
+			// Draw text
+			//{
+			//	auto view = m_Registry.view<TransformComponent, TextComponent>();
+			//	for (auto entity : view)
+			//	{
+			//		auto [transform, text] = view.get<TransformComponent, TextComponent>(entity);
+
+			//		Renderer2D::DrawString(text.TextString, transform.GetTransform(), text, (int)entity);
+			//	}
+			//}
 
 			Renderer2D::EndScene();
 		}
 
+	}
+
+	void Scene::OnUpdateEditor(Timestep ts, EditorCamera& camera)
+	{
+		// Render
+		RenderScene(camera);
 	}
 
 	void Scene::OnViewportResize(uint32_t width, uint32_t height)
@@ -123,45 +197,106 @@ namespace AF {
 		}
 	}
 
-	template<typename T>
+	Entity Scene::DuplicateEntity(Entity entity)
+	{
+		// Copy name because we're going to modify component data structure
+		std::string name = entity.GetName();
+		Entity newEntity = CreateEntity(name);
+		CopyComponentIfExists(AllComponents{}, newEntity, entity);
+		return newEntity;
+	}
+
+	Entity Scene::GetPrimaryCameraEntity()
+	{
+		auto view = m_Registry.view<CameraComponent>();
+		for (auto entity : view)
+		{
+			const auto& camera = view.get<CameraComponent>(entity);
+			if (camera.Primary)
+				return Entity{entity, this};
+		}
+		return {};
+	}
+
+	void Scene::RenderScene(EditorCamera& camera)
+	{
+		Renderer2D::BeginScene(camera);
+
+		// Draw sprites
+		{
+			auto group = m_Registry.group<TransformComponent>(entt::get<SpriteRendererComponent>);
+			for (auto entity : group)
+			{
+				auto [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);
+
+				Renderer2D::DrawSprite(transform.GetTransform(), sprite, (int)entity);
+			}
+		}
+
+		// Draw circles
+		//{
+		//	auto view = m_Registry.view<TransformComponent, CircleRendererComponent>();
+		//	for (auto entity : view)
+		//	{
+		//		auto [transform, circle] = view.get<TransformComponent, CircleRendererComponent>(entity);
+
+		//		Renderer2D::DrawCircle(transform.GetTransform(), circle.Color, circle.Thickness, circle.Fade, (int)entity);
+		//	}
+		//}
+
+		// Draw text
+		//{
+		//	auto view = m_Registry.view<TransformComponent, TextComponent>();
+		//	for (auto entity : view)
+		//	{
+		//		auto [transform, text] = view.get<TransformComponent, TextComponent>(entity);
+
+		//		Renderer2D::DrawString(text.TextString, transform.GetTransform(), text, (int)entity);
+		//	}
+		//}
+
+		Renderer2D::EndScene();
+	}
+
+	template <typename T>
 	void Scene::OnComponentAdded(Entity entity, T& component)
 	{
 		static_assert(sizeof(T) == 0);
 	}
 
-	template<>
+	template <>
 	void Scene::OnComponentAdded<IDComponent>(Entity entity, IDComponent& component)
 	{
 	}
 
-	template<>
+	template <>
 	void Scene::OnComponentAdded<TagComponent>(Entity entity, TagComponent& component)
 	{
 	}
 
-	template<>
+	template <>
 	void Scene::OnComponentAdded<TransformComponent>(Entity entity, TransformComponent& component)
 	{
 	}
 
-	template<>
+	template <>
 	void Scene::OnComponentAdded<SpriteRendererComponent>(Entity entity, SpriteRendererComponent& component)
 	{
 	}
 
-	template<>
+	template <>
 	void Scene::OnComponentAdded<CameraComponent>(Entity entity, CameraComponent& component)
 	{
 		if (m_ViewportWidth > 0 && m_ViewportHeight > 0)
 			component.Camera.SetViewportSize(m_ViewportWidth, m_ViewportHeight);
 	}
 
-	template<>
+	template <>
 	void Scene::OnComponentAdded<ScriptComponent>(Entity entity, ScriptComponent& component)
 	{
 	}
 
-	template<>
+	template <>
 	void Scene::OnComponentAdded<NativeScriptComponent>(Entity entity, NativeScriptComponent& component)
 	{
 	}

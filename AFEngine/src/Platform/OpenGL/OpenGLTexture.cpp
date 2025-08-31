@@ -4,14 +4,12 @@
 #include <stb_image.h>
 
 namespace AF {
-
 	namespace Utils {
-
 		static GLenum HazelImageFormatToGLDataFormat(ImageFormat format)
 		{
 			switch (format)
 			{
-			case ImageFormat::RGB8:  return GL_RGB;
+			case ImageFormat::RGB8: return GL_RGB;
 			case ImageFormat::RGBA8: return GL_RGBA;
 			}
 
@@ -23,14 +21,13 @@ namespace AF {
 		{
 			switch (format)
 			{
-			case ImageFormat::RGB8:  return GL_RGB8;
+			case ImageFormat::RGB8: return GL_RGB8;
 			case ImageFormat::RGBA8: return GL_RGBA8;
 			}
 
 			//AF_CORE_ASSERT(false);
 			return 0;
 		}
-
 	}
 
 	OpenGLTexture2D::OpenGLTexture2D(const TextureSpecification& specification)

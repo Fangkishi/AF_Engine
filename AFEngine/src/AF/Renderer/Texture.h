@@ -5,7 +5,6 @@
 #include "AF/Core/Base.h"
 
 namespace AF {
-
 	enum class ImageFormat
 	{
 		None = 0,
@@ -51,5 +50,4 @@ namespace AF {
 		static Ref<Texture2D> Create(const TextureSpecification& specification);
 		static Ref<Texture2D> Create(const std::string& path);
 	};
-
 }

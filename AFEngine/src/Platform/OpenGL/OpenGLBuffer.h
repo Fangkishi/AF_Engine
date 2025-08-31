@@ -3,7 +3,6 @@
 #include "AF/Renderer/Buffer.h"
 
 namespace AF {
-
 	class OpenGLVertexBuffer : public VertexBuffer
 	{
 	public:
@@ -18,6 +17,7 @@ namespace AF {
 
 		virtual const BufferLayout& GetLayout() const override { return m_Layout; };
 		virtual void SetLayout(const BufferLayout& layout) override { m_Layout = layout; };
+
 	private:
 		uint32_t m_RendererID;
 		BufferLayout m_Layout;
@@ -33,9 +33,9 @@ namespace AF {
 		virtual void Unbind() const;
 
 		virtual uint32_t GetCount() const { return m_Count; }
+
 	private:
 		uint32_t m_RendererID;
 		uint32_t m_Count;
 	};
-
 }

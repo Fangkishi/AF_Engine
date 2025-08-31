@@ -7,7 +7,6 @@
 #include "AF/Events/MouseEvent.h"
 
 namespace AF {
-
 	class ImGuiLayer : public Layer
 	{
 	public:
@@ -27,8 +26,8 @@ namespace AF {
 		void SetDarkThemeColors();
 
 		uint32_t GetActiveWidgetID() const;
+
 	private:
 		bool m_BlockEvents = true;
 	};
-
 }

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "AF/Debug/Instrumentor.h"
 #include "AF/Core/Base.h"
 
 namespace AF {
@@ -17,12 +18,12 @@ namespace AF {
 	enum EventCategory
 	{
 		None = 0,
-		EventCategoryApplication    = BIT(0),
-		EventCategoryInput          = BIT(1),
-		EventCategoryKeyboard       = BIT(2),
-		EventCategoryMouse          = BIT(3),
-		EventCategoryMouseButton    = BIT(4),
-		EventCategoryDispose        = BIT(5)
+		EventCategoryApplication = BIT(0),
+		EventCategoryInput = BIT(1),
+		EventCategoryKeyboard = BIT(2),
+		EventCategoryMouse = BIT(3),
+		EventCategoryMouseButton = BIT(4),
+		EventCategoryDispose = BIT(5)
 	};
 
 #define EVENT_CLASS_TYPE(type) static EventType GetStaticType() { return EventType::type; }\
@@ -58,7 +59,7 @@ namespace AF {
 		}
 
 		// F will be deduced by the compiler
-		template<typename T, typename F>
+		template <typename T, typename F>
 		bool Dispatch(const F& func)
 		{
 			if (m_Event.GetEventType() == T::GetStaticType())
@@ -68,6 +69,7 @@ namespace AF {
 			}
 			return false;
 		}
+
 	private:
 		Event& m_Event;
 	};

@@ -5,7 +5,6 @@
 #include <glm/glm.hpp>
 
 namespace AF {
-
 	class RendererAPI
 	{
 	public:
@@ -13,6 +12,7 @@ namespace AF {
 		{
 			None = 0, OpenGL = 1
 		};
+
 	public:
 		virtual ~RendererAPI() = default;
 
@@ -27,8 +27,8 @@ namespace AF {
 		virtual void SetLineWidth(float width) = 0;
 
 		static API GetAPI() { return s_API; }
+
 	private:
 		static API s_API;
 	};
-
 }

@@ -5,7 +5,6 @@
 struct GLFWwindow;
 
 namespace AF {
-
 	class OpenGLContext : public GraphicsContext
 	{
 	public:
@@ -13,8 +12,8 @@ namespace AF {
 
 		virtual void Init() override;
 		virtual void SwapBuffers() override;
+
 	private:
 		GLFWwindow* m_WindowHandle;
 	};
-
 }

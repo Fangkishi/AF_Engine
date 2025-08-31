@@ -1,7 +1,6 @@
 #pragma once
 
 namespace AF {
-
 	class UUID
 	{
 	public:
@@ -10,16 +9,17 @@ namespace AF {
 		UUID(const UUID&) = default;
 
 		operator uint64_t() const { return m_UUID; }
+
 	private:
 		uint64_t m_UUID;
 	};
-
 }
 
 namespace std {
-	template <typename T> struct hash;
+	template <typename T>
+	struct hash;
 
-	template<>
+	template <>
 	struct hash<AF::UUID>
 	{
 		std::size_t operator()(const AF::UUID& uuid) const
@@ -27,5 +27,4 @@ namespace std {
 			return (uint64_t)uuid;
 		}
 	};
-
 }

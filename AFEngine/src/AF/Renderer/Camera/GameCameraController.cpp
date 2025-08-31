@@ -5,7 +5,6 @@
 #include "AF/Core/KeyCodes.h"
 
 namespace AF {
-
 	GameCameraController::GameCameraController(float fovy, float aspectRatio)
 		: CameraController(), m_Camera(fovy, aspectRatio)
 	{
@@ -16,11 +15,12 @@ namespace AF {
 	{
 		AF_PROFILE_FUNCTION();
 
-		ts = ts > 1 / 200.0f ? 1 / 200.0f : ts;//根据每帧耗时决定，过滤突变帧
+		ts = ts > 1 / 200.0f ? 1 / 200.0f : ts; //根据每帧耗时决定，过滤突变帧
 		auto mousePosition = AF::Input::GetMousePosition();
 		bool mouseMoved = false;
-		if (AF::Input::IsMouseButtonPressed(Mouse::ButtonRight)) {
-			float deltaX = (mousePosition.x - m_CurrentX) * m_Sensitivity * 1.0f /200.0f;
+		if (AF::Input::IsMouseButtonPressed(Mouse::ButtonRight))
+		{
+			float deltaX = (mousePosition.x - m_CurrentX) * m_Sensitivity * 1.0f / 200.0f;
 			float deltaY = (mousePosition.y - m_CurrentY) * m_Sensitivity * 1.0f / 200.0f;
 
 			Pitch(-deltaY);
@@ -30,7 +30,8 @@ namespace AF {
 			m_CurrentY = mousePosition.y;
 			mouseMoved = true;
 		}
-		else {
+		else
+		{
 			// 如果没有按下右键，更新鼠标位置但不旋转相机
 			m_CurrentX = mousePosition.x;
 			m_CurrentY = mousePosition.y;
@@ -45,38 +46,46 @@ namespace AF {
 
 		auto right = m_Camera.GetRight();
 
-		if (Input::IsKeyPressed(Key::W)) {
+		if (Input::IsKeyPressed(Key::W))
+		{
 			direction += front;
 		}
 
-		if (Input::IsKeyPressed(Key::S)) {
+		if (Input::IsKeyPressed(Key::S))
+		{
 			direction -= front;
 		}
 
-		if (Input::IsKeyPressed(Key::A)) {
+		if (Input::IsKeyPressed(Key::A))
+		{
 			direction -= right;
 		}
 
-		if (Input::IsKeyPressed(Key::D)) {
+		if (Input::IsKeyPressed(Key::D))
+		{
 			direction += right;
 		}
 
-		if (Input::IsKeyPressed(Key::Space)) {
+		if (Input::IsKeyPressed(Key::Space))
+		{
 			direction += up;
 		}
 
-		if (Input::IsKeyPressed(Key::LeftControl)) {
+		if (Input::IsKeyPressed(Key::LeftControl))
+		{
 			direction -= up;
 		}
 
 		//归一化
-		if (glm::length(direction) != 0) {
+		if (glm::length(direction) != 0)
+		{
 			direction = glm::normalize(direction);
 			glm::vec3 position = m_Camera.GetPosition() + direction * m_CameraTranslationSpeed * (float)ts;
 			m_Camera.SetPosition(position);
 		}
-		
-		if (mouseMoved) {
+
+		if (mouseMoved)
+		{
 			//仅当鼠标移动但没有位置变化时，手动更新视图矩阵
 			m_Camera.RecalculateViewMatrix();
 		}
@@ -119,7 +128,8 @@ namespace AF {
 	void GameCameraController::Pitch(float angle)
 	{
 		m_Pitch += angle;
-		if (m_Pitch > 89.0f || m_Pitch < -89.0f) {
+		if (m_Pitch > 89.0f || m_Pitch < -89.0f)
+		{
 			m_Pitch -= angle;
 			return;
 		}
@@ -136,5 +146,4 @@ namespace AF {
 		m_Camera.SetUp(mat * glm::vec4(m_Camera.GetUp(), 0.0f));
 		m_Camera.SetRight(mat * glm::vec4(m_Camera.GetRight(), 0.0f));
 	}
-
 }

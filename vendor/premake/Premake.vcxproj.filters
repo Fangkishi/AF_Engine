@@ -13,6 +13,9 @@
     <Filter Include="..\AFEngine\vendor">
       <UniqueIdentifier>{6AEB13AE-56CF-D403-BF2F-CF56AB32BF85}</UniqueIdentifier>
     </Filter>
+    <Filter Include="..\AFEngine\vendor\Box2D">
+      <UniqueIdentifier>{F8FC40B8-E421-9038-0D6D-75C8F9F08E56}</UniqueIdentifier>
+    </Filter>
     <Filter Include="..\AFEngine\vendor\GLFW">
       <UniqueIdentifier>{E958FC98-5590-4430-5E9A-A853CA506B29}</UniqueIdentifier>
     </Filter>
@@ -35,6 +38,9 @@
     </None>
     <None Include="..\..\AFEngine\premake5.lua">
       <Filter>..\AFEngine</Filter>
+    </None>
+    <None Include="..\..\AFEngine\vendor\Box2D\premake5.lua">
+      <Filter>..\AFEngine\vendor\Box2D</Filter>
     </None>
     <None Include="..\..\AFEngine\vendor\GLFW\premake5.lua">
       <Filter>..\AFEngine\vendor\GLFW</Filter>

@@ -3,6 +3,7 @@
 #include "AF/Core/Base.h"
 
 namespace AF {
+
 	enum class FramebufferTextureFormat
 	{
 		None = 0,
@@ -71,4 +72,5 @@ namespace AF {
 
 		static Ref<Framebuffer> Create(const FramebufferSpecification& spec);
 	};
+
 }

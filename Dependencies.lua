@@ -2,11 +2,10 @@
 -- AF Dependencies
 
 
-
 IncludeDir = {}
 IncludeDir["stb_image"] = "%{wks.location}/AFEngine/vendor/stb_image"
 IncludeDir["yaml_cpp"] = "%{wks.location}/AFEngine/vendor/yaml-cpp/include"
-
+IncludeDir["Box2D"] = "%{wks.location}/AFEngine/vendor/Box2D/include"
 
 IncludeDir["GLFW"] = "%{wks.location}/AFEngine/vendor/GLFW/include"
 IncludeDir["Glad"] = "%{wks.location}/AFEngine/vendor/Glad/include"
@@ -15,4 +14,3 @@ IncludeDir["ImGuizmo"] = "%{wks.location}/AFEngine/vendor/ImGuizmo"
 
 IncludeDir["glm"] = "%{wks.location}/AFEngine/vendor/glm"
 IncludeDir["entt"] = "%{wks.location}/AFEngine/vendor/entt/include"
-

@@ -52,6 +52,8 @@ namespace AF {
 
 		inline static Application& Get() { return *s_Instance; }
 
+		const ApplicationSpecification& GetSpecification() const { return m_Specification; }
+
 	private:
 		bool OnWindowClose(WindowCloseEvent& e);
 		bool OnWindowResize(WindowResizeEvent& e);

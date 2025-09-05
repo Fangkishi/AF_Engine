@@ -29,7 +29,7 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 group "Dependencies"
 	include "vendor/premake"
-
+	include "AFEngine/vendor/Box2D"
 	include "AFEngine/vendor/GLFW"
 	include "AFEngine/vendor/Glad"
 

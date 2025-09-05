@@ -1,12 +1,15 @@
 #include "afpch.h"
 #include "Platform/OpenGL/OpenGLShader.h"
+#include "AF/Core/Timer.h"
 
 #include <fstream>
 
 #include <glm/gtc/type_ptr.hpp>
 
 namespace AF {
+
 	namespace Utils {
+
 		static GLenum ShaderTypeFromString(const std::string& type)
 		{
 			if (type == "vertex")
@@ -17,14 +20,31 @@ namespace AF {
 			AF_CORE_ASSERT(false, "Unknown shader type!");
 			return 0;
 		}
+
+		static const char* GetCacheDirectory()
+		{
+			// TODO: make sure the assets directory is valid
+			return "assets/cache/shader/opengl";
+		}
+
+		static void CreateCacheDirectoryIfNeeded()
+		{
+			std::string cacheDirectory = GetCacheDirectory();
+			if (!std::filesystem::exists(cacheDirectory))
+				std::filesystem::create_directories(cacheDirectory);
+		}
+
 	}
 
 	OpenGLShader::OpenGLShader(const std::string& filepath)
 	{
 		AF_PROFILE_FUNCTION();
 
+		Utils::CreateCacheDirectoryIfNeeded();
+
 		std::string source = ReadFile(filepath);
 		auto shaderSources = PreProcess(source);
+
 		Compile(shaderSources);
 
 		//从文件路径获取着色器名称
@@ -103,7 +123,6 @@ namespace AF {
 
 		return shaderSources;
 	}
-
 
 	void OpenGLShader::Compile(const std::unordered_map<GLenum, std::string>& shaderSources)
 	{
@@ -190,14 +209,12 @@ namespace AF {
 		m_RendererID = program;
 	}
 
-
 	void OpenGLShader::Bind() const
 	{
 		AF_PROFILE_FUNCTION();
 
 		glUseProgram(m_RendererID);
 	}
-
 
 	void OpenGLShader::Unbind() const
 	{
@@ -278,13 +295,11 @@ namespace AF {
 		glUniform1f(location, value);
 	}
 
-
 	void OpenGLShader::UploadUniformFloat2(const std::string& name, const glm::vec2& value)
 	{
 		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
 		glUniform2f(location, value.x, value.y);
 	}
-
 
 	void OpenGLShader::UploadUniformFloat3(const std::string& name, const glm::vec3& value)
 	{
@@ -292,13 +307,11 @@ namespace AF {
 		glUniform3f(location, value.x, value.y, value.z);
 	}
 
-
 	void OpenGLShader::UploadUniformFloat4(const std::string& name, const glm::vec4& value)
 	{
 		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
 		glUniform4f(location, value.x, value.y, value.z, value.w);
 	}
-
 
 	void OpenGLShader::UploadUniformMat3(const std::string& name, const glm::mat3& matrix)
 	{
@@ -311,4 +324,5 @@ namespace AF {
 		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
 		glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
 	}
+
 }

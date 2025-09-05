@@ -5,6 +5,7 @@
 #include <glad/glad.h>
 
 namespace AF {
+
 	class OpenGLShader : public Shader
 	{
 	public:
@@ -40,10 +41,16 @@ namespace AF {
 	private:
 		std::string ReadFile(const std::string& filepath);
 		std::unordered_map<GLenum, std::string> PreProcess(const std::string& source);
+
+
+
+
 		void Compile(const std::unordered_map<GLenum, std::string>& shaderSources);
 
 	private:
 		uint32_t m_RendererID;
+		std::string m_FilePath;
 		std::string m_Name;
 	};
+
 }

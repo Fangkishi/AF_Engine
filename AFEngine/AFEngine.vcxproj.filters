@@ -19,6 +19,15 @@
     <Filter Include="src\AF\ImGui">
       <UniqueIdentifier>{0D6C5928-F9CE-E8CC-A254-21838E96B44F}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\AF\Math">
+      <UniqueIdentifier>{5C8B4A3F-C840-C334-5135-BD0BBDE9B938}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\AF\Physics">
+      <UniqueIdentifier>{153F1AB7-010D-0EBD-EAA0-7EE3D60DEA21}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\AF\Project">
+      <UniqueIdentifier>{E9DFB3CD-D5AD-A7D3-BE41-18FAAAAE8338}</UniqueIdentifier>
+    </Filter>
     <Filter Include="src\AF\Renderer">
       <UniqueIdentifier>{A9F33C71-157F-AA35-1E90-2D2A8A9A0636}</UniqueIdentifier>
     </Filter>
@@ -138,6 +147,18 @@
     <ClInclude Include="src\AF\ImGui\ImGuiLayer.h">
       <Filter>src\AF\ImGui</Filter>
     </ClInclude>
+    <ClInclude Include="src\AF\Math\Math.h">
+      <Filter>src\AF\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AF\Physics\Physics2D.h">
+      <Filter>src\AF\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AF\Project\Project.h">
+      <Filter>src\AF\Project</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AF\Project\ProjectSerializer.h">
+      <Filter>src\AF\Project</Filter>
+    </ClInclude>
     <ClInclude Include="src\AF\Renderer\Buffer.h">
       <Filter>src\AF\Renderer</Filter>
     </ClInclude>
@@ -162,6 +183,9 @@
     <ClInclude Include="src\AF\Renderer\Camera\PerspectiveCamera.h">
       <Filter>src\AF\Renderer\Camera</Filter>
     </ClInclude>
+    <ClInclude Include="src\AF\Renderer\EditorCamera.h">
+      <Filter>src\AF\Renderer</Filter>
+    </ClInclude>
     <ClInclude Include="src\AF\Renderer\Framebuffer.h">
       <Filter>src\AF\Renderer</Filter>
     </ClInclude>
@@ -184,6 +208,9 @@
       <Filter>src\AF\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\AF\Renderer\Texture.h">
+      <Filter>src\AF\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AF\Renderer\UniformBuffer.h">
       <Filter>src\AF\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\AF\Renderer\VertexArray.h">
@@ -226,6 +253,9 @@
       <Filter>src\Platform\OpenGL</Filter>
     </ClInclude>
     <ClInclude Include="src\Platform\OpenGL\OpenGLTexture.h">
+      <Filter>src\Platform\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Platform\OpenGL\OpenGLUniformBuffer.h">
       <Filter>src\Platform\OpenGL</Filter>
     </ClInclude>
     <ClInclude Include="src\Platform\OpenGL\OpenGLVertexArray.h">
@@ -1497,8 +1527,6 @@
     <ClInclude Include="vendor\stb_image\stb_image.h">
       <Filter>vendor\stb_image</Filter>
     </ClInclude>
-    <ClInclude Include="src\AF\Math\Math.h" />
-    <ClInclude Include="src\AF\Renderer\EditorCamera.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\AF\Core\Application.cpp">
@@ -1525,6 +1553,15 @@
     <ClCompile Include="src\AF\ImGui\ImGuiLayer.cpp">
       <Filter>src\AF\ImGui</Filter>
     </ClCompile>
+    <ClCompile Include="src\AF\Math\Math.cpp">
+      <Filter>src\AF\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AF\Project\Project.cpp">
+      <Filter>src\AF\Project</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AF\Project\ProjectSerializer.cpp">
+      <Filter>src\AF\Project</Filter>
+    </ClCompile>
     <ClCompile Include="src\AF\Renderer\Buffer.cpp">
       <Filter>src\AF\Renderer</Filter>
     </ClCompile>
@@ -1539,6 +1576,9 @@
     </ClCompile>
     <ClCompile Include="src\AF\Renderer\Camera\PerspectiveCamera.cpp">
       <Filter>src\AF\Renderer\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AF\Renderer\EditorCamera.cpp">
+      <Filter>src\AF\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="src\AF\Renderer\Framebuffer.cpp">
       <Filter>src\AF\Renderer</Filter>
@@ -1562,6 +1602,9 @@
       <Filter>src\AF\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="src\AF\Renderer\Texture.cpp">
+      <Filter>src\AF\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AF\Renderer\UniformBuffer.cpp">
       <Filter>src\AF\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="src\AF\Renderer\VertexArray.cpp">
@@ -1597,6 +1640,9 @@
     <ClCompile Include="src\Platform\OpenGL\OpenGLTexture.cpp">
       <Filter>src\Platform\OpenGL</Filter>
     </ClCompile>
+    <ClCompile Include="src\Platform\OpenGL\OpenGLUniformBuffer.cpp">
+      <Filter>src\Platform\OpenGL</Filter>
+    </ClCompile>
     <ClCompile Include="src\Platform\OpenGL\OpenGLVertexArray.cpp">
       <Filter>src\Platform\OpenGL</Filter>
     </ClCompile>
@@ -1618,7 +1664,5 @@
     <ClCompile Include="vendor\stb_image\stb_image.cpp">
       <Filter>vendor\stb_image</Filter>
     </ClCompile>
-    <ClCompile Include="src\AF\Math\Math.cpp" />
-    <ClCompile Include="src\AF\Renderer\EditorCamera.cpp" />
   </ItemGroup>
 </Project>

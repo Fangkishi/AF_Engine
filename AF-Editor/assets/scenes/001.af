@@ -1,40 +1,32 @@
 Scene: Untitled
 Entities:
-  - Entity: 8646981479281738797
-    TagComponent:
-      Tag: Empty Entity
-    TransformComponent:
-      Translation: [0, 0, 0]
-      Rotation: [0, 0, 0]
-      Scale: [1, 1, 1]
-    SpriteRendererComponent:
-      Color: [1, 1, 1, 1]
-      TilingFactor: 1
-  - Entity: 17854749382233787292
-    TagComponent:
-      Tag: Camera Entity
-    TransformComponent:
-      Translation: [0, 0, 0]
-      Rotation: [0, 0, 0]
-      Scale: [1, 1, 1]
-    CameraComponent:
-      Camera:
-        ProjectionType: 1
-        PerspectiveFOV: 0.785398185
-        PerspectiveNear: 0.00999999978
-        PerspectiveFar: 1000
-        OrthographicSize: 10
-        OrthographicNear: -1
-        OrthographicFar: 1
-      Primary: true
-      FixedAspectRatio: false
   - Entity: 3362820579732930154
     TagComponent:
-      Tag: square
+      Tag: font
     TransformComponent:
-      Translation: [0, 0, 0]
+      Translation: [0, 0, 0.5]
       Rotation: [0, 0, 0]
       Scale: [1, 1, 1]
     SpriteRendererComponent:
       Color: [0, 1, 1, 1]
+      TilingFactor: 1
+  - Entity: 10837853308959844929
+    TagComponent:
+      Tag: right
+    TransformComponent:
+      Translation: [0.5, 0, 0]
+      Rotation: [0, -1.57079637, 0]
+      Scale: [1, 1, 1]
+    SpriteRendererComponent:
+      Color: [0.211893082, 0.265777826, 0.266409278, 1]
+      TilingFactor: 1
+  - Entity: 8646981479281738797
+    TagComponent:
+      Tag: up
+    TransformComponent:
+      Translation: [0, 0.5, 0]
+      Rotation: [-1.57079637, 0, 0]
+      Scale: [1, 1, 1]
+    SpriteRendererComponent:
+      Color: [0.234686449, 0.35135138, 0.33108142, 1]
       TilingFactor: 1

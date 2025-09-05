@@ -41,6 +41,7 @@ project "AFEngine"
 		"%{IncludeDir.entt}",
 		"%{IncludeDir.yaml_cpp}",
 		"%{IncludeDir.ImGuizmo}",
+		"%{IncludeDir.Box2D}",
 	}
 
 	links
@@ -50,6 +51,7 @@ project "AFEngine"
 		"ImGui",
 		"yaml-cpp",
 		"opengl32.lib",
+		"Box2D",
 	}
 
 	filter "files:vendor/ImGuizmo/**.cpp"

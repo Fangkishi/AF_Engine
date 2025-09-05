@@ -79,6 +79,7 @@
   <ItemGroup>
     <None Include="..\..\AF-Editor\premake5.lua" />
     <None Include="..\..\AFEngine\premake5.lua" />
+    <None Include="..\..\AFEngine\vendor\Box2D\premake5.lua" />
     <None Include="..\..\AFEngine\vendor\GLFW\premake5.lua" />
     <None Include="..\..\AFEngine\vendor\GLad\premake5.lua" />
     <None Include="..\..\AFEngine\vendor\imgui\premake5.lua" />

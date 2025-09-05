@@ -3,6 +3,7 @@
 #include "AF/Renderer/Framebuffer.h"
 
 namespace AF {
+
 	class OpenGLFramebuffer : public Framebuffer
 	{
 	public:
@@ -37,4 +38,5 @@ namespace AF {
 		std::vector<uint32_t> m_ColorAttachments;
 		uint32_t m_DepthAttachment = 0;
 	};
+
 }

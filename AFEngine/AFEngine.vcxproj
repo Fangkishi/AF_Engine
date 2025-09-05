@@ -77,7 +77,7 @@
       <PrecompiledHeaderFile>afpch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;GLFW_INCLUDE_NONE;YAML_CPP_STATIC_DEFINE;AF_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\GLFW\include;vendor\Glad\include;vendor\ImGui;vendor\glm;vendor\stb_image;vendor\entt\include;vendor\yaml-cpp\include;vendor\ImGuizmo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\GLFW\include;vendor\Glad\include;vendor\ImGui;vendor\glm;vendor\stb_image;vendor\entt\include;vendor\yaml-cpp\include;vendor\ImGuizmo;vendor\Box2D\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <MinimalRebuild>false</MinimalRebuild>
@@ -101,7 +101,7 @@
       <PrecompiledHeaderFile>afpch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;GLFW_INCLUDE_NONE;YAML_CPP_STATIC_DEFINE;AF_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\GLFW\include;vendor\Glad\include;vendor\ImGui;vendor\glm;vendor\stb_image;vendor\entt\include;vendor\yaml-cpp\include;vendor\ImGuizmo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\GLFW\include;vendor\Glad\include;vendor\ImGui;vendor\glm;vendor\stb_image;vendor\entt\include;vendor\yaml-cpp\include;vendor\ImGuizmo;vendor\Box2D\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -128,7 +128,7 @@
       <PrecompiledHeaderFile>afpch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;GLFW_INCLUDE_NONE;YAML_CPP_STATIC_DEFINE;AF_DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\GLFW\include;vendor\Glad\include;vendor\ImGui;vendor\glm;vendor\stb_image;vendor\entt\include;vendor\yaml-cpp\include;vendor\ImGuizmo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;vendor\spdlog\include;vendor\GLFW\include;vendor\Glad\include;vendor\ImGui;vendor\glm;vendor\stb_image;vendor\entt\include;vendor\yaml-cpp\include;vendor\ImGuizmo;vendor\Box2D\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -174,6 +174,9 @@
     <ClInclude Include="src\AF\Events\MouseEvent.h" />
     <ClInclude Include="src\AF\ImGui\ImGuiLayer.h" />
     <ClInclude Include="src\AF\Math\Math.h" />
+    <ClInclude Include="src\AF\Physics\Physics2D.h" />
+    <ClInclude Include="src\AF\Project\Project.h" />
+    <ClInclude Include="src\AF\Project\ProjectSerializer.h" />
     <ClInclude Include="src\AF\Renderer\Buffer.h" />
     <ClInclude Include="src\AF\Renderer\Camera.h" />
     <ClInclude Include="src\AF\Renderer\Camera\CameraBase.h" />
@@ -191,6 +194,7 @@
     <ClInclude Include="src\AF\Renderer\RendererAPI.h" />
     <ClInclude Include="src\AF\Renderer\Shader.h" />
     <ClInclude Include="src\AF\Renderer\Texture.h" />
+    <ClInclude Include="src\AF\Renderer\UniformBuffer.h" />
     <ClInclude Include="src\AF\Renderer\VertexArray.h" />
     <ClInclude Include="src\AF\Scene\Components.h" />
     <ClInclude Include="src\AF\Scene\Entity.h" />
@@ -205,6 +209,7 @@
     <ClInclude Include="src\Platform\OpenGL\OpenGLRendererAPI.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLShader.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLTexture.h" />
+    <ClInclude Include="src\Platform\OpenGL\OpenGLUniformBuffer.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLVertexArray.h" />
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h" />
     <ClInclude Include="src\afpch.h" />
@@ -639,6 +644,8 @@
     <ClCompile Include="src\AF\ImGui\ImGuiBuild.cpp" />
     <ClCompile Include="src\AF\ImGui\ImGuiLayer.cpp" />
     <ClCompile Include="src\AF\Math\Math.cpp" />
+    <ClCompile Include="src\AF\Project\Project.cpp" />
+    <ClCompile Include="src\AF\Project\ProjectSerializer.cpp" />
     <ClCompile Include="src\AF\Renderer\Buffer.cpp" />
     <ClCompile Include="src\AF\Renderer\Camera\GameCameraController.cpp" />
     <ClCompile Include="src\AF\Renderer\Camera\OrthographicCamera.cpp" />
@@ -653,6 +660,7 @@
     <ClCompile Include="src\AF\Renderer\RendererAPI.cpp" />
     <ClCompile Include="src\AF\Renderer\Shader.cpp" />
     <ClCompile Include="src\AF\Renderer\Texture.cpp" />
+    <ClCompile Include="src\AF\Renderer\UniformBuffer.cpp" />
     <ClCompile Include="src\AF\Renderer\VertexArray.cpp" />
     <ClCompile Include="src\AF\Scene\Entity.cpp" />
     <ClCompile Include="src\AF\Scene\Scene.cpp" />
@@ -664,6 +672,7 @@
     <ClCompile Include="src\Platform\OpenGL\OpenGLRendererAPI.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLShader.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLTexture.cpp" />
+    <ClCompile Include="src\Platform\OpenGL\OpenGLUniformBuffer.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLVertexArray.cpp" />
     <ClCompile Include="src\Platform\Windows\WindowsInput.cpp" />
     <ClCompile Include="src\Platform\Windows\WindowsPlatformUtils.cpp" />
@@ -688,6 +697,9 @@
     </ProjectReference>
     <ProjectReference Include="vendor\yaml-cpp\yaml-cpp.vcxproj">
       <Project>{88F1A057-74BE-FB62-9DD7-E90A890331F1}</Project>
+    </ProjectReference>
+    <ProjectReference Include="vendor\Box2D\Box2D.vcxproj">
+      <Project>{A434E80C-1049-10BE-D9CA-B31D459E0CEF}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

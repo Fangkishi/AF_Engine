@@ -3,6 +3,7 @@
 
 #include "Components.h"
 #include "ScriptableEntity.h"
+#include "AF/Renderer/Renderer.h"
 #include "AF/Renderer/Renderer2D.h"
 #include "AF/Physics/Physics2D.h"
 
@@ -435,7 +436,6 @@ namespace AF {
 	void Scene::RenderScene(EditorCamera& camera)
 	{
 		Renderer2D::BeginScene(camera);
-
 		// Draw sprites
 		{
 			auto group = m_Registry.group<TransformComponent>(entt::get<SpriteRendererComponent>);
@@ -468,8 +468,19 @@ namespace AF {
 		//		Renderer2D::DrawString(text.TextString, transform.GetTransform(), text, (int)entity);
 		//	}
 		//}
-
 		Renderer2D::EndScene();
+
+		Renderer::BeginScene(camera);
+		{
+			auto view = m_Registry.view<TransformComponent, MeshComponent, MaterialComponent>();
+			for (auto entity : view)
+			{
+				auto [transform, mesh, material] = view.get<TransformComponent, MeshComponent, MaterialComponent>(entity);
+
+				Renderer::SubmitMesh(mesh.mesh, material.material, transform.GetTransform(), (int)entity);
+			}
+		}
+		Renderer::EndScene();
 	}
 
 	template <typename T>
@@ -532,6 +543,16 @@ namespace AF {
 
 	template<>
 	void Scene::OnComponentAdded<CircleCollider2DComponent>(Entity entity, CircleCollider2DComponent& component)
+	{
+	}
+
+	template<>
+	void Scene::OnComponentAdded<MeshComponent>(Entity entity, MeshComponent& component)
+	{
+	}
+
+	template<>
+	void Scene::OnComponentAdded<MaterialComponent>(Entity entity, MaterialComponent& component)
 	{
 	}
 

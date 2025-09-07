@@ -1,0 +1,81 @@
+Scene: Untitled
+Entities:
+  - Entity: 6617449986954770762
+    TagComponent:
+      Tag: Empty Entity
+    TransformComponent:
+      Translation: [1.61577368, 2.11623573, -6.05359674e-08]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    CircleRendererComponent:
+      Color: [0.606177568, 0.27149266, 0.27149266, 1]
+      Thickness: 0.224999994
+      Fade: 0.00499999989
+    Rigidbody2DComponent:
+      BodyType: Dynamic
+      FixedRotation: false
+    CircleCollider2DComponent:
+      Offset: [0, 0]
+      Radius: 0.5
+      Density: 1
+      Friction: 0.5
+      Restitution: 0
+      RestitutionThreshold: 0.5
+  - Entity: 6708834896043861154
+    TagComponent:
+      Tag: Empty Entity
+    TransformComponent:
+      Translation: [0, 0, 0]
+      Rotation: [0.0596544892, -0.0129845636, -0.60579282]
+      Scale: [15.5189667, 0.969999492, 0.969999015]
+    SpriteRendererComponent:
+      Color: [1, 0.486486435, 0, 1]
+      TilingFactor: 1
+    Rigidbody2DComponent:
+      BodyType: Static
+      FixedRotation: false
+    BoxCollider2DComponent:
+      Offset: [0, 0]
+      Size: [0.5, 0.5]
+      Density: 1
+      Friction: 0.5
+      Restitution: 0
+      RestitutionThreshold: 0.5
+  - Entity: 5787404091200963548
+    TagComponent:
+      Tag: Empty Entity
+    TransformComponent:
+      Translation: [0, 2.11623573, -6.05359674e-08]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    SpriteRendererComponent:
+      Color: [0.146315649, 0.583011627, 0.497021258, 1]
+      TilingFactor: 1
+    Rigidbody2DComponent:
+      BodyType: Dynamic
+      FixedRotation: false
+    BoxCollider2DComponent:
+      Offset: [0, 0]
+      Size: [0.5, 0.5]
+      Density: 1
+      Friction: 0.800000012
+      Restitution: 0.300000012
+      RestitutionThreshold: 0.5
+  - Entity: 4560729501632589622
+    TagComponent:
+      Tag: Empty Entity
+    TransformComponent:
+      Translation: [0, 0, 0]
+      Rotation: [0, 0, 0]
+      Scale: [1, 1, 1]
+    CameraComponent:
+      Camera:
+        ProjectionType: 1
+        PerspectiveFOV: 0.785398185
+        PerspectiveNear: 0.00999999978
+        PerspectiveFar: 1000
+        OrthographicSize: 7
+        OrthographicNear: -1
+        OrthographicFar: 1
+      Primary: true
+      FixedAspectRatio: false

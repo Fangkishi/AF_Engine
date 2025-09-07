@@ -59,7 +59,8 @@ namespace AF {
 		glm::vec2 m_InitialMousePosition = { 0.0f, 0.0f };
 
 		float m_Distance = 10.0f;
-		float m_Pitch = glm::radians(35.264f), m_Yaw = glm::radians(-45.0f);;
+		//float m_Pitch = glm::radians(35.264f), m_Yaw = glm::radians(-45.0f);
+		float m_Pitch = 0, m_Yaw = 0;
 
 		float m_ViewportWidth = 1280, m_ViewportHeight = 720;
 	};

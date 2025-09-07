@@ -240,6 +240,8 @@ namespace AF {
 			DisplayAddComponentEntry<BoxCollider2DComponent>("Box Collider 2D");
 			DisplayAddComponentEntry<CircleCollider2DComponent>("Circle Collider 2D");
 			//DisplayAddComponentEntry<TextComponent>("Text Component");
+			DisplayAddComponentEntry<MeshComponent>("Mesh");
+			DisplayAddComponentEntry<MaterialComponent>("Material");
 
 			ImGui::EndPopup();
 		}
@@ -314,8 +316,6 @@ namespace AF {
 			}
 		});
 
-
-
 		DrawComponent<SpriteRendererComponent>("Sprite Renderer", entity, [](auto& component)
 		{
 			ImGui::ColorEdit4("Color", glm::value_ptr(component.Color));
@@ -352,7 +352,7 @@ namespace AF {
 				const char* currentBodyTypeString = bodyTypeStrings[(int)component.Type];
 				if (ImGui::BeginCombo("Body Type", currentBodyTypeString))
 				{
-					for (int i = 0; i < 2; i++)
+					for (int i = 0; i < 3; i++)
 					{
 						bool isSelected = currentBodyTypeString == bodyTypeStrings[i];
 						if (ImGui::Selectable(bodyTypeStrings[i], isSelected))
@@ -389,6 +389,97 @@ namespace AF {
 				ImGui::DragFloat("Friction", &component.Friction, 0.01f, 0.0f, 1.0f);
 				ImGui::DragFloat("Restitution", &component.Restitution, 0.01f, 0.0f, 1.0f);
 				ImGui::DragFloat("Restitution Threshold", &component.RestitutionThreshold, 0.01f, 0.0f);
+			});
+
+		DrawComponent<MeshComponent>("Mesh", entity, [](auto& component)
+			{
+				// TODO: 添加网格选择UI
+				ImGui::Button("Select Mesh", ImVec2(100.0f, 0.0f));
+				if (ImGui::BeginDragDropTarget())
+				{
+					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
+					{
+						// TODO: 处理网格文件拖放
+						const wchar_t* path = (const wchar_t*)payload->Data;
+						// component.mesh = Mesh::CreateFromFile(path);
+					}
+					ImGui::EndDragDropTarget();
+				}
+			});
+
+		DrawComponent<MaterialComponent>("Material", entity, [](auto& component)
+			{
+				if (component.material)
+				{
+					const float thumbnailSize = 64.0f;
+
+					// 漫反射贴图
+					ImGui::Text("Diffuse Map");
+					if (component.material->m_DiffuseMap)
+					{
+						// 显示缩略图并作为拖放目标
+						if (ImGui::ImageButton(
+							(ImTextureID)(uintptr_t)component.material->m_DiffuseMap->GetRendererID(),
+							ImVec2(thumbnailSize, thumbnailSize),
+							ImVec2(0, 1), ImVec2(1, 0)
+						))
+						{
+							// 点击缩略图可以清除
+							component.material->m_DiffuseMap = nullptr;
+						}
+					}
+					else
+					{
+						if (ImGui::Button("##Drag Texture Here", ImVec2(thumbnailSize, thumbnailSize))){}
+					}
+
+					if (ImGui::BeginDragDropTarget())
+					{
+						if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
+						{
+							const wchar_t* path = (const wchar_t*)payload->Data;
+							std::filesystem::path texturePath(path);
+							Ref<Texture2D> texture = Texture2D::Create(texturePath.string());
+							if (texture->IsLoaded())
+								component.material->m_DiffuseMap = texture;
+						}
+						ImGui::EndDragDropTarget();
+					}
+
+					ImGui::Text("Specular Map");
+					if (component.material->m_SpecularMap)
+					{
+						if (ImGui::ImageButton(
+							(ImTextureID)(uintptr_t)component.material->m_SpecularMap->GetRendererID(),
+							ImVec2(thumbnailSize, thumbnailSize),
+							ImVec2(0, 1), ImVec2(1, 0)
+						))
+						{
+							component.material->m_SpecularMap = nullptr;
+						}
+					}
+					else
+					{
+						if (ImGui::Button("##Drag Texture Here", ImVec2(thumbnailSize, thumbnailSize))) {}
+					}
+
+					if (ImGui::BeginDragDropTarget())
+					{
+						if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
+						{
+							const wchar_t* path = (const wchar_t*)payload->Data;
+							std::filesystem::path texturePath(path);
+							Ref<Texture2D> texture = Texture2D::Create(texturePath.string());
+							if (texture->IsLoaded())
+								component.material->m_SpecularMap = texture;
+						}
+						ImGui::EndDragDropTarget();
+					}
+				}
+				else
+				{
+					ImGui::Text("No material assigned");
+				}
 			});
 	}
 

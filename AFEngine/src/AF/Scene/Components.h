@@ -3,6 +3,9 @@
 #include "AF/Core/UUID.h"
 #include "AF/Renderer/Texture.h"
 #include "AF/Scene/SceneCamera.h"
+#include "AF/Renderer/Shader.h"
+#include "AF/Renderer/Mesh.h"
+#include "AF/Renderer/Material.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -11,6 +14,7 @@
 #include <glm/gtx/quaternion.hpp>
 
 namespace AF {
+
 	struct IDComponent
 	{
 		UUID ID;
@@ -121,7 +125,7 @@ namespace AF {
 		}
 	};
 
-	// Physics
+	// 2D Physics
 
 	struct Rigidbody2DComponent
 	{
@@ -172,12 +176,32 @@ namespace AF {
 		CircleCollider2DComponent(const CircleCollider2DComponent&) = default;
 	};
 
+	// 3D
+
+	struct MeshComponent
+	{
+		Ref<Mesh> mesh;
+
+		MeshComponent() = default;
+		MeshComponent(const MeshComponent&) = default;
+	};
+
+	struct MaterialComponent
+	{
+		Ref<Material> material;
+
+		MaterialComponent() = default;
+		MaterialComponent(const MaterialComponent&) = default;
+	};
+
 	template <typename... Component>
 	struct ComponentGroup
 	{
 	};
 
 	using AllComponents =
-		ComponentGroup<TransformComponent, SpriteRendererComponent, CircleRendererComponent, CameraComponent, ScriptComponent, NativeScriptComponent, Rigidbody2DComponent, BoxCollider2DComponent, CircleCollider2DComponent>;
+		ComponentGroup<TransformComponent, SpriteRendererComponent, CircleRendererComponent, 
+		CameraComponent, ScriptComponent, NativeScriptComponent, Rigidbody2DComponent,
+		BoxCollider2DComponent, CircleCollider2DComponent, MeshComponent, MaterialComponent>;
 
 }

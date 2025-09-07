@@ -70,15 +70,15 @@ public:
 
 		m_CameraController->OnUpdate(ts);
 
-		AF::Renderer::BeginScene(m_Camera);
+		//AF::Renderer::BeginScene(m_Camera);
 
-		auto shader = m_ShaderLibrary.Get("Texture");
+		//auto shader = m_ShaderLibrary.Get("Texture");
 
-		m_Texture->Bind();
+		//m_Texture->Bind();
 
-		AF::Renderer::Submit(shader, m_VertexArray);
+		//AF::Renderer::Submit(shader, m_VertexArray);
 
-		AF::Renderer::EndScene();
+		//AF::Renderer::EndScene();
 	}
 
 	virtual void OnImGuiRender() override

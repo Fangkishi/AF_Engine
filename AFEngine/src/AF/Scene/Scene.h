@@ -9,6 +9,7 @@
 class b2World;
 
 namespace AF {
+
 	class Entity;
 
 	class Scene
@@ -76,4 +77,5 @@ namespace AF {
 		friend class SceneSerializer;
 		friend class SceneHierarchyPanel;
 	};
+
 }

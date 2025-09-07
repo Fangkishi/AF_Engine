@@ -58,6 +58,14 @@ namespace AF {
 		//		Application::Get().Close();
 		//}
 
+		auto box = m_ActiveScene->CreateEntity("box");
+		box.AddComponent<MeshComponent>(Mesh::CreateBox(1.0f));
+
+		auto material = CreateRef<Material>();
+		box.AddComponent<MaterialComponent>(material);
+
+		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
+
 		m_ContentBrowserPanel = CreateScope<ContentBrowserPanel>();
 
 		m_EditorCamera = EditorCamera(30.0f, 16.0f / 9.0f, 0.1f, 1000.0f);
@@ -259,6 +267,11 @@ namespace AF {
 		ImGui::Text("Quads: %d", stats.QuadCount);
 		ImGui::Text("Vertices: %d", stats.GetTotalVertexCount());
 		ImGui::Text("Indices: %d", stats.GetTotalIndexCount());
+
+		ImGui::End();
+
+		ImGui::Begin("Settings");
+		ImGui::Checkbox("Show physics colliders", &m_ShowPhysicsColliders);
 
 		ImGui::End();
 
@@ -498,7 +511,7 @@ namespace AF {
 		case Key::D:
 			{
 				if (control)
-					//OnDuplicateEntity();
+					OnDuplicateEntity();
 
 					break;
 			}
@@ -543,7 +556,7 @@ namespace AF {
 					if (selectedEntity)
 					{
 						m_SceneHierarchyPanel.SetSelectedEntity({});
-						m_ActiveScene->DestroyEntity(selectedEntity);
+						m_EditorScene->DestroyEntity(selectedEntity);
 					}
 				}
 				break;
@@ -621,7 +634,7 @@ namespace AF {
 		if (Entity selectedEntity = m_SceneHierarchyPanel.GetSelectedEntity())
 		{
 			const TransformComponent& transform = selectedEntity.GetComponent<TransformComponent>();
-			Renderer2D::DrawRect(transform.GetTransform(), glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
+			//Renderer2D::DrawRect(transform.GetTransform(), glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
 		}
 
 		Renderer2D::EndScene();
@@ -662,9 +675,10 @@ namespace AF {
 
 	void EditorLayer::NewScene()
 	{
-		m_ActiveScene = CreateRef<Scene>();
-		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
+		m_EditorScene = CreateRef<Scene>();
+		m_SceneHierarchyPanel.SetContext(m_EditorScene);
 
+		m_ActiveScene = m_EditorScene;
 		m_EditorScenePath = std::filesystem::path();
 	}
 
@@ -701,7 +715,7 @@ namespace AF {
 	void EditorLayer::SaveScene()
 	{
 		if (!m_EditorScenePath.empty())
-			SerializeScene(m_ActiveScene, m_EditorScenePath);
+			SerializeScene(m_EditorScene, m_EditorScenePath);
 		else
 			SaveSceneAs();
 	}
@@ -711,7 +725,7 @@ namespace AF {
 		std::string filepath = FileDialogs::SaveFile("AF Scene (*.af)\0*.af\0");
 		if (!filepath.empty())
 		{
-			SerializeScene(m_ActiveScene, filepath);
+			SerializeScene(m_EditorScene, filepath);
 			m_EditorScenePath = filepath;
 		}
 	}

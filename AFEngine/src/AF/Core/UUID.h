@@ -1,6 +1,7 @@
 #pragma once
 
 namespace AF {
+
 	class UUID
 	{
 	public:
@@ -13,9 +14,11 @@ namespace AF {
 	private:
 		uint64_t m_UUID;
 	};
+
 }
 
 namespace std {
+
 	template <typename T>
 	struct hash;
 
@@ -27,4 +30,5 @@ namespace std {
 			return (uint64_t)uuid;
 		}
 	};
+
 }

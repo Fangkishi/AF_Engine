@@ -10,7 +10,7 @@ namespace AF {
 	{
 	public:
 		Mesh();
-		Mesh(const Ref<VertexArray> VertexArray, const Ref<VertexBuffer> VertexBuffer, Ref<IndexBuffer> IndexBuffer);
+		Mesh(const Ref<VertexArray> VertexArray, Ref<IndexBuffer> IndexBuffer);
 		~Mesh();
 
 		static Ref<Mesh> CreateBox(float size);

@@ -8,8 +8,8 @@ namespace AF {
 		m_DefaultMaterial = CreateRef<Material>();
 	}
 
-	Mesh::Mesh(const Ref<VertexArray> VertexArray, const Ref<VertexBuffer> VertexBuffer,const Ref<IndexBuffer> IndexBuffer)
-		: m_VertexArray(VertexArray), m_VertexBuffer(VertexBuffer), m_IndexBuffer(IndexBuffer), m_IndexCount(IndexBuffer->GetCount())
+	Mesh::Mesh(const Ref<VertexArray> VertexArray, const Ref<IndexBuffer> IndexBuffer)
+		: m_VertexArray(VertexArray), m_IndexBuffer(IndexBuffer), m_IndexCount(IndexBuffer->GetCount())
 	{
 		m_DefaultMaterial = CreateRef<Material>();
 	}
@@ -75,8 +75,8 @@ namespace AF {
 		};
 
 		// 创建顶点缓冲区
-		mesh->m_VertexBuffer = VertexBuffer::Create(vertices, sizeof(vertices));
-		mesh->m_VertexBuffer->SetLayout({
+		Ref<VertexBuffer> VertexBuffer = VertexBuffer::Create(vertices, sizeof(vertices));
+		VertexBuffer->SetLayout({
 			{ ShaderDataType::Float3, "a_Position" },
 			{ ShaderDataType::Float3, "a_Normal" },
 			{ ShaderDataType::Float2, "a_TexCoord" },
@@ -87,7 +87,7 @@ namespace AF {
 		mesh->m_IndexCount = sizeof(indices) / sizeof(uint32_t);
 
 		// 将缓冲区添加到顶点数组
-		mesh->m_VertexArray->AddVertexBuffer(mesh->m_VertexBuffer);
+		mesh->m_VertexArray->AddVertexBuffer(VertexBuffer);
 		mesh->m_VertexArray->SetIndexBuffer(mesh->m_IndexBuffer);
 
 		return mesh;

@@ -3,6 +3,7 @@
 #include "AF/Project/ProjectSerializer.h"
 #include "AF/Utils/PlatformUtils.h"
 #include "AF/Math/Math.h"
+#include "AF/Loader/AssimpLoader.h"
 
 #include <imgui/imgui.h>
 
@@ -58,11 +59,15 @@ namespace AF {
 		//		Application::Get().Close();
 		//}
 
+#if 0
 		auto box = m_ActiveScene->CreateEntity("box");
 		box.AddComponent<MeshComponent>(Mesh::CreateBox(1.0f));
 
 		auto material = CreateRef<Material>();
 		box.AddComponent<MaterialComponent>(material);
+#endif
+		AssimpLoader::Load("assets/model/house.fbx", m_ActiveScene);
+		//AssimpLoader::Load("assets/model/bag/backpack.obj", m_ActiveScene);
 
 		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
 
@@ -237,6 +242,9 @@ namespace AF {
 
 				if (ImGui::MenuItem("Save Scene As...", "Ctrl+Shift+S"))
 					SaveSceneAs();
+
+				if (ImGui::MenuItem("Import"))
+					ImportModel();
 
 				ImGui::Separator();
 
@@ -727,6 +735,27 @@ namespace AF {
 		{
 			SerializeScene(m_EditorScene, filepath);
 			m_EditorScenePath = filepath;
+		}
+	}
+
+	void EditorLayer::ImportModel()
+	{
+		std::string filepath = FileDialogs::OpenFile(
+			"3D Model Files\0*.fbx;*.obj;*.gltf;*.glb;*.dae;*.blend;*.3ds;*.x;*.stl;*.ply\0"
+			"All Files (*.*)\0*.*\0"
+		);
+
+		if (!filepath.empty())
+		{
+			// 确保使用绝对路径
+			std::filesystem::path absolutePath = std::filesystem::absolute(filepath);
+			std::string normalizedPath = absolutePath.string();
+
+			// 统一路径分隔符
+			std::replace(normalizedPath.begin(), normalizedPath.end(), '\\', '/');
+
+			AF_INFO("Loading: {}", normalizedPath);
+			AssimpLoader::Load(normalizedPath, m_ActiveScene);
 		}
 	}
 

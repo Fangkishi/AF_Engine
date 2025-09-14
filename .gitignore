@@ -6,3 +6,7 @@ bin-int/
 # Files
 *.user
 /AFEngine/src/AF.h
+
+# Build files
+*.lib
+*.pdb

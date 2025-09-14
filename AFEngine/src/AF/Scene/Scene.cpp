@@ -556,4 +556,9 @@ namespace AF {
 	{
 	}
 
+	template<>
+	void Scene::OnComponentAdded<ParentChildComponent>(Entity entity, ParentChildComponent& component)
+	{
+	}
+
 }

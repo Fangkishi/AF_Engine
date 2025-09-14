@@ -22,6 +22,7 @@ project "AF-Editor"
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.ImGuizmo}",
+		"%{IncludeDir.Assimp}",
 	}
 
 	links

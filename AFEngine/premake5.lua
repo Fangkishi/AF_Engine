@@ -42,6 +42,7 @@ project "AFEngine"
 		"%{IncludeDir.yaml_cpp}",
 		"%{IncludeDir.ImGuizmo}",
 		"%{IncludeDir.Box2D}",
+		"%{IncludeDir.Assimp}",
 	}
 
 	links
@@ -66,7 +67,8 @@ project "AFEngine"
 
 		links
 		{
-
+			"%{wks.location}/AFEngine/vendor/Assimp/lib/assimp-vc143-mtd.lib",
+			"%{wks.location}/AFEngine/vendor/Assimp/lib/zlibstaticd.lib"
 		}
 
 	filter "configurations:Debug"

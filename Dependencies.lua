@@ -14,3 +14,4 @@ IncludeDir["ImGuizmo"] = "%{wks.location}/AFEngine/vendor/ImGuizmo"
 
 IncludeDir["glm"] = "%{wks.location}/AFEngine/vendor/glm"
 IncludeDir["entt"] = "%{wks.location}/AFEngine/vendor/entt/include"
+IncludeDir["Assimp"] = "%{wks.location}/AFEngine/vendor/Assimp/include"

@@ -39,7 +39,7 @@ namespace AF {
 		RenderCommand::Init();
 		Renderer2D::Init();
 
-		s_Data.CameraUniformBuffer = UniformBuffer::Create(sizeof(RendererData::CameraData), 0);
+		s_Data.CameraUniformBuffer = UniformBuffer::Create(sizeof(RendererData::CameraData), 1);
 	}
 
 	void Renderer::OnWindowResize(uint32_t width, uint32_t height)
@@ -111,7 +111,6 @@ namespace AF {
 		shader->SetFloat3("u_DirLight.ambient", s_Data.DirLightBuffer.ambient);
 		shader->SetFloat3("u_DirLight.diffuse", s_Data.DirLightBuffer.diffuse);
 		shader->SetFloat3("u_DirLight.specular", s_Data.DirLightBuffer.specular);
-
 		Renderer::Submit([=]()
 			{
 				RenderCommand::DrawIndexed(mesh->m_VertexArray, mesh->m_IndexCount);

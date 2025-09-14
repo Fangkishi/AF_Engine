@@ -19,6 +19,9 @@
     <Filter Include="src\AF\ImGui">
       <UniqueIdentifier>{0D6C5928-F9CE-E8CC-A254-21838E96B44F}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\AF\Loader">
+      <UniqueIdentifier>{0992B83A-7552-3471-3E8D-7DEEAA0C794D}</UniqueIdentifier>
+    </Filter>
     <Filter Include="src\AF\Math">
       <UniqueIdentifier>{5C8B4A3F-C840-C334-5135-BD0BBDE9B938}</UniqueIdentifier>
     </Filter>
@@ -147,6 +150,9 @@
     <ClInclude Include="src\AF\ImGui\ImGuiLayer.h">
       <Filter>src\AF\ImGui</Filter>
     </ClInclude>
+    <ClInclude Include="src\AF\Loader\AssimpLoader.h">
+      <Filter>src\AF\Loader</Filter>
+    </ClInclude>
     <ClInclude Include="src\AF\Math\Math.h">
       <Filter>src\AF\Math</Filter>
     </ClInclude>
@@ -190,6 +196,12 @@
       <Filter>src\AF\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\AF\Renderer\GraphicsContext.h">
+      <Filter>src\AF\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AF\Renderer\Material.h">
+      <Filter>src\AF\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AF\Renderer\Mesh.h">
       <Filter>src\AF\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\AF\Renderer\RenderCommand.h">
@@ -1527,8 +1539,6 @@
     <ClInclude Include="vendor\stb_image\stb_image.h">
       <Filter>vendor\stb_image</Filter>
     </ClInclude>
-    <ClInclude Include="src\AF\Renderer\Mesh.h" />
-    <ClInclude Include="src\AF\Renderer\Material.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\AF\Core\Application.cpp">
@@ -1554,6 +1564,9 @@
     </ClCompile>
     <ClCompile Include="src\AF\ImGui\ImGuiLayer.cpp">
       <Filter>src\AF\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AF\Loader\AssimpLoader.cpp">
+      <Filter>src\AF\Loader</Filter>
     </ClCompile>
     <ClCompile Include="src\AF\Math\Math.cpp">
       <Filter>src\AF\Math</Filter>
@@ -1586,6 +1599,12 @@
       <Filter>src\AF\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="src\AF\Renderer\GraphicsContext.cpp">
+      <Filter>src\AF\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AF\Renderer\Material.cpp">
+      <Filter>src\AF\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AF\Renderer\Mesh.cpp">
       <Filter>src\AF\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="src\AF\Renderer\RenderCommand.cpp">
@@ -1666,7 +1685,5 @@
     <ClCompile Include="vendor\stb_image\stb_image.cpp">
       <Filter>vendor\stb_image</Filter>
     </ClCompile>
-    <ClCompile Include="src\AF\Renderer\Mesh.cpp" />
-    <ClCompile Include="src\AF\Renderer\Material.cpp" />
   </ItemGroup>
 </Project>

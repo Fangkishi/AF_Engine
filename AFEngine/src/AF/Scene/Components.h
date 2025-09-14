@@ -194,6 +194,25 @@ namespace AF {
 		MaterialComponent(const MaterialComponent&) = default;
 	};
 
+	struct ParentChildComponent
+	{
+		UUID ParentID;
+		std::vector<UUID> ChildrenIDs;
+
+		ParentChildComponent() = default;
+		ParentChildComponent(const ParentChildComponent&) = default;
+
+		void AddChild(UUID childID)
+		{
+			ChildrenIDs.push_back(childID);
+		}
+
+		void RemoveChild(UUID childID)
+		{
+			ChildrenIDs.erase(std::remove(ChildrenIDs.begin(), ChildrenIDs.end(), childID), ChildrenIDs.end());
+		}
+	};
+
 	template <typename... Component>
 	struct ComponentGroup
 	{
@@ -202,6 +221,6 @@ namespace AF {
 	using AllComponents =
 		ComponentGroup<TransformComponent, SpriteRendererComponent, CircleRendererComponent, 
 		CameraComponent, ScriptComponent, NativeScriptComponent, Rigidbody2DComponent,
-		BoxCollider2DComponent, CircleCollider2DComponent, MeshComponent, MaterialComponent>;
+		BoxCollider2DComponent, CircleCollider2DComponent, MeshComponent, MaterialComponent, ParentChildComponent>;
 
 }

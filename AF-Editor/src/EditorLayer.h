@@ -38,6 +38,8 @@ namespace AF {
 		void SaveScene();
 		void SaveSceneAs();
 
+		void ImportModel();
+
 		void SerializeScene(Ref<Scene> scene, const std::filesystem::path& path);
 
 		void OnScenePlay();

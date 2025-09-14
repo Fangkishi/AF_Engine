@@ -79,7 +79,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>YAML_CPP_STATIC_DEFINE;AF_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\AFEngine\vendor\spdlog\include;..\AFEngine\src;..\AFEngine\vendor;..\AFEngine\vendor\entt\include;..\AFEngine\vendor\glm;..\AFEngine\vendor\ImGui;..\AFEngine\vendor\ImGuizmo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\AFEngine\vendor\spdlog\include;..\AFEngine\src;..\AFEngine\vendor;..\AFEngine\vendor\entt\include;..\AFEngine\vendor\glm;..\AFEngine\vendor\ImGui;..\AFEngine\vendor\ImGuizmo;..\AFEngine\vendor\Assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <MinimalRebuild>false</MinimalRebuild>
@@ -99,7 +99,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>YAML_CPP_STATIC_DEFINE;AF_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\AFEngine\vendor\spdlog\include;..\AFEngine\src;..\AFEngine\vendor;..\AFEngine\vendor\entt\include;..\AFEngine\vendor\glm;..\AFEngine\vendor\ImGui;..\AFEngine\vendor\ImGuizmo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\AFEngine\vendor\spdlog\include;..\AFEngine\src;..\AFEngine\vendor;..\AFEngine\vendor\entt\include;..\AFEngine\vendor\glm;..\AFEngine\vendor\ImGui;..\AFEngine\vendor\ImGuizmo;..\AFEngine\vendor\Assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -122,7 +122,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>YAML_CPP_STATIC_DEFINE;AF_DIST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\AFEngine\vendor\spdlog\include;..\AFEngine\src;..\AFEngine\vendor;..\AFEngine\vendor\entt\include;..\AFEngine\vendor\glm;..\AFEngine\vendor\ImGui;..\AFEngine\vendor\ImGuizmo;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\AFEngine\vendor\spdlog\include;..\AFEngine\src;..\AFEngine\vendor;..\AFEngine\vendor\entt\include;..\AFEngine\vendor\glm;..\AFEngine\vendor\ImGui;..\AFEngine\vendor\ImGuizmo;..\AFEngine\vendor\Assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -155,9 +155,6 @@
     <ProjectReference Include="..\AFEngine\AFEngine.vcxproj">
       <Project>{02B7CB2D-EE83-2639-179D-14E103C95BC7}</Project>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="assets\shaders\phong.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -44,7 +44,13 @@ namespace AF {
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GL_LEQUAL);
+		glDepthMask(GL_TRUE);
+		glClearDepth(1.0f);
+
 		glEnable(GL_LINE_SMOOTH);
+
+		glDisable(GL_CULL_FACE);
 	}
 
 	void OpenGLRendererAPI::SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height)

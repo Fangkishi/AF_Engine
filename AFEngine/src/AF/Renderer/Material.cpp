@@ -30,12 +30,14 @@ namespace AF {
 		m_DiffuseMap->Bind(0);
 		m_Shader->SetInt("u_DiffuseMap", 0);
 
-		//if (!m_SpecularMap)
-		//{
-		//	m_SpecularMap = m_DefaultMap;
-		//}
-		//m_SpecularMap->Bind(0);
-		//m_Shader->SetInt("u_SpecularMap", 0);
+		if (!m_SpecularMap)
+		{
+			m_SpecularMap = m_DefaultMap;
+		}
+		m_SpecularMap->Bind(1);
+		m_Shader->SetFloat3("u_Material.specularColor", m_SpecularColor);
+		m_Shader->SetFloat("u_Material.shininess", m_Shininess);
+		m_Shader->SetInt("u_SpecularMap", 1);
 	}
 
 }

@@ -32,7 +32,6 @@ group "Dependencies"
 	include "AFEngine/vendor/Box2D"
 	include "AFEngine/vendor/GLFW"
 	include "AFEngine/vendor/Glad"
-
 	include "AFEngine/vendor/imgui"
 	include "AFEngine/vendor/yaml-cpp"
 group ""

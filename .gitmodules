@@ -19,3 +19,6 @@
 [submodule "AFEngine/vendor/Box2D"]
 	path = AFEngine/vendor/Box2D
 	url = https://github.com/TheCherno/box2d
+[submodule "AFEngine/vendor/Assimp"]
+	path = AFEngine/vendor/Assimp
+	url = https://github.com/assimp/assimp.git

@@ -5,7 +5,7 @@
 
 namespace AF {
 	namespace Utils {
-		static GLenum HazelImageFormatToGLDataFormat(ImageFormat format)
+		static GLenum AFImageFormatToGLDataFormat(ImageFormat format)
 		{
 			switch (format)
 			{
@@ -17,7 +17,7 @@ namespace AF {
 			return 0;
 		}
 
-		static GLenum HazelImageFormatToGLInternalFormat(ImageFormat format)
+		static GLenum AFImageFormatToGLInternalFormat(ImageFormat format)
 		{
 			switch (format)
 			{
@@ -35,8 +35,8 @@ namespace AF {
 	{
 		AF_PROFILE_FUNCTION();
 
-		m_InternalFormat = Utils::HazelImageFormatToGLInternalFormat(m_Specification.Format);
-		m_DataFormat = Utils::HazelImageFormatToGLDataFormat(m_Specification.Format);
+		m_InternalFormat = Utils::AFImageFormatToGLInternalFormat(m_Specification.Format);
+		m_DataFormat = Utils::AFImageFormatToGLDataFormat(m_Specification.Format);
 
 		glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID);
 		glTextureStorage2D(m_RendererID, 1, m_InternalFormat, m_Width, m_Height);

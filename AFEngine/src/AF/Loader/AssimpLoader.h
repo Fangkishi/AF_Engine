@@ -13,6 +13,8 @@ namespace AF {
 		static void Load(const std::string& Path, const Ref<Scene>& Scene);
 
 	private:
+		static std::unordered_map<std::string, Ref<Texture2D>> s_TextureCache;
+
 		static void ProcessNode(
 			Ref<Scene> Scene,
 			aiNode* aiNode,
@@ -35,16 +37,12 @@ namespace AF {
 			const std::string& directory
 		);
 
-		static Ref<Texture2D> AssimpLoader::ProcessTexture(
+		static Ref<Texture2D> ProcessTexture(
 			const aiMaterial* aiMaterial,
 			aiTextureType type,
 			const aiScene* aiScene,
 			const std::string& directory
 		);
-
-		static Ref<Texture2D> AssimpLoader::LoadEmbeddedTexture(const aiTexture* embeddedTexture, const std::string& name);
-
-		static Ref<Texture2D> AssimpLoader::LoadExternalTexture(const std::string& filePath);
 
 		static glm::mat4 getMat4f(aiMatrix4x4 value);
 	};

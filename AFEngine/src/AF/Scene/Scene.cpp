@@ -472,12 +472,24 @@ namespace AF {
 
 		Renderer::BeginScene(camera);
 		{
+			// 对相同材质的网格进行分组以减少状态切换
+			std::unordered_map<Ref<Material>, std::vector<std::tuple<Ref<Mesh>, glm::mat4, int>>> materialBatches;
+
 			auto view = m_Registry.view<TransformComponent, MeshComponent, MaterialComponent>();
 			for (auto entity : view)
 			{
 				auto [transform, mesh, material] = view.get<TransformComponent, MeshComponent, MaterialComponent>(entity);
 
-				Renderer::SubmitMesh(mesh.mesh, material.material, transform.GetTransform(), (int)entity);
+				materialBatches[material.material].push_back(std::make_tuple(mesh.mesh, transform.GetTransform(), (int)entity));
+			}
+
+			// 按材质批处理渲染
+			for (const auto& [material, meshList] : materialBatches)
+			{
+				for (const auto& [mesh, transform, entityId] : meshList)
+				{
+					Renderer::SubmitMesh(mesh, material, transform, entityId);
+				}
 			}
 		}
 		Renderer::EndScene();

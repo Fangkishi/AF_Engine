@@ -6,7 +6,11 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+#include <stb_image.h>
+
 namespace AF {
+
+    std::unordered_map<std::string, Ref<Texture2D>> AssimpLoader::s_TextureCache;
 
 	void AssimpLoader::Load(const std::string& path, const Ref<Scene>& scene) {
 		//拿出模型所在目录
@@ -24,42 +28,55 @@ namespace AF {
         ProcessNode(scene, ai_scene->mRootNode, Entity{}, ai_scene, rootPath);
 	}
 
-	void AssimpLoader::ProcessNode(
-		Ref<Scene> Scene,
-		aiNode* aiNode,
-		Entity parentEntity,
-		const aiScene* aiScene,
-		const std::string& directory
-	){
-		// 创建当前节点实体
-		Entity entity = Scene->CreateEntity(aiNode->mName.C_Str());
+    void AssimpLoader::ProcessNode(
+        Ref<Scene> Scene,
+        aiNode* aiNode,
+        Entity parentEntity,
+        const aiScene* aiScene,
+        const std::string& directory
+    ) {
+        Entity entity;
 
-		// 设置变换组件
-		auto& transform = entity.GetComponent<TransformComponent>();
-		glm::mat4 localMatrix = getMat4f(aiNode->mTransformation);
-		glm::vec3 translation, rotation, scale;
-		AF::Math::DecomposeTransform(localMatrix, transform.Translation, transform.Rotation, transform.Scale);
+        // 检查是否是根节点 (根节点的父节点为空且名称为"RootNode")
+        bool isRootNode = (!parentEntity && std::string(aiNode->mName.C_Str()) == "RootNode");
 
-		// 添加层级组件
-		auto& hierarchy = entity.AddComponent<ParentChildComponent>();
-        if (parentEntity)
-        {
-		    hierarchy.ParentID = parentEntity.GetUUID();
-            auto& parentHierarchy = parentEntity.GetComponent<ParentChildComponent>();
-            parentHierarchy.AddChild(entity.GetUUID());
+        if (!isRootNode) {
+            // 不是根节点才创建实体
+            entity = Scene->CreateEntity(aiNode->mName.C_Str());
+
+            // 设置变换组件
+            auto& transform = entity.GetComponent<TransformComponent>();
+            glm::mat4 localMatrix = getMat4f(aiNode->mTransformation);
+            glm::vec3 translation, rotation, scale;
+            AF::Math::DecomposeTransform(localMatrix, transform.Translation, transform.Rotation, transform.Scale);
+
+            // 添加父子层级关系组件
+            auto& hierarchy = entity.AddComponent<ParentChildComponent>();
+            if (parentEntity)
+            {
+                hierarchy.ParentID = parentEntity.GetUUID();
+                auto& parentHierarchy = parentEntity.GetComponent<ParentChildComponent>();
+                parentHierarchy.AddChild(entity.GetUUID());
+            }
+        }
+        else {
+            // 如果是根节点，则使用父节点作为当前处理的实体
+            entity = parentEntity;
         }
 
-		// 处理当前节点的所有网格
-		for (unsigned int i = 0; i < aiNode->mNumMeshes; i++) {
-			aiMesh* aiMesh = aiScene->mMeshes[aiNode->mMeshes[i]];
-			ProcessMesh(entity, aiMesh, aiScene, directory);
-		}
+        // 处理当前节点的网格
+        for (unsigned int i = 0; i < aiNode->mNumMeshes; i++) {
+            aiMesh* aiMesh = aiScene->mMeshes[aiNode->mMeshes[i]];
+            if (!isRootNode) {
+                ProcessMesh(entity, aiMesh, aiScene, directory);
+            }
+        }
 
-		// 递归处理所有子节点
-		for (unsigned int i = 0; i < aiNode->mNumChildren; i++) {
-			ProcessNode(Scene, aiNode->mChildren[i], entity, aiScene, directory);
-		}
-	}
+        // 递归处理所有子节点
+        for (unsigned int i = 0; i < aiNode->mNumChildren; i++) {
+            ProcessNode(Scene, aiNode->mChildren[i], entity, aiScene, directory);
+        }
+    }
 
     void AssimpLoader::ProcessMesh(
         Entity entity,
@@ -115,56 +132,40 @@ namespace AF {
         // 创建顶点缓冲区
         bool hasNormals = !normals.empty();
         bool hasTexCoords = !uvs.empty();
-        size_t vertexCount = positions.size() / 3;
-        size_t vertexSize = 3 + (hasNormals ? 3 : 0) + (hasTexCoords ? 2 : 0);
 
-        std::vector<float> vertexData(vertexCount * vertexSize);
-
-        for (size_t i = 0; i < vertexCount; ++i) {
-            size_t offset = i * vertexSize;
-
-            // 位置
-            vertexData[offset++] = positions[i * 3];
-            vertexData[offset++] = positions[i * 3 + 1];
-            vertexData[offset++] = positions[i * 3 + 2];
-
-            // 法线
-            if (hasNormals) {
-                vertexData[offset++] = normals[i * 3];
-                vertexData[offset++] = normals[i * 3 + 1];
-                vertexData[offset++] = normals[i * 3 + 2];
-            }
-
-            // 纹理坐标
-            if (hasTexCoords) {
-                vertexData[offset++] = uvs[i * 2];
-                vertexData[offset++] = uvs[i * 2 + 1];
-            }
-        }
-
-        Ref<VertexBuffer> vertexBuffer = VertexBuffer::Create(vertexData.data(), vertexData.size() * sizeof(float));
-        Ref<IndexBuffer> indexBuffer = IndexBuffer::Create(indices.data(), indices.size());
-
-        // 设置顶点布局
-        std::vector<BufferElement> elements;
-        elements.push_back({ ShaderDataType::Float3, "a_Position" });
-
-        if (!normals.empty()) {
-            elements.push_back({ ShaderDataType::Float3, "a_Normal" });
-        }
-
-        if (!uvs.empty()) {
-            elements.push_back({ ShaderDataType::Float2, "a_TexCoord" });
-        }
-
-        BufferLayout layout({
-            elements[0],
-            (!normals.empty() ? elements[1] : BufferElement{}),
-            (!uvs.empty() ? elements[2] : BufferElement{})
+        // 位置缓冲区
+        std::vector<float> positionData(positions.begin(), positions.end());
+        Ref<VertexBuffer> positionBuffer = VertexBuffer::Create(positionData.data(), positionData.size() * sizeof(float));
+        BufferLayout positionLayout({
+            { ShaderDataType::Float3, "a_Position" }
             });
+        positionBuffer->SetLayout(positionLayout);
+        vertexArray->AddVertexBuffer(positionBuffer);
 
-        vertexBuffer->SetLayout(layout);
-        vertexArray->AddVertexBuffer(vertexBuffer);
+        // 法线缓冲区
+        if (hasNormals) {
+            std::vector<float> normalData(normals.begin(), normals.end());
+            Ref<VertexBuffer> normalBuffer = VertexBuffer::Create(normalData.data(), normalData.size() * sizeof(float));
+            BufferLayout normalLayout({
+                { ShaderDataType::Float3, "a_Normal" }
+                });
+            normalBuffer->SetLayout(normalLayout);
+            vertexArray->AddVertexBuffer(normalBuffer);
+        }
+
+        // 纹理坐标缓冲区
+        if (hasTexCoords) {
+            std::vector<float> texCoordData(uvs.begin(), uvs.end());
+            Ref<VertexBuffer> texCoordBuffer = VertexBuffer::Create(texCoordData.data(), texCoordData.size() * sizeof(float));
+            BufferLayout texCoordLayout({
+                { ShaderDataType::Float2, "a_TexCoord" }
+                });
+            texCoordBuffer->SetLayout(texCoordLayout);
+            vertexArray->AddVertexBuffer(texCoordBuffer);
+        }
+
+        // 索引缓冲区
+        Ref<IndexBuffer> indexBuffer = IndexBuffer::Create(indices.data(), indices.size());
         vertexArray->SetIndexBuffer(indexBuffer);
 
         // 创建网格
@@ -263,87 +264,130 @@ namespace AF {
         const aiScene* aiScene,
         const std::string& directory
     ) {
-        aiString aiPath;
-        if (aiMaterial->GetTexture(type, 0, &aiPath) != AI_SUCCESS) {
+        // 获取图片获取路径
+        aiString aipath;
+        aiMaterial->Get(AI_MATKEY_TEXTURE(type, 0), aipath);
+        if (!aipath.length) {
             return nullptr;
         }
 
-        // 检查是否是嵌入的纹理
-        const aiTexture* embeddedTexture = aiScene->GetEmbeddedTexture(aiPath.C_Str());
-        if (embeddedTexture) {
-            // 处理内嵌纹理
-            return LoadEmbeddedTexture(embeddedTexture, aiPath.C_Str());
+        // 检查纹理是否已缓存
+        std::string textureKey = std::string(aipath.C_Str());
+        if (s_TextureCache.find(textureKey) != s_TextureCache.end()) {
+            return s_TextureCache[textureKey];
         }
-        else {
-            // 处理外部文件纹理
-            std::string fullPath = directory + "/" + aiPath.C_Str();
 
-            // 检查文件是否存在
-            if (!std::filesystem::exists(fullPath)) {
-                std::string alternativePath = fullPath;
-                if (std::filesystem::exists(alternativePath)) {
-                    fullPath = alternativePath;
+        // 判断是否是嵌入fbx的图片
+        const aiTexture* aitexture = aiScene->GetEmbeddedTexture(aipath.C_Str());
+        if (aitexture) {
+            // 图片数据是嵌入的
+            if (aitexture->mHeight == 0) {
+                // 压缩格式如JPEG, PNG等
+                // 使用stb_image在内存中加载和解码
+                int width, height, channels;
+                stbi_uc* data = stbi_load_from_memory(
+                    reinterpret_cast<stbi_uc*>(aitexture->pcData),
+                    aitexture->mWidth, // 这里是压缩数据的大小
+                    &width, &height, &channels, 0);
+
+                if (!data) {
+                    AF_CORE_ERROR("Failed to decode embedded texture: {}", aipath.C_Str());
+                    return nullptr;
+                }
+
+                // 确定格式
+                ImageFormat format = ImageFormat::None;
+                if (channels == 3) {
+                    format = ImageFormat::RGB8;
+                }
+                else if (channels == 4) {
+                    format = ImageFormat::RGBA8;
                 }
                 else {
-                    return nullptr; // 文件不存在
+                    AF_CORE_ERROR("Unsupported number of channels: {}", channels);
+                    stbi_image_free(data);
+                    return nullptr;
                 }
-            }
 
-            return LoadExternalTexture(fullPath);
-        }
-    }
+                // 创建纹理规范
+                TextureSpecification spec;
+                spec.Width = width;
+                spec.Height = height;
+                spec.Format = format;
+                spec.GenerateMips = true;
 
-    Ref<Texture2D> AssimpLoader::LoadEmbeddedTexture(const aiTexture* embeddedTexture, const std::string& name) {
-        try {
-            // 检查纹理格式
-            if (embeddedTexture->mHeight == 0) {
-                // 压缩格式（如JPEG, PNG）
-                //return Texture2D::CreateFromMemory(
-                //    name,
-                //    reinterpret_cast<const unsigned char*>(embeddedTexture->pcData),
-                //    embeddedTexture->mWidth
-                //);
-                return nullptr;
+                // 创建纹理
+                Ref<Texture2D> texture = Texture2D::Create(spec);
+
+                // 计算数据大小
+                uint32_t dataSize = width * height * channels;
+
+                // 上传纹理数据
+                texture->SetData((void*)data, dataSize);
+
+                stbi_image_free(data);
+
+                // 缓存纹理
+                s_TextureCache[textureKey] = texture;
+                return texture;
             }
             else {
-                // 未压缩的ARGB格式
-                //std::vector<unsigned char> imageData;
-                //imageData.reserve(embeddedTexture->mWidth * embeddedTexture->mHeight * 4);
+                // 未压缩格式
+                unsigned char* dataIn = reinterpret_cast<unsigned char*>(aitexture->pcData);
+                uint32_t widthIn = aitexture->mWidth;
+                uint32_t heightIn = aitexture->mHeight;
 
-                //for (uint32_t y = 0; y < embeddedTexture->mHeight; y++) {
-                //    for (uint32_t x = 0; x < embeddedTexture->mWidth; x++) {
-                //        aiTexel texel = embeddedTexture->pcData[y * embeddedTexture->mWidth + x];
-                //        imageData.push_back(texel.r);
-                //        imageData.push_back(texel.g);
-                //        imageData.push_back(texel.b);
-                //        imageData.push_back(texel.a);
-                //    }
-                //}
+                // 根据achFormatHint确定格式
+                ImageFormat format = ImageFormat::RGBA8; // 默认RGBA8
 
-                //return Texture2D::CreateFromData(
-                //    name,
-                //    imageData.data(),
-                //    embeddedTexture->mWidth,
-                //    embeddedTexture->mHeight,
-                //    4
-                //);
-                return nullptr;
+                // 根据格式提示
+                std::string formatHint(aitexture->achFormatHint);
+                if (formatHint.find("rgb") != std::string::npos) {
+                    format = ImageFormat::RGB8;
+                }
+                else if (formatHint.find("rgba") != std::string::npos) {
+                    format = ImageFormat::RGBA8;
+                }
+
+                // 创建纹理规范
+                TextureSpecification spec;
+                spec.Width = widthIn;
+                spec.Height = heightIn;
+                spec.Format = format;
+                spec.GenerateMips = true;
+
+                // 创建纹理
+                Ref<Texture2D> texture = Texture2D::Create(spec);
+
+                // 计算数据大小
+                uint32_t bpp = (format == ImageFormat::RGBA8) ? 4 : 3;
+                uint32_t dataSize = widthIn * heightIn * bpp;
+
+                // 上传纹理数据
+                texture->SetData((void*)dataIn, dataSize);
+
+                // 缓存纹理
+                s_TextureCache[textureKey] = texture;
+                return texture;
             }
         }
-        catch (const std::exception& e) {
-            std::cerr << "Failed to load embedded texture: " << e.what() << std::endl;
-            return nullptr;
-        }
-    }
+        else {
+            // 外部图片文件
+            std::string fullPath = directory + aipath.C_Str();
 
-    Ref<Texture2D> AssimpLoader::LoadExternalTexture(const std::string& filePath) {
-        try {
-            return Texture2D::Create(filePath);
+            // 检查文件是否存在
+            if (s_TextureCache.find(fullPath) != s_TextureCache.end()) {
+                return s_TextureCache[fullPath];
+            }
+
+            Ref<Texture2D> texture = Texture2D::Create(fullPath);
+            if (texture) {
+                s_TextureCache[fullPath] = texture;
+            }
+            return texture;
         }
-        catch (const std::exception& e) {
-            std::cerr << "Failed to load external texture: " << filePath << " - " << e.what() << std::endl;
-            return nullptr;
-        }
+
+        return nullptr;
     }
 
 	glm::mat4 AssimpLoader::getMat4f(aiMatrix4x4 value) {

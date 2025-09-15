@@ -66,7 +66,7 @@ namespace AF {
 		auto material = CreateRef<Material>();
 		box.AddComponent<MaterialComponent>(material);
 #endif
-		AssimpLoader::Load("assets/model/house.fbx", m_ActiveScene);
+		//AssimpLoader::Load("assets/model/house.fbx", m_ActiveScene);
 		//AssimpLoader::Load("assets/model/bag/backpack.obj", m_ActiveScene);
 
 		m_SceneHierarchyPanel.SetContext(m_ActiveScene);

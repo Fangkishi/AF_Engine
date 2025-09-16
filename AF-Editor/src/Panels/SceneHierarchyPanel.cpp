@@ -413,50 +413,29 @@ namespace AF {
 				{
 					const float thumbnailSize = 64.0f;
 
-					// 漫反射贴图
+					// Diffuse Map
 					ImGui::Text("Diffuse Map");
-					if (component.material->m_DiffuseMap)
+					Ref<Texture> diffuseTexture;
+					bool hasDiffuse = false;
+
+					if (component.material->HasUniform("u_DiffuseMap"))
 					{
-						// 显示缩略图并作为拖放目标
-						if (ImGui::ImageButton(
-							(ImTextureID)(uintptr_t)component.material->m_DiffuseMap->GetRendererID(),
-							ImVec2(thumbnailSize, thumbnailSize),
-							ImVec2(0, 1), ImVec2(1, 0)
-						))
-						{
-							// 点击缩略图可以清除
-							component.material->m_DiffuseMap = nullptr;
+						try {
+							diffuseTexture = component.material->GetUniform<Ref<Texture2D>>("u_DiffuseMap");
+							hasDiffuse = true;
 						}
-					}
-					else
-					{
-						if (ImGui::Button("##Drag Texture Here", ImVec2(thumbnailSize, thumbnailSize))){}
+						catch (const std::exception&) {
+							hasDiffuse = false;
+						}
 					}
 
-					if (ImGui::BeginDragDropTarget())
+					if (hasDiffuse && diffuseTexture)
 					{
-						if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
-						{
-							const wchar_t* path = (const wchar_t*)payload->Data;
-							std::filesystem::path texturePath(path);
-							Ref<Texture2D> texture = Texture2D::Create(texturePath.string());
-							if (texture->IsLoaded())
-								component.material->m_DiffuseMap = texture;
-						}
-						ImGui::EndDragDropTarget();
-					}
-
-					ImGui::Text("Specular Map");
-					if (component.material->m_SpecularMap)
-					{
-						if (ImGui::ImageButton(
-							(ImTextureID)(uintptr_t)component.material->m_SpecularMap->GetRendererID(),
+						ImGui::ImageButton(
+							(ImTextureID)(uintptr_t)diffuseTexture->GetRendererID(),
 							ImVec2(thumbnailSize, thumbnailSize),
 							ImVec2(0, 1), ImVec2(1, 0)
-						))
-						{
-							component.material->m_SpecularMap = nullptr;
-						}
+						);
 					}
 					else
 					{
@@ -471,7 +450,49 @@ namespace AF {
 							std::filesystem::path texturePath(path);
 							Ref<Texture2D> texture = Texture2D::Create(texturePath.string());
 							if (texture->IsLoaded())
-								component.material->m_SpecularMap = texture;
+								component.material->SetUniform("u_DiffuseMap", texture);
+						}
+						ImGui::EndDragDropTarget();
+					}
+
+					// Specular Map
+					ImGui::Text("Specular Map");
+					std::shared_ptr<Texture> specularTexture;
+					bool hasSpecular = false;
+
+					if (component.material->HasUniform("u_SpecularMap"))
+					{
+						try {
+							specularTexture = component.material->GetUniform<Ref<Texture2D>>("u_SpecularMap");
+							hasSpecular = true;
+						}
+						catch (const std::exception&) {
+							hasSpecular = false;
+						}
+					}
+
+					if (hasSpecular && specularTexture)
+					{
+						ImGui::ImageButton(
+							(ImTextureID)(uintptr_t)specularTexture->GetRendererID(),
+							ImVec2(thumbnailSize, thumbnailSize),
+							ImVec2(0, 1), ImVec2(1, 0)
+						);
+					}
+					else
+					{
+						if (ImGui::Button("##Drag Texture Here", ImVec2(thumbnailSize, thumbnailSize))) {}
+					}
+
+					if (ImGui::BeginDragDropTarget())
+					{
+						if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
+						{
+							const wchar_t* path = (const wchar_t*)payload->Data;
+							std::filesystem::path texturePath(path);
+							Ref<Texture2D> texture = Texture2D::Create(texturePath.string());
+							if (texture->IsLoaded())
+								component.material->SetUniform("u_SpecularMap", texture);
 						}
 						ImGui::EndDragDropTarget();
 					}

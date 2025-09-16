@@ -15,15 +15,14 @@ namespace AF {
 
 		static Ref<Mesh> CreateBox(float size);
 
-		Ref<Material> GetMaterial();
-
 	public:
 		Ref<VertexArray> m_VertexArray;
 		Ref<VertexBuffer> m_VertexBuffer;
 		Ref<IndexBuffer> m_IndexBuffer;
 		uint32_t m_IndexCount = 0;
 
-		Ref<Material> m_DefaultMaterial;
+		friend class Renderer;
+		friend class AssimpLoader;
 	};
 
 }

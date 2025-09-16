@@ -4,7 +4,6 @@
 namespace AF {
 
 	Material::Material() 
-		: m_DefaultShader(Shader::Create("assets/shaders/phong.glsl")), m_DefaultMap(Texture2D::Create("assets/textures/defaultTexture.jpg"))
 	{
 
 	}
@@ -16,28 +15,16 @@ namespace AF {
 
 	void Material::Bind()
 	{
-		if (!m_Shader)
-		{
-			m_Shader = m_DefaultShader;
-		}
 		m_Shader->Bind();
 
-		// 绑定纹理
-		if (!m_DiffuseMap)
-		{
-			m_DiffuseMap = m_DefaultMap;
-		}
-		m_DiffuseMap->Bind(0);
-		m_Shader->SetInt("u_DiffuseMap", 0);
+		int nextTextureUnit = 0;
 
-		if (!m_SpecularMap)
-		{
-			m_SpecularMap = m_DefaultMap;
+		for (const auto& [name, value] : m_Uniforms) {
+			// 需要一个Visitor来将variant值应用到shader的对应Uniform上
+			std::visit(UniformApplier{ m_Shader, name, nextTextureUnit }, value);
 		}
-		m_SpecularMap->Bind(1);
-		m_Shader->SetFloat3("u_Material.specularColor", m_SpecularColor);
-		m_Shader->SetFloat("u_Material.shininess", m_Shininess);
-		m_Shader->SetInt("u_SpecularMap", 1);
+		// 同时可以设置一些材质状态，如深度测试、混合模式等
+		// glDisable(GL_DEPTH_TEST)...
 	}
 
 }

@@ -59,11 +59,28 @@ namespace AF {
 		//		Application::Get().Close();
 		//}
 
-#if 0
+#if 1
 		auto box = m_ActiveScene->CreateEntity("box");
 		box.AddComponent<MeshComponent>(Mesh::CreateBox(1.0f));
 
 		auto material = CreateRef<Material>();
+		material->SetShader(Shader::Create("assets/shaders/pbr.glsl"));
+
+		//auto albedoTexture = Texture2D::Create("assets/textures/blue_metal_plate_diff_4k.jpg");
+		//auto normalTexture = Texture2D::Create("assets/textures/blue_metal_plate_nor_gl_4k.jpg");
+		//auto armTexture = Texture2D::Create("assets/textures/blue_metal_plate_arm_4k.jpg");
+		auto albedoTexture = Texture2D::Create("assets/textures/red_brick_diff_4k.jpg");
+		auto normalTexture = Texture2D::Create("assets/textures/red_brick_nor_gl_4k.jpg");
+		auto armTexture = Texture2D::Create("assets/textures/red_brick_arm_4k.jpg");
+
+		if (albedoTexture && normalTexture && armTexture) {
+			material->SetUniform("u_AlbedoTexture", albedoTexture);
+			material->SetUniform("u_NormalTexture", normalTexture);
+			material->SetUniform("u_ARMTexture", armTexture);
+		}
+		else {
+			AF_CORE_WARN("Failed to load one or more PBR textures");
+		}
 		box.AddComponent<MaterialComponent>(material);
 #endif
 		//AssimpLoader::Load("assets/model/house.fbx", m_ActiveScene);

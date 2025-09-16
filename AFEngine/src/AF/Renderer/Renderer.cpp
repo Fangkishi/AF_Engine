@@ -17,17 +17,33 @@ namespace AF {
 			glm::mat4 ViewProjection;
 		};
 		CameraData CameraBuffer;
-
 		Ref<UniformBuffer> CameraUniformBuffer;
 
 		struct DirLight
 		{
 			glm::vec3 direction = glm::vec3(-1.0f, -1.0f, -1.0f);
+			float pad1;
 			glm::vec3 ambient = glm::vec3(0.2f);
-			glm::vec3 diffuse = glm::vec3(0.5f);
+			float pad2;
+			glm::vec3 diffuse = glm::vec3(1.5f);
+			float pad3;
 			glm::vec3 specular = glm::vec3(1.0f);
+			float pad4;
 		};
 		DirLight DirLightBuffer;
+		Ref<ShaderStorageBuffer> DirLightUniformBuffer;
+
+		struct PointLight
+		{
+			glm::vec3 position = glm::vec3(10.0f, 10.0f, 10.0f);
+			float padding1 = 0.0f; 
+			glm::vec3 color = glm::vec3(100.0f, 100.0f, 100.0f);
+			float intensity = 10.0f;
+		};
+		PointLight PointLightBuffer[10];
+		Ref<ShaderStorageBuffer> PointLightUniformBuffer;
+
+		Ref<Material> DefaultMaterial;
 	};
 
 	static RendererData s_Data;
@@ -39,7 +55,14 @@ namespace AF {
 		RenderCommand::Init();
 		Renderer2D::Init();
 
-		s_Data.CameraUniformBuffer = UniformBuffer::Create(sizeof(RendererData::CameraData), 1);
+		s_Data.CameraUniformBuffer = UniformBuffer::Create(sizeof(s_Data.CameraBuffer), 0);
+
+		s_Data.DirLightUniformBuffer = ShaderStorageBuffer::Create(sizeof(s_Data.DirLightBuffer), 0);
+		s_Data.PointLightUniformBuffer = ShaderStorageBuffer::Create(sizeof(s_Data.PointLightBuffer), 1);
+
+		auto material = CreateRef<Material>();
+		material->SetShader(Shader::Create("assets/shaders/phong.glsl"));
+		s_Data.DefaultMaterial = material;
 	}
 
 	void Renderer::OnWindowResize(uint32_t width, uint32_t height)
@@ -54,7 +77,7 @@ namespace AF {
 		glm::mat4 viewMatrix = glm::inverse(transform);
 		s_Data.CameraBuffer.ViewPosition = glm::vec3(viewMatrix[3]);
 		s_Data.CameraBuffer.ViewProjection = camera.GetProjection() * glm::inverse(transform);
-		s_Data.CameraUniformBuffer->SetData(&s_Data.CameraBuffer, sizeof(RendererData::CameraData));
+		s_Data.CameraUniformBuffer->SetData(&s_Data.CameraBuffer, sizeof(s_Data.CameraBuffer));
 	}
 
 	void Renderer::BeginScene(const EditorCamera& camera)
@@ -63,7 +86,7 @@ namespace AF {
 
 		s_Data.CameraBuffer.ViewPosition = camera.GetPosition();
 		s_Data.CameraBuffer.ViewProjection = camera.GetViewProjection();
-		s_Data.CameraUniformBuffer->SetData(&s_Data.CameraBuffer, sizeof(RendererData::CameraData));
+		s_Data.CameraUniformBuffer->SetData(&s_Data.CameraBuffer, sizeof(s_Data.CameraBuffer));
 	}
 
 	void Renderer::EndScene()
@@ -76,7 +99,7 @@ namespace AF {
 		bool depthTest = true;
 		if (material)
 		{
-			material->Bind();
+			//material->Bind();
 
 			auto shader = material->GetShader();
 			shader->SetMat4("u_Transform", transform);
@@ -91,7 +114,7 @@ namespace AF {
 		bool depthTest = true;
 		if (material)
 		{
-			material->Bind();
+			//material->Bind();
 		}
 
 		s_Data.m_FullscreenQuadVertexArray->Bind();
@@ -100,17 +123,27 @@ namespace AF {
 
 	void Renderer::SubmitMesh(const Ref<Mesh>& mesh, const Ref<Material>& overridematerial, const glm::mat4& transform, int entityID)
 	{
-		auto material = overridematerial ? overridematerial : mesh->GetMaterial();
-		// 绑定材质的uniforms和纹理
-		material->Bind();
-		auto shader = material->GetShader();
-		shader->SetMat4("u_Transform", transform);
-		shader->SetInt("u_EntityID", entityID);
+		auto material = overridematerial ? overridematerial : s_Data.DefaultMaterial;
 
-		shader->SetFloat3("u_DirLight.direction", s_Data.DirLightBuffer.direction);
-		shader->SetFloat3("u_DirLight.ambient", s_Data.DirLightBuffer.ambient);
-		shader->SetFloat3("u_DirLight.diffuse", s_Data.DirLightBuffer.diffuse);
-		shader->SetFloat3("u_DirLight.specular", s_Data.DirLightBuffer.specular);
+		// 绑定材质的uniforms和纹理
+		if (!material->GetShader())
+			material->SetShader(s_Data.DefaultMaterial->GetShader());
+		material->Bind();
+
+		auto shader = material->GetShader();
+		material->SetUniform("u_Transform", transform);
+		auto normalMatrix = glm::mat3(glm::transpose(glm::inverse(transform)));
+		material->SetUniform("u_NormalMatrix", normalMatrix);
+		material->SetUniform("u_EntityID", entityID);
+
+		material->SetUniform("Camera", s_Data.CameraUniformBuffer);
+
+		s_Data.DirLightUniformBuffer->SetData(&s_Data.DirLightBuffer, sizeof(s_Data.DirLightBuffer));
+		material->SetUniform("DirLights", s_Data.DirLightUniformBuffer);
+
+		s_Data.PointLightUniformBuffer->SetData(&s_Data.PointLightBuffer, sizeof(s_Data.PointLightBuffer));
+		material->SetUniform("PointLights", s_Data.PointLightUniformBuffer);
+
 		Renderer::Submit([=]()
 			{
 				RenderCommand::DrawIndexed(mesh->m_VertexArray, mesh->m_IndexCount);

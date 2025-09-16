@@ -46,7 +46,7 @@ namespace AF {
 
             // 设置变换组件
             auto& transform = entity.GetComponent<TransformComponent>();
-            glm::mat4 localMatrix = getMat4f(aiNode->mTransformation);
+            glm::mat4 localMatrix = GetMat4f(aiNode->mTransformation);
             glm::vec3 translation, rotation, scale;
             AF::Math::DecomposeTransform(localMatrix, transform.Translation, transform.Rotation, transform.Scale);
 
@@ -89,8 +89,9 @@ namespace AF {
 
         // 处理顶点数据
         std::vector<float> positions;
-        std::vector<float> normals;
         std::vector<float> uvs;
+        std::vector<float> normals;
+        std::vector<float> tangents;
         std::vector<uint32_t> indices;
 
         for (int i = 0; i < aiMesh->mNumVertices; i++) {
@@ -98,11 +99,6 @@ namespace AF {
             positions.push_back(aiMesh->mVertices[i].x);
             positions.push_back(aiMesh->mVertices[i].y);
             positions.push_back(aiMesh->mVertices[i].z);
-
-            //第i个顶点的法线
-            normals.push_back(aiMesh->mNormals[i].x);
-            normals.push_back(aiMesh->mNormals[i].y);
-            normals.push_back(aiMesh->mNormals[i].z);
 
             //第i个顶点的UV
             //关注第0套UV, 一般是贴图UV
@@ -113,6 +109,23 @@ namespace AF {
             else {
                 uvs.push_back(1.0f);
                 uvs.push_back(1.0f);
+            }
+
+            //第i个顶点的法线
+            normals.push_back(aiMesh->mNormals[i].x);
+            normals.push_back(aiMesh->mNormals[i].y);
+            normals.push_back(aiMesh->mNormals[i].z);
+
+            // 从Assimp网格中获取切线
+            if (aiMesh->mTangents) {
+                tangents.push_back(aiMesh->mTangents[i].x);
+                tangents.push_back(aiMesh->mTangents[i].y);
+                tangents.push_back(aiMesh->mTangents[i].z);
+            }
+            else {
+                tangents.push_back(0.0f);
+                tangents.push_back(0.0f);
+                tangents.push_back(0.0f);
             }
         }
 
@@ -132,6 +145,7 @@ namespace AF {
         // 创建顶点缓冲区
         bool hasNormals = !normals.empty();
         bool hasTexCoords = !uvs.empty();
+        bool hasTangents = !tangents.empty() && aiMesh->mTangents;
 
         // 位置缓冲区
         std::vector<float> positionData(positions.begin(), positions.end());
@@ -141,6 +155,17 @@ namespace AF {
             });
         positionBuffer->SetLayout(positionLayout);
         vertexArray->AddVertexBuffer(positionBuffer);
+
+        // 纹理坐标缓冲区
+        if (hasTexCoords) {
+            std::vector<float> texCoordData(uvs.begin(), uvs.end());
+            Ref<VertexBuffer> texCoordBuffer = VertexBuffer::Create(texCoordData.data(), texCoordData.size() * sizeof(float));
+            BufferLayout texCoordLayout({
+                { ShaderDataType::Float2, "a_TexCoord" }
+                });
+            texCoordBuffer->SetLayout(texCoordLayout);
+            vertexArray->AddVertexBuffer(texCoordBuffer);
+        }
 
         // 法线缓冲区
         if (hasNormals) {
@@ -153,15 +178,15 @@ namespace AF {
             vertexArray->AddVertexBuffer(normalBuffer);
         }
 
-        // 纹理坐标缓冲区
-        if (hasTexCoords) {
-            std::vector<float> texCoordData(uvs.begin(), uvs.end());
-            Ref<VertexBuffer> texCoordBuffer = VertexBuffer::Create(texCoordData.data(), texCoordData.size() * sizeof(float));
-            BufferLayout texCoordLayout({
-                { ShaderDataType::Float2, "a_TexCoord" }
+        // 切线缓冲区
+        if (hasTangents) {
+            std::vector<float> tangentData(tangents.begin(), tangents.end());
+            Ref<VertexBuffer> tangentBuffer = VertexBuffer::Create(tangentData.data(), tangentData.size() * sizeof(float));
+            BufferLayout tangentLayout({
+                { ShaderDataType::Float3, "a_Tangent" }
                 });
-            texCoordBuffer->SetLayout(texCoordLayout);
-            vertexArray->AddVertexBuffer(texCoordBuffer);
+            tangentBuffer->SetLayout(tangentLayout);
+            vertexArray->AddVertexBuffer(tangentBuffer);
         }
 
         // 索引缓冲区
@@ -180,8 +205,6 @@ namespace AF {
         else
         {
             auto& materialComponent = entity.AddComponent<MaterialComponent>();
-            materialComponent.material = CreateRef<Material>();
-            materialComponent.material->m_DiffuseMap = Texture2D::Create("assets/textures/defaultTexture.jpg");
         }
     }
 
@@ -201,17 +224,17 @@ namespace AF {
             if (aiMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &aiDiffusePath) == AI_SUCCESS) {
                 Ref<Texture2D> diffuseTexture = ProcessTexture(aiMaterial, aiTextureType_DIFFUSE, aiScene, directory);
                 if (diffuseTexture) {
-                    materialComponent.material->m_DiffuseMap = diffuseTexture;
+                    materialComponent.material->SetUniform("u_DiffuseMap", diffuseTexture);
                 }
                 else {
                     // 加载失败使用默认贴图
-                    materialComponent.material->m_DiffuseMap = Texture2D::Create("assets/textures/defaultTexture.jpg");
+                    materialComponent.material->SetUniform("u_DiffuseMap", Texture2D::Create("assets/textures/defaultTexture.jpg"));
                 }
             }
         }
         else {
             // 没有漫反射贴图，使用默认贴图
-            materialComponent.material->m_DiffuseMap = Texture2D::Create("assets/textures/defaultTexture.jpg");
+            materialComponent.material->SetUniform("u_DiffuseMap", Texture2D::Create("assets/textures/defaultTexture.jpg"));
         }
 
         // 加载镜面贴图
@@ -220,41 +243,41 @@ namespace AF {
             if (aiMaterial->GetTexture(aiTextureType_SPECULAR, 0, &aiSpecularPath) == AI_SUCCESS) {
                 Ref<Texture2D> specularTexture = ProcessTexture(aiMaterial, aiTextureType_SPECULAR, aiScene, directory);
                 if (specularTexture) {
-                    materialComponent.material->m_SpecularMap = specularTexture;
+                    materialComponent.material->SetUniform("u_SpecularMap", specularTexture);
                 }
                 else {
                     // 加载失败使用默认贴图
-                    materialComponent.material->m_SpecularMap = Texture2D::Create("assets/textures/defaultTexture.jpg");
+                    materialComponent.material->SetUniform("u_SpecularMap", Texture2D::Create("assets/textures/defaultTexture.jpg"));
                 }
             }
         }
         else {
             // 没有镜面贴图，使用默认贴图
-            materialComponent.material->m_SpecularMap = Texture2D::Create("assets/textures/defaultTexture.jpg");
+            materialComponent.material->SetUniform("u_SpecularMap", Texture2D::Create("assets/textures/defaultTexture.jpg"));
         }
 
         // 获取材质颜色属性
         aiColor3D diffuseColor(0.8f, 0.8f, 0.8f); // 默认灰色
         if (aiMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, diffuseColor) == AI_SUCCESS) {
-            materialComponent.material->m_DiffuseColor = glm::vec3(
-                diffuseColor.r,
-                diffuseColor.g,
-                diffuseColor.b
-            );
+            //materialComponent.material->m_DiffuseColor = glm::vec3(
+            //    diffuseColor.r,
+            //    diffuseColor.g,
+            //    diffuseColor.b
+            //);
         }
 
         aiColor3D specularColor(1.0f, 1.0f, 1.0f); // 默认白色
         if (aiMaterial->Get(AI_MATKEY_COLOR_SPECULAR, specularColor) == AI_SUCCESS) {
-            materialComponent.material->m_SpecularColor = glm::vec3(
+            materialComponent.material->SetUniform("u_Material.specularColor", glm::vec3(
                 specularColor.r,
                 specularColor.g,
                 specularColor.b
-            );
+            ));
         }
 
         float shininess = 32.0f;
         if (aiMaterial->Get(AI_MATKEY_SHININESS, shininess) == AI_SUCCESS) {
-            materialComponent.material->m_Shininess = shininess;
+            materialComponent.material->SetUniform("u_Material.shininess", shininess);
         }
     }
 
@@ -390,7 +413,7 @@ namespace AF {
         return nullptr;
     }
 
-	glm::mat4 AssimpLoader::getMat4f(aiMatrix4x4 value) {
+	glm::mat4 AssimpLoader::GetMat4f(aiMatrix4x4 value) {
 		glm::mat4 to(
 			value.a1, value.a2, value.a3, value.a4,
 			value.b1, value.b2, value.b3, value.b4,

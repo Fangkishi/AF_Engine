@@ -2,10 +2,11 @@
 #version 450 core
 
 layout(location = 0) in vec3 a_Position;
-layout(location = 1) in vec3 a_Normal;
-layout(location = 2) in vec2 a_Uv;
+layout(location = 1) in vec2 a_Uv;
+layout(location = 2) in vec3 a_Normal;
+layout (location = 3) in vec3 a_Tangent;
 
-layout(std140, binding = 1) uniform Camera
+layout(std140, binding = 0) uniform Camera
 {
     vec3 u_ViewPos;
 	mat4 u_ViewProjection;
@@ -32,7 +33,7 @@ void main()
 layout(location = 0) out vec4 o_Color;
 layout(location = 1) out int o_EntityID;
 
-layout(std140, binding = 1) uniform Camera
+layout(std140, binding = 0) uniform Camera
 {
     vec3 u_ViewPos;
     mat4 u_ViewProjection;
@@ -54,12 +55,14 @@ uniform Material u_Material;
 
 struct DirLight {
     vec3 direction;
-    
     vec3 ambient;
     vec3 diffuse;
     vec3 specular;
 };
-uniform DirLight u_DirLight;
+//uniform DirLight u_DirLight;
+layout(std430, binding = 0) buffer DirLights {
+    DirLight u_DirLight;
+};
 
 void main()
 {

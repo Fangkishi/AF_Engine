@@ -44,7 +44,7 @@ namespace AF {
 			const std::string& directory
 		);
 
-		static glm::mat4 getMat4f(aiMatrix4x4 value);
+		static glm::mat4 GetMat4f(aiMatrix4x4 value);
 	};
 
 }

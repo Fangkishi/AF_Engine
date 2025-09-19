@@ -31,6 +31,11 @@ namespace AF {
 			s_RendererAPI->DrawIndexed(vertexArray, indexCount);
 		}
 
+		static void DrawTriangles(const Ref<VertexArray>& vertexArray, uint32_t indexCount)
+		{
+			s_RendererAPI->DrawTriangles(vertexArray, indexCount);
+		}
+
 		static void DrawLines(const Ref<VertexArray>& vertexArray, uint32_t vertexCount)
 		{
 			s_RendererAPI->DrawLines(vertexArray, vertexCount);

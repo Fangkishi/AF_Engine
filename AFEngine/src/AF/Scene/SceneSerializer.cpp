@@ -208,13 +208,13 @@ namespace AF {
 
 			out << YAML::Key << "Camera" << YAML::Value;
 			out << YAML::BeginMap; // Camera
-			out << YAML::Key << "ProjectionType" << YAML::Value << (int)camera.GetProjectionType();
-			out << YAML::Key << "PerspectiveFOV" << YAML::Value << camera.GetPerspectiveVerticalFOV();
-			out << YAML::Key << "PerspectiveNear" << YAML::Value << camera.GetPerspectiveNearClip();
-			out << YAML::Key << "PerspectiveFar" << YAML::Value << camera.GetPerspectiveFarClip();
-			out << YAML::Key << "OrthographicSize" << YAML::Value << camera.GetOrthographicSize();
-			out << YAML::Key << "OrthographicNear" << YAML::Value << camera.GetOrthographicNearClip();
-			out << YAML::Key << "OrthographicFar" << YAML::Value << camera.GetOrthographicFarClip();
+			out << YAML::Key << "ProjectionType" << YAML::Value << (int)camera->GetProjectionType();
+			out << YAML::Key << "PerspectiveFOV" << YAML::Value << camera->GetPerspectiveVerticalFOV();
+			out << YAML::Key << "PerspectiveNear" << YAML::Value << camera->GetPerspectiveNearClip();
+			out << YAML::Key << "PerspectiveFar" << YAML::Value << camera->GetPerspectiveFarClip();
+			out << YAML::Key << "OrthographicSize" << YAML::Value << camera->GetOrthographicSize();
+			out << YAML::Key << "OrthographicNear" << YAML::Value << camera->GetOrthographicNearClip();
+			out << YAML::Key << "OrthographicFar" << YAML::Value << camera->GetOrthographicFarClip();
 			out << YAML::EndMap; // Camera
 
 			out << YAML::Key << "Primary" << YAML::Value << cameraComponent.Primary;
@@ -308,6 +308,8 @@ namespace AF {
 		YAML::Emitter out;
 		out << YAML::BeginMap;
 		out << YAML::Key << "Scene" << YAML::Value << "Untitled";
+		out << YAML::Key << "ViewportWidth" << YAML::Value << m_Scene->m_ViewportWidth;
+		out << YAML::Key << "ViewportHeight" << YAML::Value << m_Scene->m_ViewportHeight;
 		out << YAML::Key << "Entities" << YAML::Value << YAML::BeginSeq;
 		m_Scene->m_Registry.view<entt::entity>().each([&](auto entityID)
 		{
@@ -349,6 +351,12 @@ namespace AF {
 		std::string sceneName = data["Scene"].as<std::string>();
 		AF_CORE_TRACE("Deserializing scene '{0}'", sceneName);
 
+		if (data["ViewportWidth"] && data["ViewportHeight"])
+		{
+			m_Scene->m_ViewportWidth = data["ViewportWidth"].as<uint32_t>();
+			m_Scene->m_ViewportHeight = data["ViewportHeight"].as<uint32_t>();
+		}
+
 		auto entities = data["Entities"];
 		if (entities)
 		{
@@ -380,16 +388,19 @@ namespace AF {
 				{
 					auto& cc = deserializedEntity.AddComponent<CameraComponent>();
 
+					if (!cc.Camera)
+						cc.Camera = CreateRef<SceneCamera>();
+
 					auto& cameraProps = cameraComponent["Camera"];
-					cc.Camera.SetProjectionType((SceneCamera::ProjectionType)cameraProps["ProjectionType"].as<int>());
+					cc.Camera->SetProjectionType((SceneCamera::ProjectionType)cameraProps["ProjectionType"].as<int>());
 
-					cc.Camera.SetPerspectiveVerticalFOV(cameraProps["PerspectiveFOV"].as<float>());
-					cc.Camera.SetPerspectiveNearClip(cameraProps["PerspectiveNear"].as<float>());
-					cc.Camera.SetPerspectiveFarClip(cameraProps["PerspectiveFar"].as<float>());
+					cc.Camera->SetPerspectiveVerticalFOV(cameraProps["PerspectiveFOV"].as<float>());
+					cc.Camera->SetPerspectiveNearClip(cameraProps["PerspectiveNear"].as<float>());
+					cc.Camera->SetPerspectiveFarClip(cameraProps["PerspectiveFar"].as<float>());
 
-					cc.Camera.SetOrthographicSize(cameraProps["OrthographicSize"].as<float>());
-					cc.Camera.SetOrthographicNearClip(cameraProps["OrthographicNear"].as<float>());
-					cc.Camera.SetOrthographicFarClip(cameraProps["OrthographicFar"].as<float>());
+					cc.Camera->SetOrthographicSize(cameraProps["OrthographicSize"].as<float>());
+					cc.Camera->SetOrthographicNearClip(cameraProps["OrthographicNear"].as<float>());
+					cc.Camera->SetOrthographicFarClip(cameraProps["OrthographicFar"].as<float>());
 
 					cc.Primary = cameraComponent["Primary"].as<bool>();
 					cc.FixedAspectRatio = cameraComponent["FixedAspectRatio"].as<bool>();

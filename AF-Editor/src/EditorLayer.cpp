@@ -18,7 +18,7 @@
 namespace AF {
 
 	EditorLayer::EditorLayer()
-		: Layer("EditorLayer"), m_CameraController(16.0f / 9.0f, true), m_SquareColor({0.2f, 0.3f, 0.8f, 1.0f})
+		: Layer("EditorLayer"), m_SquareColor({0.2f, 0.3f, 0.8f, 1.0f})
 	{
 	}
 
@@ -30,14 +30,6 @@ namespace AF {
 		m_IconSimulate = Texture2D::Create("Resources/Icons/SimulateButton.png");
 		m_IconStep = Texture2D::Create("Resources/Icons/StepButton.png");
 		m_IconStop = Texture2D::Create("Resources/Icons/StopButton.png");
-
-		FramebufferSpecification fbSpec;
-		fbSpec.Attachments = {
-			FramebufferTextureFormat::RGBA8, FramebufferTextureFormat::RED_INTEGER, FramebufferTextureFormat::Depth
-		};
-		fbSpec.Width = 1600;
-		fbSpec.Height = 900;
-		m_Framebuffer = Framebuffer::Create(fbSpec);
 
 		m_EditorScene = CreateRef<Scene>();
 		m_ActiveScene = m_EditorScene;
@@ -90,7 +82,7 @@ namespace AF {
 
 		m_ContentBrowserPanel = CreateScope<ContentBrowserPanel>();
 
-		m_EditorCamera = EditorCamera(30.0f, 16.0f / 9.0f, 0.1f, 1000.0f);
+		m_EditorCamera = CreateRef<EditorCamera>(30.0f, 16.0f / 9.0f, 0.1f, 1000.0f);
 	}
 
 	void EditorLayer::OnDetach()
@@ -102,28 +94,28 @@ namespace AF {
 	{
 		AF_PROFILE_FUNCTION();
 
-		m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
-
 		// Resize
-		if (FramebufferSpecification spec = m_Framebuffer->GetSpecification();
-			m_ViewportSize.x > 0.0f && m_ViewportSize.y > 0.0f && // zero sized framebuffer is invalid
-			(spec.Width != m_ViewportSize.x || spec.Height != m_ViewportSize.y))
+		if (m_ViewportSize.x > 0.0f && m_ViewportSize.y > 0.0f)
 		{
-			m_Framebuffer->Resize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
-			m_CameraController.OnResize(m_ViewportSize.x, m_ViewportSize.y);
-			m_EditorCamera.SetViewportSize(m_ViewportSize.x, m_ViewportSize.y);
+			static glm::vec2 lastViewportSize = { 0.0f, 0.0f };
+
+			if (lastViewportSize.x != m_ViewportSize.x || lastViewportSize.y != m_ViewportSize.y)
+			{
+				m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
+				SceneRenderer::OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
+				m_EditorCamera->SetViewportSize(m_ViewportSize.x, m_ViewportSize.y);
+
+				// 更新记录的尺寸
+				lastViewportSize = m_ViewportSize;
+			}
 		}
 
 		Renderer2D::ResetStats();
 		{
 			AF_PROFILE_SCOPE("Renderer Prep");
-			m_Framebuffer->Bind();
 			RenderCommand::SetClearColor({0.1f, 0.1f, 0.1f, 1});
 			RenderCommand::Clear();
 		}
-
-		// Clear our entity ID attachment to -1
-		m_Framebuffer->ClearAttachment(1, -1);
 
 		{
 			AF_PROFILE_SCOPE("Renderer Draw");
@@ -132,46 +124,27 @@ namespace AF {
 			{
 			case SceneState::Edit:
 			{
-				if (m_ViewportFocused)
-					m_CameraController.OnUpdate(ts);
+				m_EditorCamera->OnUpdate(ts);
 
-				m_EditorCamera.OnUpdate(ts);
-
-				m_ActiveScene->OnUpdateEditor(ts, m_EditorCamera);
+				OnUpdateEditor(m_EditorCamera);
 				break;
 			}
 			case SceneState::Simulate:
 			{
-				m_EditorCamera.OnUpdate(ts);
+				m_EditorCamera->OnUpdate(ts);
 
-				m_ActiveScene->OnUpdateSimulation(ts, m_EditorCamera);
+				OnUpdateSimulation(ts, m_EditorCamera);
 				break;
 			}
 			case SceneState::Play:
 			{
-				m_ActiveScene->OnUpdateRuntime(ts);
+				OnUpdateRuntime(ts);
 				break;
 			}
 			}
 		}
 
-		auto [mx, my] = ImGui::GetMousePos();
-		mx -= m_ViewportBounds[0].x;
-		my -= m_ViewportBounds[0].y;
-		glm::vec2 viewportSize = m_ViewportBounds[1] - m_ViewportBounds[0];
-		my = viewportSize.y - my;
-		int mouseX = (int)mx;
-		int mouseY = (int)my;
-
-		if (mouseX >= 0 && mouseY >= 0 && mouseX < (int)viewportSize.x && mouseY < (int)viewportSize.y)
-		{
-			int pixelData = m_Framebuffer->ReadPixel(1, mouseX, mouseY);
-			m_HoveredEntity = pixelData == -1 ? Entity() : Entity((entt::entity)pixelData, m_ActiveScene.get());
-		}
-
 		OnOverlayRender();
-
-		m_Framebuffer->Unbind();
 	}
 
 	void EditorLayer::OnImGuiRender()
@@ -315,9 +288,8 @@ namespace AF {
 
 		ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
 		m_ViewportSize = {viewportPanelSize.x, viewportPanelSize.y};
-		m_CameraController.OnResize(m_ViewportSize.x, m_ViewportSize.y);
 
-		uint64_t textureID = m_Framebuffer->GetColorAttachmentRendererID();
+		uint64_t textureID = SceneRenderer::GetFinalColorBufferRendererID();
 		ImGui::Image(reinterpret_cast<void*>(textureID), ImVec2{m_ViewportSize.x, m_ViewportSize.y}, ImVec2{0, 1},
 		             ImVec2{1, 0});
 
@@ -350,8 +322,8 @@ namespace AF {
 			//glm::mat4 cameraView = glm::inverse(cameraEntity.GetComponent<TransformComponent>().GetTransform());
 
 			// Editor camera
-			const glm::mat4& cameraProjection = m_EditorCamera.GetProjection();
-			glm::mat4 cameraView = m_EditorCamera.GetViewMatrix();
+			const glm::mat4& cameraProjection = m_EditorCamera->GetProjection();
+			glm::mat4 cameraView = m_EditorCamera->GetViewMatrix();
 
 			// Entity transform
 			auto& tc = selectedEntity.GetComponent<TransformComponent>();
@@ -478,10 +450,9 @@ namespace AF {
 	{
 		AF_PROFILE_FUNCTION();
 
-		m_CameraController.OnEvent(e);
 		if (m_SceneState == SceneState::Edit)
 		{
-			m_EditorCamera.OnEvent(e);
+			m_EditorCamera->OnEvent(e);
 		}
 
 		EventDispatcher dispatcher(e);
@@ -596,7 +567,22 @@ namespace AF {
 		if (e.GetMouseButton() == Mouse::ButtonLeft)
 		{
 			if (m_ViewportHovered && !ImGuizmo::IsOver() && !Input::IsKeyPressed(Key::LeftAlt))
-				m_SceneHierarchyPanel.SetSelectedEntity(m_HoveredEntity);
+			{
+				auto [mx, my] = ImGui::GetMousePos();
+				mx -= m_ViewportBounds[0].x;
+				my -= m_ViewportBounds[0].y;
+				glm::vec2 viewportSize = m_ViewportBounds[1] - m_ViewportBounds[0];
+				my = viewportSize.y - my;
+				int mouseX = (int)mx;
+				int mouseY = (int)my;
+
+				if (mouseX >= 0 && mouseY >= 0 && mouseX < (int)viewportSize.x && mouseY < (int)viewportSize.y)
+				{
+					int pixelData = SceneRenderer::ReadPixel(mouseX, mouseY);
+					auto HoveredEntity = pixelData == -1 ? Entity() : Entity((entt::entity)pixelData, m_ActiveScene.get());
+					m_SceneHierarchyPanel.SetSelectedEntity(HoveredEntity);
+				}
+			}
 		}
 		return false;
 	}
@@ -609,7 +595,9 @@ namespace AF {
 			if (!camera)
 				return;
 
-			Renderer2D::BeginScene(camera.GetComponent<CameraComponent>().Camera, camera.GetComponent<TransformComponent>().GetTransform());
+			auto& PrimaryCamera = camera.GetComponent<CameraComponent>().Camera;
+			PrimaryCamera->SetViewMatrix(camera.GetComponent<TransformComponent>().GetTransform());
+			Renderer2D::BeginScene(PrimaryCamera);
 		}
 		else
 		{
@@ -620,7 +608,7 @@ namespace AF {
 		{
 			// Box Colliders
 			{
-				auto view = m_ActiveScene->GetAllEntitiesWith<TransformComponent, BoxCollider2DComponent>();
+				auto view = m_ActiveScene->GetAllEntitiesWithView<TransformComponent, BoxCollider2DComponent>();
 				for (auto entity : view)
 				{
 					auto [tc, bc2d] = view.get<TransformComponent, BoxCollider2DComponent>(entity);
@@ -639,7 +627,7 @@ namespace AF {
 
 			// Circle Colliders
 			{
-				auto view = m_ActiveScene->GetAllEntitiesWith<TransformComponent, CircleCollider2DComponent>();
+				auto view = m_ActiveScene->GetAllEntitiesWithView<TransformComponent, CircleCollider2DComponent>();
 				for (auto entity : view)
 				{
 					auto [tc, cc2d] = view.get<TransformComponent, CircleCollider2DComponent>(entity);
@@ -659,10 +647,69 @@ namespace AF {
 		if (Entity selectedEntity = m_SceneHierarchyPanel.GetSelectedEntity())
 		{
 			const TransformComponent& transform = selectedEntity.GetComponent<TransformComponent>();
-			//Renderer2D::DrawRect(transform.GetTransform(), glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
+			Renderer2D::DrawRect(transform.GetTransform(), glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
 		}
 
 		Renderer2D::EndScene();
+	}
+
+	void EditorLayer::OnUpdateRuntime(Timestep ts)
+	{
+		m_ActiveScene->UpdateScripts(ts);
+
+		m_ActiveScene->UpdatePhysics(ts);
+
+		// Render 2D
+		{
+			auto view = m_ActiveScene->GetAllEntitiesWithView<TransformComponent, CameraComponent>();
+			for (auto entity : view)
+			{
+				auto [transform, camera] = view.get<TransformComponent, CameraComponent>(entity);
+
+				if (camera.Primary)
+				{
+					auto activeCamera = camera.Camera;
+					activeCamera->SetViewMatrix(glm::inverse(transform.GetTransform()));
+					m_ActiveScene->SetCamera(activeCamera);
+					if (activeCamera)
+					{
+						// Render
+						RenderScene();
+					}
+					break;
+				}
+			}
+		}
+
+
+	}
+
+	void EditorLayer::OnUpdateSimulation(Timestep ts, Ref<EditorCamera>& camera)
+	{
+		m_ActiveScene->SetCamera(camera);
+
+		m_ActiveScene->UpdatePhysics(ts);
+
+		// Render
+		RenderScene();
+	}
+
+	void EditorLayer::OnUpdateEditor(Ref<EditorCamera>& camera)
+	{
+		m_ActiveScene->SetCamera(camera);
+		// Render
+		RenderScene();
+	}
+
+	void EditorLayer::RenderScene()
+	{
+		Renderer::BeginScene();
+
+		SceneRenderer::BeginScene(m_ActiveScene);
+
+		SceneRenderer::EndScene();
+
+		Renderer::EndScene();
 	}
 
 	void EditorLayer::NewProject()

@@ -9,6 +9,13 @@ namespace AF {
 	class OpenGLShader : public Shader
 	{
 	public:
+
+		struct UniformInfo {
+			GLint location;
+			GLenum type;
+			GLint size;
+		};
+
 		OpenGLShader(const std::string& filepath);
 		OpenGLShader(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc);
 		~OpenGLShader();
@@ -38,19 +45,26 @@ namespace AF {
 		void UploadUniformMat3(const std::string& name, const glm::mat3& matrix);
 		void UploadUniformMat4(const std::string& name, const glm::mat4& matrix);
 
+		const std::unordered_map<std::string, UniformInfo>& GetUniformInfos() const {
+			return m_UniformInfos;
+		}
+
+		bool HasUniform(const std::string& name) const {
+			return m_UniformInfos.find(name) != m_UniformInfos.end();
+		}
 	private:
 		std::string ReadFile(const std::string& filepath);
 		std::unordered_map<GLenum, std::string> PreProcess(const std::string& source);
 
-
-
-
 		void Compile(const std::unordered_map<GLenum, std::string>& shaderSources);
 
+		void ExtractUniformReflection();
 	private:
 		uint32_t m_RendererID;
 		std::string m_FilePath;
 		std::string m_Name;
+
+		std::unordered_map<std::string, UniformInfo> m_UniformInfos;
 	};
 
 }

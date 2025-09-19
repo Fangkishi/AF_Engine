@@ -26,6 +26,10 @@ namespace AF {
 			return m_ColorAttachments[index];
 		}
 
+		virtual void BindTexture(uint32_t slot = 0, uint32_t index = 0) const override;
+
+		virtual Ref<Texture2D> GetColorAttachment(uint32_t index = 0) const override;
+
 		virtual const FramebufferSpecification& GetSpecification() const override { return m_Specification; }
 
 	private:

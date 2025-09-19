@@ -20,12 +20,16 @@ namespace AF {
 		void OnUpdate(Timestep ts) override;
 		virtual void OnImGuiRender() override;
 		void OnEvent(Event& e) override;
-
 	private:
 		bool OnKeyPressed(KeyPressedEvent& e);
 		bool OnMouseButtonPressed(MouseButtonPressedEvent& e);
 
 		void OnOverlayRender();
+
+		void OnUpdateRuntime(Timestep ts);
+		void OnUpdateSimulation(Timestep ts, Ref<EditorCamera>& camera);
+		void OnUpdateEditor(Ref<EditorCamera>& camera);
+		void RenderScene();
 
 		void NewProject();
 		bool OpenProject();
@@ -52,17 +56,11 @@ namespace AF {
 		// UI Panels
 		void UI_Toolbar();
 	private:
-		OrthographicCameraController m_CameraController;
-
-		Ref<Framebuffer> m_Framebuffer;
-
 		Ref<Scene> m_ActiveScene;
 		Ref<Scene> m_EditorScene;
 		std::filesystem::path m_EditorScenePath;
 
-		Entity m_HoveredEntity;
-
-		EditorCamera m_EditorCamera;
+		Ref<EditorCamera> m_EditorCamera;
 
 		Ref<Texture2D> m_CheckerboardTexture;
 

@@ -24,4 +24,7 @@
       <Filter>Panels</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\shaders\hdr.glsl" />
+  </ItemGroup>
 </Project>

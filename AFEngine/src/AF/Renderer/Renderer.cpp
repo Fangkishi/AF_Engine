@@ -8,16 +8,9 @@ namespace AF {
 
 	struct RendererData
 	{
-		Ref<VertexArray> m_FullscreenQuadVertexArray;
+		Ref<RenderPass> m_ActiveRenderPass;
 
-		struct CameraData
-		{
-			glm::vec3 ViewPosition;
-			unsigned int padding;
-			glm::mat4 ViewProjection;
-		};
-		CameraData CameraBuffer;
-		Ref<UniformBuffer> CameraUniformBuffer;
+		Ref<VertexArray> m_FullscreenQuadVertexArray;
 
 		struct DirLight
 		{
@@ -54,8 +47,7 @@ namespace AF {
 
 		RenderCommand::Init();
 		Renderer2D::Init();
-
-		s_Data.CameraUniformBuffer = UniformBuffer::Create(sizeof(s_Data.CameraBuffer), 0);
+		SceneRenderer::Init();
 
 		s_Data.DirLightUniformBuffer = ShaderStorageBuffer::Create(sizeof(s_Data.DirLightBuffer), 0);
 		s_Data.PointLightUniformBuffer = ShaderStorageBuffer::Create(sizeof(s_Data.PointLightBuffer), 1);
@@ -63,6 +55,29 @@ namespace AF {
 		auto material = CreateRef<Material>();
 		material->SetShader(Shader::Create("assets/shaders/phong.glsl"));
 		s_Data.DefaultMaterial = material;
+
+		// 创建全屏四边形顶点数组
+		s_Data.m_FullscreenQuadVertexArray = VertexArray::Create();
+
+		// 定义全屏四边形顶点数据
+		float vertices[] = {
+			// positions        // texCoords
+			-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+			 1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+			-1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+
+			 1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+			 1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+			-1.0f,  1.0f, 0.0f, 0.0f, 1.0f
+		};
+
+		Ref<VertexBuffer> vertexBuffer = VertexBuffer::Create(vertices, sizeof(vertices));
+		BufferLayout layout = {
+			{ ShaderDataType::Float3, "a_Position" },
+			{ ShaderDataType::Float2, "a_TexCoord" }
+		};
+		vertexBuffer->SetLayout(layout);
+		s_Data.m_FullscreenQuadVertexArray->AddVertexBuffer(vertexBuffer);
 	}
 
 	void Renderer::OnWindowResize(uint32_t width, uint32_t height)
@@ -70,23 +85,9 @@ namespace AF {
 		RenderCommand::SetViewport(0, 0, width, height);
 	}
 
-	void Renderer::BeginScene(const Camera& camera, const glm::mat4& transform)
+	void Renderer::BeginScene()
 	{
-		AF_PROFILE_FUNCTION();
 
-		glm::mat4 viewMatrix = glm::inverse(transform);
-		s_Data.CameraBuffer.ViewPosition = glm::vec3(viewMatrix[3]);
-		s_Data.CameraBuffer.ViewProjection = camera.GetProjection() * glm::inverse(transform);
-		s_Data.CameraUniformBuffer->SetData(&s_Data.CameraBuffer, sizeof(s_Data.CameraBuffer));
-	}
-
-	void Renderer::BeginScene(const EditorCamera& camera)
-	{
-		AF_PROFILE_FUNCTION();
-
-		s_Data.CameraBuffer.ViewPosition = camera.GetPosition();
-		s_Data.CameraBuffer.ViewProjection = camera.GetViewProjection();
-		s_Data.CameraUniformBuffer->SetData(&s_Data.CameraBuffer, sizeof(s_Data.CameraBuffer));
 	}
 
 	void Renderer::EndScene()
@@ -94,31 +95,26 @@ namespace AF {
 
 	}
 
-	void Renderer::SubmitQuad(const Ref<Material>& material, const glm::mat4& transform)
+	void Renderer::BeginRenderPass(const Ref<RenderPass> renderPass)
 	{
-		bool depthTest = true;
-		if (material)
-		{
-			//material->Bind();
+		s_Data.m_ActiveRenderPass = renderPass;
 
-			auto shader = material->GetShader();
-			shader->SetMat4("u_Transform", transform);
-		}
+		renderPass->GetSpecification().TargetFramebuffer->Bind();
+	}
 
-		s_Data.m_FullscreenQuadVertexArray->Bind();
-		//Renderer::DrawIndexed(6, depthTest);
+	void Renderer::EndRenderPass()
+	{
+		s_Data.m_ActiveRenderPass->GetSpecification().TargetFramebuffer->Unbind();
 	}
 
 	void Renderer::SubmitFullscreenQuad(const Ref<Material>& material)
 	{
-		bool depthTest = true;
 		if (material)
 		{
-			//material->Bind();
+			material->Bind();
 		}
 
-		s_Data.m_FullscreenQuadVertexArray->Bind();
-		//Renderer::DrawIndexed(6, depthTest
+		RenderCommand::DrawTriangles(s_Data.m_FullscreenQuadVertexArray, 6);
 	}
 
 	void Renderer::SubmitMesh(const Ref<Mesh>& mesh, const Ref<Material>& overridematerial, const glm::mat4& transform, int entityID)
@@ -126,23 +122,20 @@ namespace AF {
 		auto material = overridematerial ? overridematerial : s_Data.DefaultMaterial;
 
 		// 绑定材质的uniforms和纹理
-		if (!material->GetShader())
-			material->SetShader(s_Data.DefaultMaterial->GetShader());
-		material->Bind();
-
-		auto shader = material->GetShader();
 		material->SetUniform("u_Transform", transform);
 		auto normalMatrix = glm::mat3(glm::transpose(glm::inverse(transform)));
 		material->SetUniform("u_NormalMatrix", normalMatrix);
 		material->SetUniform("u_EntityID", entityID);
 
-		material->SetUniform("Camera", s_Data.CameraUniformBuffer);
+		material->SetUniform("Camera", SceneRenderer::GetCameraUniformBuffer());
 
 		s_Data.DirLightUniformBuffer->SetData(&s_Data.DirLightBuffer, sizeof(s_Data.DirLightBuffer));
 		material->SetUniform("DirLights", s_Data.DirLightUniformBuffer);
 
 		s_Data.PointLightUniformBuffer->SetData(&s_Data.PointLightBuffer, sizeof(s_Data.PointLightBuffer));
 		material->SetUniform("PointLights", s_Data.PointLightUniformBuffer);
+
+		material->Bind();
 
 		Renderer::Submit([=]()
 			{

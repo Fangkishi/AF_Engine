@@ -87,7 +87,7 @@ namespace AF {
 
 	struct CameraComponent
 	{
-		SceneCamera Camera;
+		Ref<SceneCamera> Camera = CreateRef<SceneCamera>();
 		bool Primary = true; // TODO: think about moving to Scene
 		bool FixedAspectRatio = false;
 

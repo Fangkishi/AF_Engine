@@ -158,153 +158,57 @@ namespace AF {
 		OnPhysics2DStop();
 	}
 
-	void Scene::OnUpdateRuntime(Timestep ts)
+	void Scene::UpdateScripts(Timestep ts)
 	{
 		if (!m_IsPaused || m_StepFrames-- > 0)
 		{
-			// Update scripts
+			// C# Entity OnUpdate
+			auto view = m_Registry.view<ScriptComponent>();
+			for (auto e : view)
 			{
-				// C# Entity OnUpdate
-				auto view = m_Registry.view<ScriptComponent>();
-				for (auto e : view)
-				{
-					Entity entity = { e, this };
-					//ScriptEngine::OnUpdateEntity(entity, ts);
-				}
+				Entity entity = { e, this };
+				//ScriptEngine::OnUpdateEntity(entity, ts);
+			}
 
-				m_Registry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
+			m_Registry.view<NativeScriptComponent>().each([=](auto entity, auto& nsc)
+				{
+					// TODO: Move to Scene::OnScenePlay
+					if (!nsc.Instance)
 					{
-						// TODO: Move to Scene::OnScenePlay
-						if (!nsc.Instance)
-						{
-							nsc.Instance = nsc.InstantiateScript();
-							nsc.Instance->m_Entity = Entity{ entity, this };
-							nsc.Instance->OnCreate();
-						}
+						nsc.Instance = nsc.InstantiateScript();
+						nsc.Instance->m_Entity = Entity{ entity, this };
+						nsc.Instance->OnCreate();
+					}
 
-						nsc.Instance->OnUpdate(ts);
-					});
-			}
-
-			// Physics
-			{
-				const int32_t velocityIterations = 6;
-				const int32_t positionIterations = 2;
-				m_PhysicsWorld->Step(ts, velocityIterations, positionIterations);
-
-				// Retrieve transform from Box2D
-				auto view = m_Registry.view<Rigidbody2DComponent>();
-				for (auto e : view)
-				{
-					Entity entity = { e, this };
-					auto& transform = entity.GetComponent<TransformComponent>();
-					auto& rb2d = entity.GetComponent<Rigidbody2DComponent>();
-
-					b2Body* body = (b2Body*)rb2d.RuntimeBody;
-
-					const auto& position = body->GetPosition();
-					transform.Translation.x = position.x;
-					transform.Translation.y = position.y;
-					transform.Rotation.z = body->GetAngle();
-				}
-			}
+					nsc.Instance->OnUpdate(ts);
+				});
 		}
-
-		// Render 2D
-		Camera* mainCamera = nullptr;
-		glm::mat4 cameraTransform;
-		{
-			auto view = m_Registry.view<TransformComponent, CameraComponent>();
-			for (auto entity : view)
-			{
-				auto [transform, camera] = view.get<TransformComponent, CameraComponent>(entity);
-
-				if (camera.Primary)
-				{
-					mainCamera = &camera.Camera;
-					cameraTransform = transform.GetTransform();
-					break;
-				}
-			}
-		}
-
-		if (mainCamera)
-		{
-			Renderer2D::BeginScene(*mainCamera, cameraTransform);
-
-			// Draw sprites
-			{
-				auto group = m_Registry.group<TransformComponent>(entt::get<SpriteRendererComponent>);
-				for (auto entity : group)
-				{
-					auto [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);
-
-					Renderer2D::DrawSprite(transform.GetTransform(), sprite, (int)entity);
-				}
-			}
-
-			// Draw circles
-			{
-				auto view = m_Registry.view<TransformComponent, CircleRendererComponent>();
-				for (auto entity : view)
-				{
-					auto [transform, circle] = view.get<TransformComponent, CircleRendererComponent>(entity);
-
-					Renderer2D::DrawCircle(transform.GetTransform(), circle.Color, circle.Thickness, circle.Fade, (int)entity);
-				}
-			}
-
-			// Draw text
-			//{
-			//	auto view = m_Registry.view<TransformComponent, TextComponent>();
-			//	for (auto entity : view)
-			//	{
-			//		auto [transform, text] = view.get<TransformComponent, TextComponent>(entity);
-
-			//		Renderer2D::DrawString(text.TextString, transform.GetTransform(), text, (int)entity);
-			//	}
-			//}
-
-			Renderer2D::EndScene();
-		}
-
 	}
 
-	void Scene::OnUpdateSimulation(Timestep ts, EditorCamera& camera)
+	void Scene::UpdatePhysics(Timestep ts)
 	{
 		if (!m_IsPaused || m_StepFrames-- > 0)
 		{
-			// Physics
+			const int32_t velocityIterations = 6;
+			const int32_t positionIterations = 2;
+			m_PhysicsWorld->Step(ts, velocityIterations, positionIterations);
+
+			// Retrieve transform from Box2D
+			auto view = m_Registry.view<Rigidbody2DComponent>();
+			for (auto e : view)
 			{
-				const int32_t velocityIterations = 6;
-				const int32_t positionIterations = 2;
-				m_PhysicsWorld->Step(ts, velocityIterations, positionIterations);
+				Entity entity = { e, this };
+				auto& transform = entity.GetComponent<TransformComponent>();
+				auto& rb2d = entity.GetComponent<Rigidbody2DComponent>();
 
-				// Retrieve transform from Box2D
-				auto view = m_Registry.view<Rigidbody2DComponent>();
-				for (auto e : view)
-				{
-					Entity entity = { e, this };
-					auto& transform = entity.GetComponent<TransformComponent>();
-					auto& rb2d = entity.GetComponent<Rigidbody2DComponent>();
+				b2Body* body = (b2Body*)rb2d.RuntimeBody;
 
-					b2Body* body = (b2Body*)rb2d.RuntimeBody;
-					const auto& position = body->GetPosition();
-					transform.Translation.x = position.x;
-					transform.Translation.y = position.y;
-					transform.Rotation.z = body->GetAngle();
-				}
+				const auto& position = body->GetPosition();
+				transform.Translation.x = position.x;
+				transform.Translation.y = position.y;
+				transform.Rotation.z = body->GetAngle();
 			}
 		}
-
-		// Render
-		RenderScene(camera);
-	}
-
-	void Scene::OnUpdateEditor(Timestep ts, EditorCamera& camera)
-	{
-		// Render
-		RenderScene(camera);
 	}
 
 	void Scene::OnViewportResize(uint32_t width, uint32_t height)
@@ -321,7 +225,7 @@ namespace AF {
 		{
 			auto& cameraComponent = view.get<CameraComponent>(entity);
 			if (!cameraComponent.FixedAspectRatio)
-				cameraComponent.Camera.SetViewportSize(width, height);
+				cameraComponent.Camera->SetViewportSize(width, height);
 		}
 	}
 
@@ -433,68 +337,6 @@ namespace AF {
 		m_PhysicsWorld = nullptr;
 	}
 
-	void Scene::RenderScene(EditorCamera& camera)
-	{
-		Renderer2D::BeginScene(camera);
-		// Draw sprites
-		{
-			auto group = m_Registry.group<TransformComponent>(entt::get<SpriteRendererComponent>);
-			for (auto entity : group)
-			{
-				auto [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);
-
-				Renderer2D::DrawSprite(transform.GetTransform(), sprite, (int)entity);
-			}
-		}
-
-		// Draw circles
-		{
-			auto view = m_Registry.view<TransformComponent, CircleRendererComponent>();
-			for (auto entity : view)
-			{
-				auto [transform, circle] = view.get<TransformComponent, CircleRendererComponent>(entity);
-
-				Renderer2D::DrawCircle(transform.GetTransform(), circle.Color, circle.Thickness, circle.Fade, (int)entity);
-			}
-		}
-
-		// Draw text
-		//{
-		//	auto view = m_Registry.view<TransformComponent, TextComponent>();
-		//	for (auto entity : view)
-		//	{
-		//		auto [transform, text] = view.get<TransformComponent, TextComponent>(entity);
-
-		//		Renderer2D::DrawString(text.TextString, transform.GetTransform(), text, (int)entity);
-		//	}
-		//}
-		Renderer2D::EndScene();
-
-		Renderer::BeginScene(camera);
-		{
-			// 对相同材质的网格进行分组以减少状态切换
-			std::unordered_map<Ref<Material>, std::vector<std::tuple<Ref<Mesh>, glm::mat4, int>>> materialBatches;
-
-			auto view = m_Registry.view<TransformComponent, MeshComponent, MaterialComponent>();
-			for (auto entity : view)
-			{
-				auto [transform, mesh, material] = view.get<TransformComponent, MeshComponent, MaterialComponent>(entity);
-
-				materialBatches[material.material].push_back(std::make_tuple(mesh.mesh, transform.GetTransform(), (int)entity));
-			}
-
-			// 按材质批处理渲染
-			for (const auto& [material, meshList] : materialBatches)
-			{
-				for (const auto& [mesh, transform, entityId] : meshList)
-				{
-					Renderer::SubmitMesh(mesh, material, transform, entityId);
-				}
-			}
-		}
-		Renderer::EndScene();
-	}
-
 	template <typename T>
 	void Scene::OnComponentAdded(Entity entity, T& component)
 	{
@@ -530,7 +372,7 @@ namespace AF {
 	void Scene::OnComponentAdded<CameraComponent>(Entity entity, CameraComponent& component)
 	{
 		if (m_ViewportWidth > 0 && m_ViewportHeight > 0)
-			component.Camera.SetViewportSize(m_ViewportWidth, m_ViewportHeight);
+			component.Camera->SetViewportSize(m_ViewportWidth, m_ViewportHeight);
 	}
 
 	template <>

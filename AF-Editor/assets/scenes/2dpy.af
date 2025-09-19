@@ -1,4 +1,6 @@
 Scene: Untitled
+ViewportWidth: 856
+ViewportHeight: 590
 Entities:
   - Entity: 6617449986954770762
     TagComponent:

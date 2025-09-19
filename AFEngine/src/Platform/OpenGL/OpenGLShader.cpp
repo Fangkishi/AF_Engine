@@ -207,6 +207,25 @@ namespace AF {
 		}
 
 		m_RendererID = program;
+
+		ExtractUniformReflection();
+	}
+
+	void OpenGLShader::ExtractUniformReflection() {
+		GLint uniformCount;
+		glGetProgramiv(m_RendererID, GL_ACTIVE_UNIFORMS, &uniformCount);
+
+		for (int i = 0; i < uniformCount; i++) {
+			char name[256];
+			GLsizei length;
+			GLint size;
+			GLenum type;
+
+			glGetActiveUniform(m_RendererID, i, sizeof(name), &length, &size, &type, name);
+			GLint location = glGetUniformLocation(m_RendererID, name);
+
+			m_UniformInfos[name] = { location, type, size };
+		}
 	}
 
 	void OpenGLShader::Bind() const

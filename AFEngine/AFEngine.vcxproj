@@ -195,6 +195,8 @@
     <ClInclude Include="src\AF\Renderer\Renderer.h" />
     <ClInclude Include="src\AF\Renderer\Renderer2D.h" />
     <ClInclude Include="src\AF\Renderer\RendererAPI.h" />
+    <ClInclude Include="src\AF\Renderer\RenderPass.h" />
+    <ClInclude Include="src\AF\Renderer\SceneRenderer.h" />
     <ClInclude Include="src\AF\Renderer\Shader.h" />
     <ClInclude Include="src\AF\Renderer\Texture.h" />
     <ClInclude Include="src\AF\Renderer\UniformBuffer.h" />
@@ -664,6 +666,8 @@
     <ClCompile Include="src\AF\Renderer\Renderer.cpp" />
     <ClCompile Include="src\AF\Renderer\Renderer2D.cpp" />
     <ClCompile Include="src\AF\Renderer\RendererAPI.cpp" />
+    <ClCompile Include="src\AF\Renderer\RenderPass.cpp" />
+    <ClCompile Include="src\AF\Renderer\SceneRenderer.cpp" />
     <ClCompile Include="src\AF\Renderer\Shader.cpp" />
     <ClCompile Include="src\AF\Renderer\Texture.cpp" />
     <ClCompile Include="src\AF\Renderer\UniformBuffer.cpp" />

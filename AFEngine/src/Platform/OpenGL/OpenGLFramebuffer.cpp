@@ -216,7 +216,6 @@ namespace AF {
 		int pixelData;
 		glReadPixels(x, y, 1, 1, GL_RED_INTEGER, GL_INT, &pixelData);
 		return pixelData;
-
 	}
 
 	void OpenGLFramebuffer::ClearAttachment(uint32_t attachmentIndex, int value)
@@ -226,6 +225,20 @@ namespace AF {
 		auto& spec = m_ColorAttachmentSpecifications[attachmentIndex];
 		glClearTexImage(m_ColorAttachments[attachmentIndex], 0,
 		                Utils::AFFBTextureFormatToGL(spec.TextureFormat), GL_INT, &value);
+	}
+
+	void OpenGLFramebuffer::BindTexture(uint32_t slot, uint32_t index) const
+	{
+		AF_CORE_ASSERT(index < m_ColorAttachments.size());
+
+		glBindTextureUnit(slot, m_ColorAttachments[index]);
+	}
+
+	Ref<Texture2D> OpenGLFramebuffer::GetColorAttachment(uint32_t index) const
+	{
+		// TODO：Texture2D类没有提供通过现有ID创建的方法，
+
+		return nullptr;
 	}
 
 }

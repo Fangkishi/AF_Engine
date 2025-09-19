@@ -1,6 +1,8 @@
 #pragma once
 
 #include "RenderCommand.h"
+#include "AF/Renderer/SceneRenderer.h"
+#include "AF/Renderer/RenderPass.h"
 
 #include "AF/Renderer/Camera.h"
 #include "AF/Renderer/EditorCamera.h"
@@ -19,11 +21,12 @@ namespace AF {
 
 		static void OnWindowResize(uint32_t width, uint32_t height);
 
-		static void BeginScene(const Camera& camera, const glm::mat4& transform);
-		static void BeginScene(const EditorCamera& camera);
+		static void BeginScene();
 		static void EndScene();
 
-		static void SubmitQuad(const Ref<Material>& material, const glm::mat4& transform);
+		static void BeginRenderPass(const Ref<RenderPass> renderPass);
+		static void EndRenderPass();
+
 		static void SubmitFullscreenQuad(const Ref<Material>& material);
 
 		static void SubmitMesh(const Ref<Mesh>& mesh, const Ref<Material>& overridematerial, const glm::mat4& transform, int entityID = -1);

@@ -3,6 +3,7 @@
 #include "AF/Renderer/Camera.h"
 
 namespace AF {
+
 	class SceneCamera : public Camera
 	{
 	public:
@@ -87,4 +88,5 @@ namespace AF {
 
 		float m_AspectRatio = 0.0f;
 	};
+
 }

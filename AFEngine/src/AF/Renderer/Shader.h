@@ -1,11 +1,29 @@
 #pragma once
 
+#include "AF/Renderer/Texture.h"
+#include "AF/Renderer/UniformBuffer.h"
+
 #include <string>
 #include <unordered_map>
 
 #include <glm/glm.hpp>
 
 namespace AF {
+
+	using UniformValue = std::variant<
+		int,
+		float,
+		glm::vec2,
+		glm::vec3,
+		glm::vec4,
+		glm::mat3,
+		glm::mat4,
+		Ref<Texture2D>,
+		Ref<UniformBuffer>,
+		Ref<ShaderStorageBuffer>
+		// ... 其他需要的类型
+	>;
+
 	class Shader
 	{
 	public:

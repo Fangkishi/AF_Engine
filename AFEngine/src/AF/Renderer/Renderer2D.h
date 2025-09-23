@@ -6,7 +6,6 @@
 
 #include "AF/Renderer/Camera.h"
 #include "AF/Renderer/EditorCamera.h"
-#include "Camera/OrthographicCamera.h"
 
 #include "AF/Scene/Components.h"
 

@@ -37,6 +37,9 @@ namespace AF {
 		Ref<ShaderStorageBuffer> PointLightUniformBuffer;
 
 		Ref<Material> DefaultMaterial;
+		Ref<Shader> DefaultShader;
+
+		int texUnit = 0;
 	};
 
 	static RendererData s_Data;
@@ -52,9 +55,8 @@ namespace AF {
 		s_Data.DirLightUniformBuffer = ShaderStorageBuffer::Create(sizeof(s_Data.DirLightBuffer), 0);
 		s_Data.PointLightUniformBuffer = ShaderStorageBuffer::Create(sizeof(s_Data.PointLightBuffer), 1);
 
-		auto material = CreateRef<Material>();
-		material->SetShader(Shader::Create("assets/shaders/phong.glsl"));
-		s_Data.DefaultMaterial = material;
+		s_Data.DefaultMaterial = CreateRef<Material>();;
+		s_Data.DefaultShader = Shader::Create("assets/shaders/phong.glsl");
 
 		// 创建全屏四边形顶点数组
 		s_Data.m_FullscreenQuadVertexArray = VertexArray::Create();
@@ -100,18 +102,40 @@ namespace AF {
 		s_Data.m_ActiveRenderPass = renderPass;
 
 		renderPass->GetSpecification().TargetFramebuffer->Bind();
+
+		Ref<Shader> shader = s_Data.m_ActiveRenderPass->GetSpecification().m_Shader;
+		if (!shader) {
+			shader = s_Data.DefaultShader;
+		}
+
+		shader->Bind();
+
+		// 全局参数
+		//TODO:全局参数整合成一个方法
+		SceneRenderer::GetCameraUniformBuffer()->Bind();
+
+		s_Data.DirLightUniformBuffer->SetData(&s_Data.DirLightBuffer, sizeof(s_Data.DirLightBuffer));
+		s_Data.DirLightUniformBuffer->Bind();
+
+		s_Data.PointLightUniformBuffer->SetData(&s_Data.PointLightBuffer, sizeof(s_Data.PointLightBuffer));
+		s_Data.PointLightUniformBuffer->Bind();
+
+		// 通道参数
+		ApplyUniforms(s_Data.m_ActiveRenderPass->GetSpecification().m_Shader, s_Data.m_ActiveRenderPass->GetSpecification().PassUniforms);
 	}
 
 	void Renderer::EndRenderPass()
 	{
 		s_Data.m_ActiveRenderPass->GetSpecification().TargetFramebuffer->Unbind();
+
+		s_Data.texUnit = 0;
 	}
 
 	void Renderer::SubmitFullscreenQuad(const Ref<Material>& material)
 	{
 		if (material)
 		{
-			material->Bind();
+			//material->Bind();
 		}
 
 		RenderCommand::DrawTriangles(s_Data.m_FullscreenQuadVertexArray, 6);
@@ -119,23 +143,17 @@ namespace AF {
 
 	void Renderer::SubmitMesh(const Ref<Mesh>& mesh, const Ref<Material>& overridematerial, const glm::mat4& transform, int entityID)
 	{
-		auto material = overridematerial ? overridematerial : s_Data.DefaultMaterial;
+		auto& material = overridematerial ? overridematerial : s_Data.DefaultMaterial;
+		auto& shader = s_Data.m_ActiveRenderPass->GetSpecification().m_Shader;
 
-		// 绑定材质的uniforms和纹理
-		material->SetUniform("u_Transform", transform);
+		// 材质参数
+		ApplyUniforms(shader, material->GetUniforms());
+
+		// 实体参数
+		shader->SetMat4("u_Transform", transform);
 		auto normalMatrix = glm::mat3(glm::transpose(glm::inverse(transform)));
-		material->SetUniform("u_NormalMatrix", normalMatrix);
-		material->SetUniform("u_EntityID", entityID);
-
-		material->SetUniform("Camera", SceneRenderer::GetCameraUniformBuffer());
-
-		s_Data.DirLightUniformBuffer->SetData(&s_Data.DirLightBuffer, sizeof(s_Data.DirLightBuffer));
-		material->SetUniform("DirLights", s_Data.DirLightUniformBuffer);
-
-		s_Data.PointLightUniformBuffer->SetData(&s_Data.PointLightBuffer, sizeof(s_Data.PointLightBuffer));
-		material->SetUniform("PointLights", s_Data.PointLightUniformBuffer);
-
-		material->Bind();
+		shader->SetMat3("u_NormalMatrix", normalMatrix);
+		shader->SetInt("u_EntityID", entityID);
 
 		Renderer::Submit([=]()
 			{
@@ -146,6 +164,15 @@ namespace AF {
 	void Renderer::Submit(const std::function<void()>& renderFunc)
 	{
 		renderFunc();
+	}
+
+	void Renderer::ApplyUniforms(const Ref<Shader>& shader, const std::unordered_map<std::string, UniformValue>& m_Uniforms)
+	{
+		if (!shader) return;
+
+		for (const auto& [name, value] : m_Uniforms) {
+			std::visit(UniformApplier{ shader, name, s_Data.texUnit }, value);
+		}
 	}
 
 }

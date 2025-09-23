@@ -2,6 +2,7 @@
 #include "SceneRenderer.h"
 #include "AF/Renderer/Renderer.h"
 #include "AF/Renderer/Renderer2D.h"
+#include "AF/Renderer/RenderPass.h"
 
 namespace AF {
 
@@ -39,6 +40,7 @@ namespace AF {
 		// Geometry Render Pass Specification
 		RenderPassSpecification geoRenderPassSpec;
 		geoRenderPassSpec.TargetFramebuffer = Framebuffer::Create(geoFramebufferSpec);
+		geoRenderPassSpec.m_Shader = Shader::Create("assets/shaders/pbr.glsl");
 		s_Data.GeoPass = RenderPass::Create(geoRenderPassSpec);
 
 		FramebufferSpecification comFramebufferSpec;
@@ -51,9 +53,8 @@ namespace AF {
 		// Geometry Render Pass Specification
 		RenderPassSpecification comRenderPassSpec;
 		comRenderPassSpec.TargetFramebuffer = Framebuffer::Create(comFramebufferSpec);
+		comRenderPassSpec.m_Shader = Shader::Create("assets/shaders/hdr.glsl");
 		s_Data.CompositePass = RenderPass::Create(comRenderPassSpec);
-
-		s_Data.CompositeShader = Shader::Create("assets/shaders/hdr.glsl");
 
 		s_Data.CameraUniformBuffer = UniformBuffer::Create(sizeof(s_Data.CameraBuffer), 0);
 	}
@@ -129,6 +130,29 @@ namespace AF {
 		// Clear our entity ID attachment to -1
 		s_Data.GeoPass->GetSpecification().TargetFramebuffer->ClearAttachment(1, -1);
 
+		// 渲染场景中的所有网格实体
+		if (s_Data.ActiveScene) {
+			// 对相同材质的网格进行分组以减少状态切换
+			std::unordered_map<Ref<Material>, std::vector<std::tuple<Ref<Mesh>, glm::mat4, int>>> materialBatches;
+
+			auto view = s_Data.ActiveScene->GetAllEntitiesWithView<TransformComponent, MeshComponent, MaterialComponent>();
+			for (auto entity : view)
+			{
+				auto [transform, mesh, material] = view.get<TransformComponent, MeshComponent, MaterialComponent>(entity);
+
+				materialBatches[material.material].push_back(std::make_tuple(mesh.mesh, transform.GetTransform(), (int)entity));
+			}
+
+			// 按材质批处理渲染
+			for (const auto& [material, meshList] : materialBatches)
+			{
+				for (const auto& [mesh, transform, entityId] : meshList)
+				{
+					Renderer::SubmitMesh(mesh, material, transform, entityId);
+				}
+			}
+		}
+
 		Renderer2D::BeginScene(s_Data.ActiveScene->GetCamera());
 		{
 			// Draw sprites
@@ -166,29 +190,6 @@ namespace AF {
 		}
 		Renderer2D::EndScene();
 
-		// 渲染场景中的所有网格实体
-		if (s_Data.ActiveScene) {
-			// 对相同材质的网格进行分组以减少状态切换
-			std::unordered_map<Ref<Material>, std::vector<std::tuple<Ref<Mesh>, glm::mat4, int>>> materialBatches;
-
-			auto view = s_Data.ActiveScene->GetAllEntitiesWithView<TransformComponent, MeshComponent, MaterialComponent>();
-			for (auto entity : view)
-			{
-				auto [transform, mesh, material] = view.get<TransformComponent, MeshComponent, MaterialComponent>(entity);
-
-				materialBatches[material.material].push_back(std::make_tuple(mesh.mesh, transform.GetTransform(), (int)entity));
-			}
-
-			// 按材质批处理渲染
-			for (const auto& [material, meshList] : materialBatches)
-			{
-				for (const auto& [mesh, transform, entityId] : meshList)
-				{
-					Renderer::SubmitMesh(mesh, material, transform, entityId);
-				}
-			}
-		}
-
 		Renderer::EndRenderPass();
 	}
 
@@ -199,9 +200,10 @@ namespace AF {
 
 		RenderCommand::Clear();
 
-		s_Data.CompositeShader->Bind();
-		s_Data.CompositeShader->SetFloat("u_Exposure ", s_Data.Exposure);
-		s_Data.CompositeShader->SetInt("u_SceneTexture ", 0);
+		auto shader = s_Data.CompositePass->GetSpecification().m_Shader;
+		shader->Bind();
+		shader->SetFloat("u_Exposure ", s_Data.Exposure);
+		shader->SetInt("u_SceneTexture ", 0);
 
 		// 获取几何通道的结果
 		s_Data.GeoPass->GetSpecification().TargetFramebuffer->BindTexture(0, 0);

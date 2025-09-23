@@ -43,13 +43,13 @@ public:
 		//Index Buffer
 		//unsigned int indices[] = { 0, 1, 2, 0, 2, 3 };
 		unsigned int indices[] = {
-			// 前面（第一个面）
-			0, 1, 2, // 第一个三角形
-			0, 2, 3, // 第二个三角形
+			// Front face (first quad)
+			0, 1, 2, // First triangle
+			0, 2, 3, // Second triangle
 
-			// 后面（第二个面）  
-			4, 5, 6, // 第一个三角形
-			4, 6, 7, // 第二个三角形
+			// Back face (second quad)  
+			4, 5, 6, // First triangle
+			4, 6, 7, // Second triangle
 		};
 		AF::Ref<AF::IndexBuffer> IndexBuffer;
 		IndexBuffer = AF::IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t));
@@ -65,10 +65,10 @@ public:
 
 	void OnUpdate(AF::Timestep ts) override
 	{
-		AF::RenderCommand::SetClearColor({0.1f, 0.1f, 0.1f, 1});
+		AF::RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
 		AF::RenderCommand::Clear();
 
-		m_CameraController->OnUpdate(ts);
+		//m_CameraController->OnUpdate(ts);
 
 		//AF::Renderer::BeginScene(m_Camera);
 
@@ -88,7 +88,7 @@ public:
 
 	void OnEvent(AF::Event& event) override
 	{
-		m_CameraController->OnEvent(event);
+		//m_CameraController->OnEvent(event);
 	}
 
 private:
@@ -98,8 +98,8 @@ private:
 
 	AF::Ref<AF::Texture2D> m_Texture;
 
-	AF::Ref<AF::CameraBase> m_Camera = nullptr;
-	AF::Ref<AF::CameraController> m_CameraController = nullptr;
+	//AF::Ref<AF::CameraBase> m_Camera = nullptr;
+	//AF::Ref<AF::CameraController> m_CameraController = nullptr;
 };
 
 class Sandbox : public AF::Application
@@ -118,11 +118,11 @@ public:
 	}
 };
 
-AF::Application* AF::CreateApplication(ApplicationCommandLineArgs args)
+AF::Application* AF::CreateApplication(AF::ApplicationCommandLineArgs args)
 {
-	ApplicationSpecification spec;
+	AF::ApplicationSpecification spec;
 	spec.Name = "Sandbox";
-	spec.WorkingDirectory = "../AF-Editor";
+	spec.WorkingDirectory = "../Sandbox";
 	spec.CommandLineArgs = args;
 
 	return new Sandbox(spec);

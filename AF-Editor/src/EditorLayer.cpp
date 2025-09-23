@@ -56,7 +56,7 @@ namespace AF {
 		box.AddComponent<MeshComponent>(Mesh::CreateBox(1.0f));
 
 		auto material = CreateRef<Material>();
-		material->SetShader(Shader::Create("assets/shaders/pbr.glsl"));
+		//material->SetShader(Shader::Create("assets/shaders/pbr.glsl"));
 
 		//auto albedoTexture = Texture2D::Create("assets/textures/blue_metal_plate_diff_4k.jpg");
 		//auto normalTexture = Texture2D::Create("assets/textures/blue_metal_plate_nor_gl_4k.jpg");

@@ -8,21 +8,23 @@ AFEngine是一个使用C++编写的现代化游戏引擎项目，旨在提供一
 
 ## 项目结构
 
+```bash
 AFEngine/
-├── AFEngine/ # 引擎核心代码
-│ └── src/AF/
-│ ├── Core/ # 核心系统（应用、窗口、输入等）
-│ ├── Events/ # 事件系统
-│ ├── ImGui/ # ImGui集成
-│ ├── Loader/ # 资源加载器（如Assimp模型加载）
-│ ├── Math/ # 数学库
-│ ├── Physics/ # 物理系统
-│ ├── Project/ # 项目管理
-│ ├── Renderer/ # 渲染系统
-│ ├── Scene/ # 场景管理系统和组件
-│ └── Utils/ # 工具类
-├── AF-Editor/ # 编辑器应用
-└── Sandbox/ # 示例和测试项目
+├── AFEngine/           # 引擎核心代码
+│   └── src/AF/
+│       ├── Core/       # 核心系统（应用、窗口、输入等）
+│       ├── Events/     # 事件系统
+│       ├── ImGui/      # ImGui集成
+│       ├── Loader/     # 资源加载器（如Assimp模型加载）
+│       ├── Math/       # 数学库
+│       ├── Physics/    # 物理系统
+│       ├── Project/    # 项目管理
+│       ├── Renderer/   # 渲染系统
+│       ├── Scene/      # 场景管理系统和组件
+│       └── Utils/      # 工具类
+├── AF-Editor/          # 编辑器应用
+└── Sandbox/            # 示例和测试项目
+```
 
 ## 主要特性
 

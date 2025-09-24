@@ -12,30 +12,6 @@ namespace AF {
 
 		Ref<VertexArray> m_FullscreenQuadVertexArray;
 
-		struct DirLight
-		{
-			glm::vec3 direction = glm::vec3(-1.0f, -1.0f, -1.0f);
-			float pad1;
-			glm::vec3 ambient = glm::vec3(0.2f);
-			float pad2;
-			glm::vec3 diffuse = glm::vec3(1.5f);
-			float pad3;
-			glm::vec3 specular = glm::vec3(1.0f);
-			float pad4;
-		};
-		DirLight DirLightBuffer;
-		Ref<ShaderStorageBuffer> DirLightUniformBuffer;
-
-		struct PointLight
-		{
-			glm::vec3 position = glm::vec3(10.0f, 10.0f, 10.0f);
-			float padding1 = 0.0f; 
-			glm::vec3 color = glm::vec3(100.0f, 100.0f, 100.0f);
-			float intensity = 10.0f;
-		};
-		PointLight PointLightBuffer[10];
-		Ref<ShaderStorageBuffer> PointLightUniformBuffer;
-
 		Ref<Material> DefaultMaterial;
 		Ref<Shader> DefaultShader;
 
@@ -52,10 +28,31 @@ namespace AF {
 		Renderer2D::Init();
 		SceneRenderer::Init();
 
-		s_Data.DirLightUniformBuffer = ShaderStorageBuffer::Create(sizeof(s_Data.DirLightBuffer), 0);
-		s_Data.PointLightUniformBuffer = ShaderStorageBuffer::Create(sizeof(s_Data.PointLightBuffer), 1);
+		auto DefaultMaterial = CreateRef<Material>();
+		DefaultMaterial->SetUniform("u_Material.AlbedoColor", glm::vec4(0.8f, 0.8f, 0.8f, 1.0f));
+		DefaultMaterial->SetUniform("u_Material.Metallic", 0.04f);
+		DefaultMaterial->SetUniform("u_Material.Roughness", 0.8f);
+		DefaultMaterial->SetUniform("u_Material.AmbientOcclusion", 1.0f);
+		DefaultMaterial->SetUniform("u_Material.UseAlbedoMap", 0);
+		DefaultMaterial->SetUniform("u_Material.UseNormalMap", 0);
+		DefaultMaterial->SetUniform("u_Material.UseMetallicMap", 0);
+		DefaultMaterial->SetUniform("u_Material.UseRoughnessMap", 0);
+		DefaultMaterial->SetUniform("u_Material.UseAOMap", 0);
+		// 加载纹理
+		auto albedoTexture = Texture2D::Create("assets/textures/red_brick_diff_4k.jpg");
+		auto normalTexture = Texture2D::Create("assets/textures/red_brick_nor_gl_4k.jpg");
+		auto armTexture = Texture2D::Create("assets/textures/red_brick_arm_4k.jpg");
 
-		s_Data.DefaultMaterial = CreateRef<Material>();;
+		if (albedoTexture && normalTexture && armTexture) {
+			DefaultMaterial->SetUniform("u_AlbedoMap", albedoTexture);
+			DefaultMaterial->SetUniform("u_NormalMap", normalTexture);
+			DefaultMaterial->SetUniform("u_MetallicRoughnessMap", armTexture); // ARM纹理包含金属度和粗糙度
+		}
+		else {
+			AF_CORE_WARN("Failed to load one or more PBR textures");
+		}
+		s_Data.DefaultMaterial = DefaultMaterial;
+
 		s_Data.DefaultShader = Shader::Create("assets/shaders/phong.glsl");
 
 		// 创建全屏四边形顶点数组
@@ -110,16 +107,6 @@ namespace AF {
 
 		shader->Bind();
 
-		// 全局参数
-		//TODO:全局参数整合成一个方法
-		SceneRenderer::GetCameraUniformBuffer()->Bind();
-
-		s_Data.DirLightUniformBuffer->SetData(&s_Data.DirLightBuffer, sizeof(s_Data.DirLightBuffer));
-		s_Data.DirLightUniformBuffer->Bind();
-
-		s_Data.PointLightUniformBuffer->SetData(&s_Data.PointLightBuffer, sizeof(s_Data.PointLightBuffer));
-		s_Data.PointLightUniformBuffer->Bind();
-
 		// 通道参数
 		ApplyUniforms(s_Data.m_ActiveRenderPass->GetSpecification().m_Shader, s_Data.m_ActiveRenderPass->GetSpecification().PassUniforms);
 	}
@@ -151,8 +138,7 @@ namespace AF {
 
 		// 实体参数
 		shader->SetMat4("u_Transform", transform);
-		auto normalMatrix = glm::mat3(glm::transpose(glm::inverse(transform)));
-		shader->SetMat3("u_NormalMatrix", normalMatrix);
+		shader->SetMat3("u_NormalMatrix", glm::transpose(glm::inverse(glm::mat3(transform))));
 		shader->SetInt("u_EntityID", entityID);
 
 		Renderer::Submit([=]()

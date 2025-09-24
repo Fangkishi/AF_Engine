@@ -3,6 +3,8 @@
 #include "AF/Core/Base.h"
 #include "AF/Renderer/Texture.h"
 
+#include <glm/glm.hpp>
+
 namespace AF {
 
 	enum class FramebufferTextureFormat
@@ -11,6 +13,7 @@ namespace AF {
 
 		// Color
 		RGBA8,
+		RGBA16F,
 		RED_INTEGER,
 
 		// Depth/stencil
@@ -49,6 +52,7 @@ namespace AF {
 	{
 		uint32_t Width = 0, Height = 0;
 		FramebufferAttachmentSpecification Attachments;
+		glm::vec4 ClearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
 		uint32_t Samples = 1;
 
 		bool SwapChainTarget = false;
@@ -67,11 +71,14 @@ namespace AF {
 
 		virtual void ClearAttachment(uint32_t attachmentIndex, int value) = 0;
 
+		virtual uint32_t GetColorAttachmentCount() const = 0;
+		virtual Ref<Texture2D> GetColorAttachment(uint32_t index = 0) const = 0;
 		virtual uint32_t GetColorAttachmentRendererID(uint32_t index = 0) const = 0;
 
-		virtual void BindTexture(uint32_t slot = 0, uint32_t index = 0) const = 0;
+		virtual bool HasDepthAttachment() const = 0;
+		virtual Ref<Texture2D> GetDepthAttachment() const = 0;
 
-		virtual Ref<Texture2D> GetColorAttachment(uint32_t index = 0) const = 0;
+		virtual void BindTexture(uint32_t slot = 0, uint32_t index = 0) const = 0;
 
 		virtual const FramebufferSpecification& GetSpecification() const = 0;
 

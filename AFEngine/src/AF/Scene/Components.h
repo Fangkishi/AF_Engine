@@ -209,6 +209,29 @@ namespace AF {
 		}
 	};
 
+	// 平行光组件
+	struct DirectionalLightComponent
+	{
+		glm::vec3 Ambient = glm::vec3(0.2f);
+		glm::vec3 Diffuse = glm::vec3(1.5f);
+		glm::vec3 Specular = glm::vec3(1.0f);
+		bool Enabled = true;
+
+		DirectionalLightComponent() = default;
+		DirectionalLightComponent(const DirectionalLightComponent&) = default;
+	};
+
+	// 点光源组件
+	struct PointLightComponent
+	{
+		glm::vec3 Color = glm::vec3(1.0f, 1.0f, 1.0f);
+		float Intensity = 5.0f;
+		bool Enabled = true;
+
+		PointLightComponent() = default;
+		PointLightComponent(const PointLightComponent&) = default;
+	};
+
 	template <typename... Component>
 	struct ComponentGroup
 	{

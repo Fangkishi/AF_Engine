@@ -56,27 +56,36 @@ namespace AF {
 		box.AddComponent<MeshComponent>(Mesh::CreateBox(1.0f));
 
 		auto material = CreateRef<Material>();
-		//material->SetShader(Shader::Create("assets/shaders/pbr.glsl"));
 
-		//auto albedoTexture = Texture2D::Create("assets/textures/blue_metal_plate_diff_4k.jpg");
-		//auto normalTexture = Texture2D::Create("assets/textures/blue_metal_plate_nor_gl_4k.jpg");
-		//auto armTexture = Texture2D::Create("assets/textures/blue_metal_plate_arm_4k.jpg");
-		auto albedoTexture = Texture2D::Create("assets/textures/red_brick_diff_4k.jpg");
+		// 设置材质基本属性
+		material->SetUniform("u_Material.AlbedoColor", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+		material->SetUniform("u_Material.Metallic", 0.5f);
+		material->SetUniform("u_Material.Roughness", 0.5f);
+		material->SetUniform("u_Material.AmbientOcclusion", 1.0f);
+
+		// 设置纹理使用标志
+		material->SetUniform("u_Material.UseAlbedoMap", 1);
+		material->SetUniform("u_Material.UseNormalMap", 1);
+		material->SetUniform("u_Material.UseMetallicMap", 0); // 使用ARM纹理
+		material->SetUniform("u_Material.UseRoughnessMap", 0); // 使用ARM纹理
+		material->SetUniform("u_Material.UseAOMap", 0); // 使用ARM纹理
+
+		// 加载纹理
+		auto albedoTexture = Texture2D::Create("assets/textures/red_brick_diff_4k.jpg", 1);
 		auto normalTexture = Texture2D::Create("assets/textures/red_brick_nor_gl_4k.jpg");
 		auto armTexture = Texture2D::Create("assets/textures/red_brick_arm_4k.jpg");
 
 		if (albedoTexture && normalTexture && armTexture) {
-			material->SetUniform("u_AlbedoTexture", albedoTexture);
-			material->SetUniform("u_NormalTexture", normalTexture);
-			material->SetUniform("u_ARMTexture", armTexture);
+			material->SetUniform("u_AlbedoMap", albedoTexture);
+			material->SetUniform("u_NormalMap", normalTexture);
+			material->SetUniform("u_MetallicRoughnessMap", armTexture); // ARM纹理包含金属度和粗糙度
 		}
 		else {
 			AF_CORE_WARN("Failed to load one or more PBR textures");
 		}
+
 		box.AddComponent<MaterialComponent>(material);
 #endif
-		//AssimpLoader::Load("assets/model/house.fbx", m_ActiveScene);
-		//AssimpLoader::Load("assets/model/bag/backpack.obj", m_ActiveScene);
 
 		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
 
@@ -113,7 +122,6 @@ namespace AF {
 		Renderer2D::ResetStats();
 		{
 			AF_PROFILE_SCOPE("Renderer Prep");
-			RenderCommand::SetClearColor({0.1f, 0.1f, 0.1f, 1});
 			RenderCommand::Clear();
 		}
 
@@ -669,6 +677,7 @@ namespace AF {
 				if (camera.Primary)
 				{
 					auto activeCamera = camera.Camera;
+					activeCamera->SetPosition(transform.Translation);
 					activeCamera->SetViewMatrix(glm::inverse(transform.GetTransform()));
 					m_ActiveScene->SetCamera(activeCamera);
 					if (activeCamera)

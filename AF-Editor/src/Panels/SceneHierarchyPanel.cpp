@@ -242,6 +242,8 @@ namespace AF {
 			//DisplayAddComponentEntry<TextComponent>("Text Component");
 			DisplayAddComponentEntry<MeshComponent>("Mesh");
 			DisplayAddComponentEntry<MaterialComponent>("Material");
+			DisplayAddComponentEntry<DirectionalLightComponent>("Directional Light");
+			DisplayAddComponentEntry<PointLightComponent>("Point Light");
 
 			ImGui::EndPopup();
 		}
@@ -501,6 +503,21 @@ namespace AF {
 				{
 					ImGui::Text("No material assigned");
 				}
+			});
+
+		DrawComponent<DirectionalLightComponent>("Directional Light", entity, [](auto& component)
+			{
+				ImGui::Checkbox("Enabled", &component.Enabled);
+				ImGui::ColorEdit3("Ambient", glm::value_ptr(component.Ambient));
+				ImGui::ColorEdit3("Diffuse", glm::value_ptr(component.Diffuse));
+				ImGui::ColorEdit3("Specular", glm::value_ptr(component.Specular));
+			});
+
+		DrawComponent<PointLightComponent>("Point Light", entity, [](auto& component)
+			{
+				ImGui::Checkbox("Enabled", &component.Enabled);
+				ImGui::ColorEdit3("Color", glm::value_ptr(component.Color));
+				ImGui::DragFloat("Intensity", &component.Intensity, 0.1f, 0.0f, 100.0f);
 			});
 	}
 

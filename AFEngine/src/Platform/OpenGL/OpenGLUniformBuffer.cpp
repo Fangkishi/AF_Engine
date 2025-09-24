@@ -20,6 +20,21 @@ namespace AF {
 
 	void OpenGLUniformBuffer::SetData(const void* data, uint32_t size, uint32_t offset)
 	{
+		if (data == nullptr && size == 0) {
+			// 清空整个SSBO缓冲区
+			uint32_t zero = 0;
+			glClearNamedBufferData(m_RendererID, GL_R32UI, GL_RED_INTEGER, GL_UNSIGNED_INT, &zero);
+			return;
+		}
+
+		if (data == nullptr && size > 0) {
+			// 如果data为nullptr但size不为0，用零填充指定区域
+			std::vector<uint8_t> zeroData(size, 0);
+			glNamedBufferSubData(m_RendererID, offset, size, zeroData.data());
+			return;
+		}
+
+		// 正常情况
 		glNamedBufferSubData(m_RendererID, offset, size, data);
 	}
 
@@ -47,6 +62,21 @@ namespace AF {
 
 	void OpenGLShaderStorageBuffer::SetData(const void* data, uint32_t size, uint32_t offset)
 	{
+		if (data == nullptr && size == 0) {
+			// 清空整个SSBO缓冲区
+			uint32_t zero = 0;
+			glClearNamedBufferData(m_RendererID, GL_R32UI, GL_RED_INTEGER, GL_UNSIGNED_INT, &zero);
+			return;
+		}
+
+		if (data == nullptr && size > 0) {
+			// 如果data为nullptr但size不为0，用零填充指定区域
+			std::vector<uint8_t> zeroData(size, 0);
+			glNamedBufferSubData(m_RendererID, offset, size, zeroData.data());
+			return;
+		}
+
+		// 正常情况
 		glNamedBufferSubData(m_RendererID, offset, size, data);
 	}
 

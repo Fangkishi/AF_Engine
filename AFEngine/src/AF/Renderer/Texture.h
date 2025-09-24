@@ -11,7 +11,10 @@ namespace AF {
 		R8,
 		RGB8,
 		RGBA8,
-		RGBA32F
+		RGBA16F,
+		RGBA32F,
+		SRGB8,
+		SRGBA8
 	};
 
 	struct TextureSpecification
@@ -48,6 +51,7 @@ namespace AF {
 	{
 	public:
 		static Ref<Texture2D> Create(const TextureSpecification& specification);
-		static Ref<Texture2D> Create(const std::string& path);
+		static Ref<Texture2D> Create(const std::string& path, const bool isSRGB = 0);
+		static Ref<Texture2D> Create(uint32_t rendererID, uint32_t width, uint32_t height);
 	};
 }

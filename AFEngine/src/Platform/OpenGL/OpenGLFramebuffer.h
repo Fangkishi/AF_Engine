@@ -20,15 +20,18 @@ namespace AF {
 
 		virtual void ClearAttachment(uint32_t attachmentIndex, int value) override;
 
+		virtual uint32_t GetColorAttachmentCount() const override;
+		virtual Ref<Texture2D> GetColorAttachment(uint32_t index = 0) const override;
 		virtual uint32_t GetColorAttachmentRendererID(uint32_t index = 0) const override
 		{
 			AF_CORE_ASSERT(index < m_ColorAttachments.size(), "");
 			return m_ColorAttachments[index];
 		}
 
-		virtual void BindTexture(uint32_t slot = 0, uint32_t index = 0) const override;
+		virtual bool HasDepthAttachment() const override;
+		virtual Ref<Texture2D> GetDepthAttachment() const override;
 
-		virtual Ref<Texture2D> GetColorAttachment(uint32_t index = 0) const override;
+		virtual void BindTexture(uint32_t slot = 0, uint32_t index = 0) const override;
 
 		virtual const FramebufferSpecification& GetSpecification() const override { return m_Specification; }
 

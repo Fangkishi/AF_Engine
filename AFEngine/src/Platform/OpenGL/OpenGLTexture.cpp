@@ -4,6 +4,7 @@
 #include <stb_image.h>
 
 namespace AF {
+
 	namespace Utils {
 		static GLenum AFImageFormatToGLDataFormat(ImageFormat format)
 		{
@@ -11,6 +12,8 @@ namespace AF {
 			{
 			case ImageFormat::RGB8: return GL_RGB;
 			case ImageFormat::RGBA8: return GL_RGBA;
+			case ImageFormat::SRGB8: return GL_SRGB8;
+			case ImageFormat::SRGBA8: return GL_SRGB8_ALPHA8;
 			}
 
 			//AF_CORE_ASSERT(false);
@@ -23,6 +26,8 @@ namespace AF {
 			{
 			case ImageFormat::RGB8: return GL_RGB8;
 			case ImageFormat::RGBA8: return GL_RGBA8;
+			case ImageFormat::SRGB8: return GL_SRGB8;
+			case ImageFormat::SRGBA8: return GL_SRGB8_ALPHA8;
 			}
 
 			//AF_CORE_ASSERT(false);
@@ -48,7 +53,7 @@ namespace AF {
 		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	}
 
-	OpenGLTexture2D::OpenGLTexture2D(const std::string& path)
+	OpenGLTexture2D::OpenGLTexture2D(const std::string& path, const bool isSRGB)
 		: m_Path(path)
 	{
 		AF_PROFILE_FUNCTION();
@@ -71,12 +76,26 @@ namespace AF {
 			GLenum internalFormat = 0, dataFormat = 0;
 			if (channels == 4)
 			{
-				internalFormat = GL_RGBA8;
+				if (isSRGB)
+				{
+					internalFormat = GL_SRGB8_ALPHA8;  // sRGB空间
+				}
+				else
+				{
+					internalFormat = GL_RGBA8;         // 线性空间（法线、金属度等）
+				}
 				dataFormat = GL_RGBA;
 			}
 			else if (channels == 3)
 			{
-				internalFormat = GL_RGB8;
+				if (isSRGB)
+				{
+					internalFormat = GL_SRGB8;         // sRGB空间
+				}
+				else
+				{
+					internalFormat = GL_RGB8;          // 线性空间
+				}
 				dataFormat = GL_RGB;
 			}
 
@@ -100,11 +119,20 @@ namespace AF {
 		}
 	}
 
+	OpenGLTexture2D::OpenGLTexture2D(uint32_t rendererID, uint32_t width, uint32_t height)
+		: m_RendererID(rendererID), m_Width(width), m_Height(height)
+	{
+		// 直接使用现有的纹理 ID，不创建新纹理
+		m_IsExternal = true; // 标记为外部纹理，析构时不删除
+	}
+
+
 	OpenGLTexture2D::~OpenGLTexture2D()
 	{
 		AF_PROFILE_FUNCTION();
-
-		glDeleteTextures(1, &m_RendererID);
+		if (!m_IsExternal) {
+			glDeleteTextures(1, &m_RendererID);
+		}
 	}
 
 	void OpenGLTexture2D::SetData(void* data, uint32_t size)

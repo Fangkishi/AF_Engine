@@ -9,7 +9,8 @@ namespace AF {
 	{
 	public:
 		OpenGLTexture2D(const TextureSpecification& specification);
-		OpenGLTexture2D(const std::string& path);
+		OpenGLTexture2D(const std::string& path, const bool isSRGB = 0);
+		OpenGLTexture2D(uint32_t rendererID, uint32_t width, uint32_t height);
 		virtual ~OpenGLTexture2D();
 
 		virtual const TextureSpecification& GetSpecification() const override { return m_Specification; }
@@ -39,5 +40,6 @@ namespace AF {
 		uint32_t m_Width, m_Height;
 		uint32_t m_RendererID;
 		GLenum m_InternalFormat, m_DataFormat;
+		bool m_IsExternal = false;
 	};
 }

@@ -82,6 +82,7 @@ namespace AF {
 			switch (format)
 			{
 			case FramebufferTextureFormat::RGBA8: return GL_RGBA8;
+			case FramebufferTextureFormat::RGBA16F: return GL_RGBA16F;
 			case FramebufferTextureFormat::RED_INTEGER: return GL_RED_INTEGER;
 			}
 
@@ -142,6 +143,10 @@ namespace AF {
 				case FramebufferTextureFormat::RGBA8:
 					Utils::AttachColorTexture(m_ColorAttachments[i], m_Specification.Samples, GL_RGBA8, GL_RGBA,
 					                          m_Specification.Width, m_Specification.Height, i);
+					break;
+				case FramebufferTextureFormat::RGBA16F:
+					Utils::AttachColorTexture(m_ColorAttachments[i], m_Specification.Samples, GL_RGBA16F, GL_RGBA,
+						m_Specification.Width, m_Specification.Height, i);
 					break;
 				case FramebufferTextureFormat::RED_INTEGER:
 					Utils::AttachColorTexture(m_ColorAttachments[i], m_Specification.Samples, GL_R32I, GL_RED_INTEGER,
@@ -234,11 +239,34 @@ namespace AF {
 		glBindTextureUnit(slot, m_ColorAttachments[index]);
 	}
 
+	uint32_t OpenGLFramebuffer::GetColorAttachmentCount() const
+	{
+		return static_cast<uint32_t>(m_ColorAttachments.size());
+	}
+
 	Ref<Texture2D> OpenGLFramebuffer::GetColorAttachment(uint32_t index) const
 	{
-		// TODO：Texture2D类没有提供通过现有ID创建的方法，
+		AF_CORE_ASSERT(index < m_ColorAttachments.size(), "Color attachment index out of bounds!");
 
-		return nullptr;
+		// 通过现有纹理 ID 创建 Texture2D
+		return Texture2D::Create(m_ColorAttachments[index],
+			m_Specification.Width,
+			m_Specification.Height);
+	}
+
+	bool OpenGLFramebuffer::HasDepthAttachment() const
+	{
+		return m_DepthAttachmentSpecification.TextureFormat != FramebufferTextureFormat::None;
+	}
+
+	Ref<Texture2D> OpenGLFramebuffer::GetDepthAttachment() const
+	{
+		if (m_DepthAttachment == 0)
+			return nullptr;
+
+		return Texture2D::Create(m_DepthAttachment,
+			m_Specification.Width,
+			m_Specification.Height);
 	}
 
 }

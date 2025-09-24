@@ -26,7 +26,6 @@ namespace AF {
 		glm::vec3 GetUpDirection() const;
 		glm::vec3 GetRightDirection() const;
 		glm::vec3 GetForwardDirection() const;
-		const glm::vec3& GetPosition() const { return m_Position; }
 		glm::quat GetOrientation() const;
 
 		float GetPitch() const { return m_Pitch; }
@@ -49,7 +48,6 @@ namespace AF {
 	private:
 		float m_FOV = 45.0f, m_AspectRatio = 16.0f / 9.0f, m_NearClip = 0.1f, m_FarClip = 1000.0f;
 
-		glm::vec3 m_Position = { 0.0f, 0.0f, 0.0f };
 		glm::vec3 m_FocalPoint = { 0.0f, 0.0f, 0.0f };
 
 		glm::vec2 m_InitialMousePosition = { 0.0f, 0.0f };

@@ -74,6 +74,8 @@ namespace AF {
 			RecalculateProjection();
 		}
 
+		float GetAspectRatio() const { return m_AspectRatio; }
+
 	private:
 		void RecalculateProjection();
 

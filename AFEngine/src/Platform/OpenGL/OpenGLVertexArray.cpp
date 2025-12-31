@@ -30,6 +30,7 @@ namespace AF {
 		AF_PROFILE_FUNCTION();
 
 		glCreateVertexArrays(1, &m_RendererID);
+		glBindVertexArray(m_RendererID);
 	}
 
 	OpenGLVertexArray::~OpenGLVertexArray()

@@ -10,22 +10,6 @@ namespace AF {
 		Ref<Framebuffer> TargetFramebuffer;
 		Ref<Shader> m_Shader;
 		std::unordered_map<std::string, UniformValue> PassUniforms;
-
-		// 设置Uniform值
-		template<typename T>
-		void SetUniform(const std::string& name, const T& value) {
-			PassUniforms[name] = value;
-		}
-
-		// 获取Uniform值 (使用前需知道确切类型)
-		template<typename T>
-		const T& GetUniform(const std::string& name) const {
-			return std::get<T>(PassUniforms.at(name));
-		}
-
-		bool HasUniform(const std::string& name) const {
-			return PassUniforms.find(name) != PassUniforms.end();
-		}
 	};
 
 	class RenderPass
@@ -33,6 +17,22 @@ namespace AF {
 	public:
 		RenderPass(const RenderPassSpecification& spec);
 		~RenderPass() = default;
+
+		// 设置Uniform值
+		template<typename T>
+		void SetUniform(const std::string& name, const T& value) {
+			m_Specification.PassUniforms[name] = value;
+		}
+
+		// 获取Uniform值 (使用前需知道确切类型)
+		template<typename T>
+		const T& GetUniform(const std::string& name) const {
+			return std::get<T>(m_Specification.PassUniforms.at(name));
+		}
+
+		bool HasUniform(const std::string& name) const {
+			return m_Specification.PassUniforms.find(name) != m_Specification.PassUniforms.end();
+		}
 
 		const RenderPassSpecification& GetSpecification() const { return m_Specification; }
 

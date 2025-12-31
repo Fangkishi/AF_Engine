@@ -53,14 +53,16 @@ namespace AF {
 
 #if 1
 		auto box = m_ActiveScene->CreateEntity("box");
+		auto sphere = m_ActiveScene->CreateEntity("SPHERE");
 		box.AddComponent<MeshComponent>(Mesh::CreateBox(1.0f));
+		sphere.AddComponent<MeshComponent>(Mesh::CreateSphere(1.0f));
 
 		auto material = CreateRef<Material>();
 
 		// 设置材质基本属性
-		material->SetUniform("u_Material.AlbedoColor", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-		material->SetUniform("u_Material.Metallic", 0.5f);
-		material->SetUniform("u_Material.Roughness", 0.5f);
+		material->SetUniform("u_Material.AlbedoColor", glm::vec4(0.82f, 0.85f, 0.88f, 1.0f));
+		material->SetUniform("u_Material.Metallic", 1.0f);
+		material->SetUniform("u_Material.Roughness", 0.15f);
 		material->SetUniform("u_Material.AmbientOcclusion", 1.0f);
 
 		// 设置纹理使用标志
@@ -78,13 +80,14 @@ namespace AF {
 		if (albedoTexture && normalTexture && armTexture) {
 			material->SetUniform("u_AlbedoMap", albedoTexture);
 			material->SetUniform("u_NormalMap", normalTexture);
-			material->SetUniform("u_MetallicRoughnessMap", armTexture); // ARM纹理包含金属度和粗糙度
+			material->SetUniform("u_ARMMap", armTexture); // ARM纹理包含金属度和粗糙度
 		}
 		else {
 			AF_CORE_WARN("Failed to load one or more PBR textures");
 		}
 
 		box.AddComponent<MaterialComponent>(material);
+		sphere.AddComponent<MaterialComponent>(material);
 #endif
 
 		m_SceneHierarchyPanel.SetContext(m_ActiveScene);

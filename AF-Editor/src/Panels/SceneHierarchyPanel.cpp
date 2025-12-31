@@ -423,7 +423,7 @@ namespace AF {
 					if (component.material->HasUniform("u_DiffuseMap"))
 					{
 						try {
-							diffuseTexture = component.material->GetUniform<Ref<Texture2D>>("u_DiffuseMap");
+							diffuseTexture = component.material->GetUniform<Ref<Texture>>("u_DiffuseMap");
 							hasDiffuse = true;
 						}
 						catch (const std::exception&) {
@@ -465,7 +465,7 @@ namespace AF {
 					if (component.material->HasUniform("u_SpecularMap"))
 					{
 						try {
-							specularTexture = component.material->GetUniform<Ref<Texture2D>>("u_SpecularMap");
+							specularTexture = component.material->GetUniform<Ref<Texture>>("u_SpecularMap");
 							hasSpecular = true;
 						}
 						catch (const std::exception&) {

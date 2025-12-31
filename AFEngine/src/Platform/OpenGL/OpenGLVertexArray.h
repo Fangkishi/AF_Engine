@@ -3,6 +3,7 @@
 #include "AF/Renderer/VertexArray.h"
 
 namespace AF {
+
 	class OpenGLVertexArray : public VertexArray
 	{
 	public:
@@ -24,4 +25,5 @@ namespace AF {
 		std::vector<Ref<VertexBuffer>> m_VertexBuffers;
 		Ref<IndexBuffer> m_IndexBuffer;
 	};
+
 }

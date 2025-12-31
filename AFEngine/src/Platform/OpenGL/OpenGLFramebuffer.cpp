@@ -1,5 +1,6 @@
 #include "afpch.h"
 #include "Platform/OpenGL/OpenGLFramebuffer.h"
+#include "Platform/OpenGL/OpenGLTexture.h"
 
 #include <glad/glad.h>
 
@@ -122,6 +123,9 @@ namespace AF {
 
 			m_ColorAttachments.clear();
 			m_DepthAttachment = 0;
+
+			m_ExternalColorTextures.clear();
+			m_ExternalDepthTexture = nullptr;
 		}
 
 		glCreateFramebuffers(1, &m_RendererID);
@@ -244,14 +248,21 @@ namespace AF {
 		return static_cast<uint32_t>(m_ColorAttachments.size());
 	}
 
-	Ref<Texture2D> OpenGLFramebuffer::GetColorAttachment(uint32_t index) const
+	Ref<Texture> OpenGLFramebuffer::GetColorAttachment(uint32_t index) const
 	{
 		AF_CORE_ASSERT(index < m_ColorAttachments.size(), "Color attachment index out of bounds!");
 
-		// 通过现有纹理 ID 创建 Texture2D
-		return Texture2D::Create(m_ColorAttachments[index],
-			m_Specification.Width,
-			m_Specification.Height);
+		uint32_t textureID = m_ColorAttachments[index];
+
+		// 检查是否为外部附着的颜色纹理
+		auto it = m_ExternalColorTextures.find(index);
+		if (it != m_ExternalColorTextures.end()) {
+			// 外部纹理：直接返回存储的纹理对象
+			return it->second;
+		}
+
+		// 内部纹理：按原逻辑创建（基于纹理ID和规格）
+		return Texture2D::Create(m_ColorAttachments[index], m_Specification.Width, m_Specification.Height);
 	}
 
 	bool OpenGLFramebuffer::HasDepthAttachment() const
@@ -259,14 +270,89 @@ namespace AF {
 		return m_DepthAttachmentSpecification.TextureFormat != FramebufferTextureFormat::None;
 	}
 
-	Ref<Texture2D> OpenGLFramebuffer::GetDepthAttachment() const
+	Ref<Texture> OpenGLFramebuffer::GetDepthAttachment() const
 	{
 		if (m_DepthAttachment == 0)
 			return nullptr;
 
-		return Texture2D::Create(m_DepthAttachment,
-			m_Specification.Width,
-			m_Specification.Height);
+		// 检查是否为外部附着的深度纹理
+		if (m_ExternalDepthTexture) {
+			// 外部纹理：直接返回存储的纹理对象（支持TextureCube作为深度纹理）
+			return m_ExternalDepthTexture;
+		}
+
+		// 内部纹理：按原逻辑创建
+		return Texture2D::Create(m_DepthAttachment, m_Specification.Width, m_Specification.Height);
+	}
+
+	void OpenGLFramebuffer::AttachTextureLayer(Ref<Texture2D> texture, uint32_t attachment, uint32_t layer)
+	{
+		uint32_t textureID = texture->GetRendererID();
+		auto& spec = texture->GetSpecification();
+
+		GLenum attachmentPoint;
+		if (spec.Format == ImageFormat::Depth) {
+			attachmentPoint = GL_DEPTH_STENCIL_ATTACHMENT;  // 深度附件
+			// 存储外部深度纹理引用，并更新深度附着ID
+			m_ExternalDepthTexture = texture;
+			m_DepthAttachment = textureID;
+		}
+		else {
+			attachmentPoint = GL_COLOR_ATTACHMENT0 + attachment;  // 颜色附件
+			if (attachment >= m_ColorAttachments.size()) {
+				m_ColorAttachments.resize(attachment + 1, 0);
+			}
+			m_ExternalColorTextures[attachment] = texture;
+			m_ColorAttachments[attachment] = textureID;
+		}
+
+		if (spec.ArraySize > 1) {
+			// 分层纹理：使用 glFramebufferTextureLayer
+			glFramebufferTextureLayer(GL_FRAMEBUFFER, attachmentPoint, textureID, 0, layer);
+		}
+		else {
+			// 普通 2D 纹理：使用 glFramebufferTexture2D
+			glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentPoint, GL_TEXTURE_2D, textureID, 0);
+		}
+	}
+
+	void OpenGLFramebuffer::AttachCubeMapLayer(Ref<TextureCube> texture, uint32_t attachment, uint32_t face, uint32_t layer)
+	{
+		uint32_t textureID = texture->GetRendererID();
+
+		GLenum attachmentPoint;
+		if (texture->GetSpecification().Format == ImageFormat::Depth) {
+			attachmentPoint = GL_DEPTH_STENCIL_ATTACHMENT;  // 深度附件
+			m_ExternalDepthTexture = texture;
+			m_DepthAttachment = textureID;
+		}
+		else {
+			attachmentPoint = GL_COLOR_ATTACHMENT0 + attachment;  // 颜色附件
+			if (attachment >= m_ColorAttachments.size()) {
+				m_ColorAttachments.resize(attachment + 1, 0);
+			}
+			m_ExternalColorTextures[attachment] = texture;
+			m_ColorAttachments[attachment] = textureID;
+		}
+
+		if (texture->GetSpecification().ArraySize > 1) {  // 修正：使用Layers字段
+			// 立方体贴图数组：使用 layer * 6 + face
+			uint32_t layerIndex = layer * 6 + face;
+			glFramebufferTextureLayer(GL_FRAMEBUFFER,
+				attachmentPoint,
+				textureID,
+				0, // mipmap level
+				layerIndex);
+		}
+		else {
+			// 普通立方体贴图：使用 glFramebufferTexture2D
+			GLenum cubeFace = GL_TEXTURE_CUBE_MAP_POSITIVE_X + face;
+			glFramebufferTexture2D(GL_FRAMEBUFFER,
+				attachmentPoint,
+				cubeFace,
+				textureID,
+				0); // mip level
+		}
 	}
 
 }

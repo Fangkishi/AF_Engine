@@ -5,6 +5,7 @@
 #include "AF/Core/Base.h"
 
 namespace AF {
+
 	enum class ImageFormat
 	{
 		None = 0,
@@ -14,7 +15,13 @@ namespace AF {
 		RGBA16F,
 		RGBA32F,
 		SRGB8,
-		SRGBA8
+		SRGBA8,
+
+		// Depth/stencil
+		DEPTH24STENCIL8,
+
+		// Defaults
+		Depth = DEPTH24STENCIL8
 	};
 
 	struct TextureSpecification
@@ -23,6 +30,7 @@ namespace AF {
 		uint32_t Height = 1;
 		ImageFormat Format = ImageFormat::RGBA8;
 		bool GenerateMips = true;
+		uint32_t ArraySize = 1;
 	};
 
 	class Texture
@@ -54,4 +62,13 @@ namespace AF {
 		static Ref<Texture2D> Create(const std::string& path, const bool isSRGB = 0);
 		static Ref<Texture2D> Create(uint32_t rendererID, uint32_t width, uint32_t height);
 	};
+
+	class TextureCube : public Texture
+	{
+	public:
+		static Ref<TextureCube> Create(const TextureSpecification& specification);
+		static Ref<TextureCube> Create(const std::string& path, const bool isSRGB = 0);
+		static Ref<TextureCube> Create(uint32_t rendererID, uint32_t width, uint32_t height);
+	};
+
 }

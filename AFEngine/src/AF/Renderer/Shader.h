@@ -18,7 +18,7 @@ namespace AF {
 		glm::vec4,
 		glm::mat3,
 		glm::mat4,
-		Ref<Texture2D>,
+		Ref<Texture>,
 		Ref<UniformBuffer>,
 		Ref<ShaderStorageBuffer>
 		// ... 其他需要的类型

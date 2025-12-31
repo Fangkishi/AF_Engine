@@ -15,7 +15,8 @@ namespace AF {
 		Ref<Material> DefaultMaterial;
 		Ref<Shader> DefaultShader;
 
-		int texUnit = 0;
+		int pipelineUnit = 0;
+		int materialUnit = 0;
 	};
 
 	static RendererData s_Data;
@@ -33,8 +34,8 @@ namespace AF {
 		DefaultMaterial->SetUniform("u_Material.Metallic", 0.04f);
 		DefaultMaterial->SetUniform("u_Material.Roughness", 0.8f);
 		DefaultMaterial->SetUniform("u_Material.AmbientOcclusion", 1.0f);
-		DefaultMaterial->SetUniform("u_Material.UseAlbedoMap", 0);
-		DefaultMaterial->SetUniform("u_Material.UseNormalMap", 0);
+		DefaultMaterial->SetUniform("u_Material.UseAlbedoMap", 1);
+		DefaultMaterial->SetUniform("u_Material.UseNormalMap", 1);
 		DefaultMaterial->SetUniform("u_Material.UseMetallicMap", 0);
 		DefaultMaterial->SetUniform("u_Material.UseRoughnessMap", 0);
 		DefaultMaterial->SetUniform("u_Material.UseAOMap", 0);
@@ -46,7 +47,7 @@ namespace AF {
 		if (albedoTexture && normalTexture && armTexture) {
 			DefaultMaterial->SetUniform("u_AlbedoMap", albedoTexture);
 			DefaultMaterial->SetUniform("u_NormalMap", normalTexture);
-			DefaultMaterial->SetUniform("u_MetallicRoughnessMap", armTexture); // ARM纹理包含金属度和粗糙度
+			DefaultMaterial->SetUniform("u_ARMMap", armTexture); // ARM纹理包含金属度和粗糙度
 		}
 		else {
 			AF_CORE_WARN("Failed to load one or more PBR textures");
@@ -108,23 +109,19 @@ namespace AF {
 		shader->Bind();
 
 		// 通道参数
-		ApplyUniforms(s_Data.m_ActiveRenderPass->GetSpecification().m_Shader, s_Data.m_ActiveRenderPass->GetSpecification().PassUniforms);
+		ApplyUniforms(s_Data.m_ActiveRenderPass->GetSpecification().m_Shader, s_Data.m_ActiveRenderPass->GetSpecification().PassUniforms, true);
 	}
 
 	void Renderer::EndRenderPass()
 	{
 		s_Data.m_ActiveRenderPass->GetSpecification().TargetFramebuffer->Unbind();
 
-		s_Data.texUnit = 0;
+		s_Data.pipelineUnit = 0;
+		s_Data.materialUnit = 0;
 	}
 
-	void Renderer::SubmitFullscreenQuad(const Ref<Material>& material)
+	void Renderer::SubmitFullscreenQuad()
 	{
-		if (material)
-		{
-			//material->Bind();
-		}
-
 		RenderCommand::DrawTriangles(s_Data.m_FullscreenQuadVertexArray, 6);
 	}
 
@@ -134,7 +131,8 @@ namespace AF {
 		auto& shader = s_Data.m_ActiveRenderPass->GetSpecification().m_Shader;
 
 		// 材质参数
-		ApplyUniforms(shader, material->GetUniforms());
+		s_Data.materialUnit = 0;
+		ApplyUniforms(shader, material->GetUniforms(), false);
 
 		// 实体参数
 		shader->SetMat4("u_Transform", transform);
@@ -147,17 +145,29 @@ namespace AF {
 			});
 	}
 
+	void Renderer::SubmitMeshShadow(const Ref<Mesh>& mesh, const glm::mat4& transform)
+	{
+		auto& shader = s_Data.m_ActiveRenderPass->GetSpecification().m_Shader;
+
+		shader->SetMat4("u_Transform", transform);
+
+		Renderer::Submit([=]()
+			{
+				RenderCommand::DrawIndexed(mesh->m_VertexArray, mesh->m_IndexCount);
+			});
+	}
+
 	void Renderer::Submit(const std::function<void()>& renderFunc)
 	{
 		renderFunc();
 	}
 
-	void Renderer::ApplyUniforms(const Ref<Shader>& shader, const std::unordered_map<std::string, UniformValue>& m_Uniforms)
+	void Renderer::ApplyUniforms(const Ref<Shader>& shader, const std::unordered_map<std::string, UniformValue>& m_Uniforms, const bool isPipeline)
 	{
 		if (!shader) return;
 
 		for (const auto& [name, value] : m_Uniforms) {
-			std::visit(UniformApplier{ shader, name, s_Data.texUnit }, value);
+			std::visit(UniformApplier{ shader, name, isPipeline, s_Data.pipelineUnit, s_Data.materialUnit }, value);
 		}
 	}
 

@@ -21,7 +21,7 @@ namespace AF {
 		virtual void ClearAttachment(uint32_t attachmentIndex, int value) override;
 
 		virtual uint32_t GetColorAttachmentCount() const override;
-		virtual Ref<Texture2D> GetColorAttachment(uint32_t index = 0) const override;
+		virtual Ref<Texture> GetColorAttachment(uint32_t index = 0) const override;
 		virtual uint32_t GetColorAttachmentRendererID(uint32_t index = 0) const override
 		{
 			AF_CORE_ASSERT(index < m_ColorAttachments.size(), "");
@@ -29,11 +29,14 @@ namespace AF {
 		}
 
 		virtual bool HasDepthAttachment() const override;
-		virtual Ref<Texture2D> GetDepthAttachment() const override;
+		virtual Ref<Texture> GetDepthAttachment() const override;
 
 		virtual void BindTexture(uint32_t slot = 0, uint32_t index = 0) const override;
 
 		virtual const FramebufferSpecification& GetSpecification() const override { return m_Specification; }
+
+		virtual void AttachTextureLayer(Ref<Texture2D> texture, uint32_t attachment, uint32_t layer = 0) override;
+		virtual void AttachCubeMapLayer(Ref<TextureCube> texture, uint32_t attachment, uint32_t face, uint32_t layer = 0) override;
 
 	private:
 		uint32_t m_RendererID = 0;
@@ -44,6 +47,9 @@ namespace AF {
 
 		std::vector<uint32_t> m_ColorAttachments;
 		uint32_t m_DepthAttachment = 0;
+
+		std::unordered_map<uint32_t, Ref<Texture>> m_ExternalColorTextures; // 颜色附着索引 -> 外部纹理
+		Ref<Texture> m_ExternalDepthTexture; // 外部深度纹理
 	};
 
 }

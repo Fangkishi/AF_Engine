@@ -72,15 +72,18 @@ namespace AF {
 		virtual void ClearAttachment(uint32_t attachmentIndex, int value) = 0;
 
 		virtual uint32_t GetColorAttachmentCount() const = 0;
-		virtual Ref<Texture2D> GetColorAttachment(uint32_t index = 0) const = 0;
+		virtual Ref<Texture> GetColorAttachment(uint32_t index = 0) const = 0;
 		virtual uint32_t GetColorAttachmentRendererID(uint32_t index = 0) const = 0;
 
 		virtual bool HasDepthAttachment() const = 0;
-		virtual Ref<Texture2D> GetDepthAttachment() const = 0;
+		virtual Ref<Texture> GetDepthAttachment() const = 0;
 
 		virtual void BindTexture(uint32_t slot = 0, uint32_t index = 0) const = 0;
 
 		virtual const FramebufferSpecification& GetSpecification() const = 0;
+
+		virtual void AttachTextureLayer(Ref<Texture2D> texture, uint32_t attachment, uint32_t layer = 0) = 0;
+		virtual void AttachCubeMapLayer(Ref<TextureCube> texture, uint32_t attachment, uint32_t face, uint32_t layer = 0) = 0;
 
 		static Ref<Framebuffer> Create(const FramebufferSpecification& spec);
 	};

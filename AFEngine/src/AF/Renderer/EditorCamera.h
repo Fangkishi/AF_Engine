@@ -30,6 +30,11 @@ namespace AF {
 
 		float GetPitch() const { return m_Pitch; }
 		float GetYaw() const { return m_Yaw; }
+
+		float GetPerspectiveNearClip() const override { return m_NearClip; }
+
+		float GetPerspectiveFarClip() const override { return m_FarClip; }
+
 	private:
 		void UpdateProjection();
 		void UpdateView();

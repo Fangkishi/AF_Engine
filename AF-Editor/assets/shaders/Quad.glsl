@@ -1,20 +1,24 @@
-// Basic Texture Shader
+// 基础纹理着色器 - 用于 2D Quad 渲染
+// 支持多纹理插槽和批处理渲染
 
 #type vertex
 #version 450 core
 
-layout(location = 0) in vec3 a_Position;
-layout(location = 1) in vec4 a_Color;
-layout(location = 2) in vec2 a_TexCoord;
-layout(location = 3) in float a_TexIndex;
-layout(location = 4) in float a_TilingFactor;
-layout(location = 5) in int a_EntityID;
+// 顶点属性输入
+layout(location = 0) in vec3 a_Position;     // 顶点位置
+layout(location = 1) in vec4 a_Color;        // 顶点颜色
+layout(location = 2) in vec2 a_TexCoord;     // 纹理坐标
+layout(location = 3) in float a_TexIndex;    // 纹理索引
+layout(location = 4) in float a_TilingFactor;// 纹理平铺因子
+layout(location = 5) in int a_EntityID;      // 实体 ID (用于鼠标拾取)
 
+// 相机 Uniform Block
 layout(std140, binding = 0) uniform Camera
 {
 	mat4 u_ViewProjection;
 };
 
+// 传递给片段着色器的数据
 struct VertexOutput
 {
 	vec4 Color;
@@ -34,12 +38,14 @@ void main()
 	v_TexIndex = a_TexIndex;
 	v_EntityID = a_EntityID;
 
+	// 计算裁剪空间坐标
 	gl_Position = u_ViewProjection * vec4(a_Position, 1.0);
 }
 
 #type fragment
 #version 450 core
 
+// 输出颜色和实体 ID
 layout(location = 0) out vec4 o_Color;
 layout(location = 1) out int o_EntityID;
 
@@ -54,12 +60,14 @@ layout (location = 0) in VertexOutput Input;
 layout (location = 3) in flat float v_TexIndex;
 layout (location = 4) in flat int v_EntityID;
 
+// 绑定的纹理单元数组 (通常支持 32 个)
 layout (binding = 0) uniform sampler2D u_Textures[32];
 
 void main()
 {
 	vec4 texColor = Input.Color;
 
+	// 根据纹理索引采样对应的纹理
 	switch(int(v_TexIndex))
 	{
 		case  0: texColor *= texture(u_Textures[ 0], Input.TexCoord * Input.TilingFactor); break;
@@ -96,6 +104,7 @@ void main()
 		case 31: texColor *= texture(u_Textures[31], Input.TexCoord * Input.TilingFactor); break;
 	}
 
+	// 如果像素完全透明，则丢弃
 	if (texColor.a == 0.0)
 		discard;
 

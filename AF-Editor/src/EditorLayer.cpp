@@ -12,7 +12,7 @@
 
 #include "ImGuizmo.h"
 
-// 可能是临时的
+// Project related includes
 #include "AF/Project/Project.h"
 
 namespace AF {
@@ -42,11 +42,11 @@ namespace AF {
 		//}
 		//else
 		//{
-		//	// TODO(Yan): 提示用户选择目录
+		//	// TODO(Yan): Show dialog to ask user to select directory
 		//	 NewProject();
 
-		//	// 如果没有打开项目，请关闭Hazelnut
-		//	// 注意：这是在我们没有新项目路径的情况下
+		//	// If user didn't create a project, close Hazelnut
+		//	// Note: This is a temporary solution, should show project selection dialog
 		//	if (!OpenProject())
 		//		Application::Get().Close();
 		//}
@@ -59,20 +59,20 @@ namespace AF {
 
 		auto material = CreateRef<Material>();
 
-		// 设置材质基本属性
+		// Set material properties
 		material->SetUniform("u_Material.AlbedoColor", glm::vec4(0.82f, 0.85f, 0.88f, 1.0f));
 		material->SetUniform("u_Material.Metallic", 1.0f);
 		material->SetUniform("u_Material.Roughness", 0.15f);
 		material->SetUniform("u_Material.AmbientOcclusion", 1.0f);
 
-		// 设置纹理使用标志
+		// Set texture usage flags
 		material->SetUniform("u_Material.UseAlbedoMap", 1);
 		material->SetUniform("u_Material.UseNormalMap", 1);
-		material->SetUniform("u_Material.UseMetallicMap", 0); // 使用ARM纹理
-		material->SetUniform("u_Material.UseRoughnessMap", 0); // 使用ARM纹理
-		material->SetUniform("u_Material.UseAOMap", 0); // 使用ARM纹理
+		material->SetUniform("u_Material.UseMetallicMap", 0); // Use ARM map
+		material->SetUniform("u_Material.UseRoughnessMap", 0); // Use ARM map
+		material->SetUniform("u_Material.UseAOMap", 0); // Use ARM map
 
-		// 加载纹理
+		// Load textures
 		auto albedoTexture = Texture2D::Create("assets/textures/red_brick_diff_4k.jpg", 1);
 		auto normalTexture = Texture2D::Create("assets/textures/red_brick_nor_gl_4k.jpg");
 		auto armTexture = Texture2D::Create("assets/textures/red_brick_arm_4k.jpg");
@@ -80,7 +80,7 @@ namespace AF {
 		if (albedoTexture && normalTexture && armTexture) {
 			material->SetUniform("u_AlbedoMap", albedoTexture);
 			material->SetUniform("u_NormalMap", normalTexture);
-			material->SetUniform("u_ARMMap", armTexture); // ARM纹理包含金属度和粗糙度
+			material->SetUniform("u_ARMMap", armTexture); // ARM contains ambient occlusion, roughness and metallic
 		}
 		else {
 			AF_CORE_WARN("Failed to load one or more PBR textures");
@@ -117,7 +117,7 @@ namespace AF {
 				SceneRenderer::OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
 				m_EditorCamera->SetViewportSize(m_ViewportSize.x, m_ViewportSize.y);
 
-				// 更新记录的尺寸
+				// Update viewport size
 				lastViewportSize = m_ViewportSize;
 			}
 		}
@@ -823,11 +823,11 @@ namespace AF {
 
 		if (!filepath.empty())
 		{
-			// 确保使用绝对路径
+			// 确锟斤拷使锟矫撅拷锟斤拷路锟斤拷
 			std::filesystem::path absolutePath = std::filesystem::absolute(filepath);
 			std::string normalizedPath = absolutePath.string();
 
-			// 统一路径分隔符
+			// 统一路锟斤拷锟街革拷锟斤拷
 			std::replace(normalizedPath.begin(), normalizedPath.end(), '\\', '/');
 
 			AF_INFO("Loading: {}", normalizedPath);

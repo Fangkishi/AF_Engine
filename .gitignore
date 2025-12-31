@@ -2,17 +2,13 @@
 .vs/
 bin/
 bin-int/
-/AF-Editor/assets/*
-!/AF-Editor/assets/shaders/
-/AF_Engine/assets/cache/
-/AF_Engine/assets/fonts/
-/AF_Engine/assets/model/
-/AF_Engine/assets/scenes/
-/AF_Engine/assets/textures/
 
 # Files
 *.user
 /AFEngine/src/AF.h
+AF-Editor/assets/model
+AF-Editor/assets/scenes
+AF-Editor/assets/textures
 
 # Build files
 *.lib

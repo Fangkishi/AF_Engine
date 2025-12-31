@@ -18,10 +18,10 @@ namespace AF {
 	//	int nextTextureUnit = 0;
 
 	//	for (const auto& [name, value] : m_Uniforms) {
-	//		// 需要一个Visitor来将variant值应用到shader的对应Uniform上
+	//		// Need a Visitor to apply variant values to shader's corresponding Uniforms
 	//		std::visit(UniformApplier{ m_Shader, name, nextTextureUnit }, value);
 	//	}
-	//	// 同时可以设置一些材质状态，如深度测试、混合模式等
+	//	// Also apply some render states like depth test, blending mode, etc.
 	//	// glDisable(GL_DEPTH_TEST)...
 	//}
 

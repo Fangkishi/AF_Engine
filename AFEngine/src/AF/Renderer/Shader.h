@@ -21,7 +21,7 @@ namespace AF {
 		Ref<Texture>,
 		Ref<UniformBuffer>,
 		Ref<ShaderStorageBuffer>
-		// ... 其他需要的类型
+		// Add more types as needed
 	>;
 
 	class Shader

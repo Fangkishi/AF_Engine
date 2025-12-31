@@ -22,7 +22,7 @@ namespace AF {
 		s_Data.DirLightUniformBuffer = ShaderStorageBuffer::Create(sizeof(DirLight) * s_Data.DirLightBuffer.capacity(), 0);
 		s_Data.PointLightUniformBuffer = ShaderStorageBuffer::Create(sizeof(PointLight) * s_Data.PointLightBuffer.capacity(), 1);
 
-		// 初始化Shadowmap纹理规格
+		// 初始化 Shadowmap 纹理数组
 		TextureSpecification dirShadowMapSpec;
 		dirShadowMapSpec.Width = 2048;
 		dirShadowMapSpec.Height = 2048;

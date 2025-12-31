@@ -39,8 +39,8 @@ namespace AF {
 
 	private:
 
-        // 使用Visitor模式将值应用到Shader
-        struct UniformApplier {
+		// Visitor pattern to apply uniform values to shader
+		struct UniformApplier {
             Ref<Shader> shader;
             const std::string& name;
             bool isPipeline;
@@ -92,7 +92,7 @@ namespace AF {
             void operator()(const Ref<ShaderStorageBuffer>& ssbo) const {
                 ssbo->Bind();
             }
-            // ... 为variant中的每种类型重载 operator()
+            // Add operator() for each type in variant
         };
 	};
 }

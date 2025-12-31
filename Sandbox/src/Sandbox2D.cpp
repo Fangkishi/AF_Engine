@@ -26,19 +26,19 @@ void Sandbox2D::OnAttach()
     auto& nsc = m_TetrisEntity.AddComponent<AF::NativeScriptComponent>();
     nsc.Bind<TetrisGame>();
 
-    // Add a camera to the scene - ޸
+    // Add a camera to the scene
     auto cameraEntity = m_Scene->CreateEntity("Camera");
     auto& cc = cameraEntity.AddComponent<AF::CameraComponent>();
     cc.Primary = true;
 
-    // ͶӰȷܿϷ
-    // ϷΪ10߶Ϊ20ܿΧ
-    cc.Camera->SetOrthographic(20.0f, -1.0f, 1.0f); // ҰΧ
+    // Set orthographic projection to see the game
+    // Game board is 10 wide and 20 high, total visible range
+    cc.Camera->SetOrthographic(20.0f, -1.0f, 1.0f); // Field of view range
     cc.Camera->SetViewportSize(1280, 720);
 
-    // λãȷϷҰ
+    // Set position to ensure game visibility
     auto& cameraTransform = cameraEntity.GetComponent<AF::TransformComponent>();
-    cameraTransform.Translation = glm::vec3(0.0f, 0.0f, 10.0f); // ƶ
+    cameraTransform.Translation = glm::vec3(0.0f, 0.0f, 10.0f); // Move camera
 
     // Initialize the scene
     m_Scene->OnRuntimeStart();

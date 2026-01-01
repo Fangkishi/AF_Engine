@@ -104,11 +104,11 @@ namespace AF {
 			}
 
 			glm::mat4 lightViewMatrix = glm::lookAt(lightPos, lightTarget, lightUp);
-				float orthoSize = 1.0f;
+				float orthoSize = 100.0f;
 			glm::mat4 cascadeProj = glm::ortho(
 				-orthoSize, orthoSize,    // 左，右
 				-orthoSize, orthoSize,    // 下，上
-				0.1f, 100.0f   // 近，远平面
+				0.1f, 1000.0f   // 近，远平面
 			);
 
 			// 光照空间矩阵
@@ -354,7 +354,7 @@ namespace AF {
 						}
 					}
 				}
-				}, {}, { "DirShadowMap", "PointShadowMap" }, 5);
+				}, {}, { "DirShadowMap", "PointShadowMap" });
 		}
 
 		// 光照Pass
@@ -368,7 +368,7 @@ namespace AF {
 
 			RenderPassSpecification lightingRenderPassSpec;
 			lightingRenderPassSpec.TargetFramebuffer = Framebuffer::Create(lightingFramebufferSpec);
-			lightingRenderPassSpec.m_Shader = Shader::Create("assets/shaders/lighting_pass.glsl");
+			lightingRenderPassSpec.m_Shader = Shader::Create("assets/shaders/phong_pass.glsl");
 			auto lightingPass = RenderPass::Create(lightingRenderPassSpec);
 			lightingPass->SetUniform("u_EnvMap", s_Data.EnvMap);
 

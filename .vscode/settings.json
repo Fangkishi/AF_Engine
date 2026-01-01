@@ -1,9 +1,13 @@
 {
     "cmake.generator": "Ninja",
+    "cmake.buildDirectory": "${workspaceFolder}/build/${buildType}",
     "cmake.exportCompileCommandsFile": true,
     "cmake.copyCompileCommands": "${workspaceFolder}/compile_commands.json",
     "cmake.configureOnOpen": true,
     "cmake.buildBeforeRun": true,
+    "cmake.initialState": {
+        "variant": "Debug"
+    },
     "clangd.arguments": [
         "--compile-commands-dir=${workspaceFolder}",
         "--query-driver=E:/VS/**/cl.exe,C:/Windows Kits/**/cl.exe,cl.exe",

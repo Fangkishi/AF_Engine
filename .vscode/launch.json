@@ -2,11 +2,12 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "CMake: CMake Script",
             "type": "cmake",
             "request": "launch",
-            "cmakeDebugType": "script",
-            "scriptPath": "${file}"
+            "name": "CMake: 配置项目",
+            "cmakeDebugType": "configure",
+            "clean": false,
+            "configureAll": false
         }
     ]
 }

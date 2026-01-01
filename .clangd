@@ -81,14 +81,13 @@ Index:
   TrackDependency: true
 
 Diagnostics:
+  UnusedIncludes: None
   # 抑制不必要的警告
   Suppress:
     - drv_out_file_argument_with_multiple_sources
     - unknown-pragmas
     - microsoft-cast
     - msvc-include
-  
-  UnusedIncludes: None
 
 # 针对不同文件类型的特定处理
 If:

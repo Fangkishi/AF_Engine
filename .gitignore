@@ -60,7 +60,6 @@ _deps/
 /AF-Editor/assets/**/*
 !/AF-Editor/assets/**/
 !/AF-Editor/assets/shaders/**
-imgui.ini
 
 # [Temporary/OS Files]
 *.tmp

@@ -1,4 +1,4 @@
-﻿#include "afpch.h"
+#include "afpch.h"
 #include "AF/ImGui/ImGuiLayer.h"
 
 #include <imgui.h>
@@ -59,9 +59,11 @@ namespace AF {
 		Application& app = Application::Get();
 		GLFWwindow* window = static_cast<GLFWwindow*>(app.GetWindow().GetNativeWindow());
 
-		// Setup Platform/Renderer bindings
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
 		ImGui_ImplOpenGL3_Init("#version 410");
+
+		// 设置 ini 文件路径到源码目录下的 AF-Editor 文件夹
+		io.IniFilename = "../../../AF-Editor/imgui.ini";
 	}
 
 	void ImGuiLayer::OnDetach()

@@ -452,6 +452,7 @@ namespace AF {
 				}
 			}
 		}
+
 		ImGui::PopStyleVar(2);
 		ImGui::PopStyleColor(3);
 		ImGui::End();

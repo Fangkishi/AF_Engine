@@ -3,20 +3,20 @@
     "cmake.exportCompileCommandsFile": true,
     "cmake.copyCompileCommands": "${workspaceFolder}/compile_commands.json",
     "cmake.configureOnOpen": true,
-    "clangd.path": "clangd", 
+    "cmake.buildBeforeRun": true,
     "clangd.arguments": [
         "--compile-commands-dir=${workspaceFolder}",
-        "--completion-style=detailed",
-        "--header-insertion=never",
-        "--pch-storage=memory",
-        "--all-scopes-completion",
-        "--fallback-style=google",
+        "--query-driver=E:/VS/**/cl.exe,C:/Windows Kits/**/cl.exe,cl.exe",
+        "--background-index",
         "--clang-tidy",
-        "--log=verbose",
-        "--pretty"
+        "--header-insertion=never",
+        "--completion-style=detailed",
+        "--log=verbose"
     ],
     "clangd.fallbackFlags": [
-        "-std=c++17"
+        "-std=c++17",
+        "--target=x86_64-pc-windows-msvc",
+        "-fms-compatibility-version=19.41"
     ],
     "C_Cpp.intelliSenseEngine": "disabled"
 }

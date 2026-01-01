@@ -1,11 +1,11 @@
 CompileFlags:
-  # 优先使用compile_commands.json
-  CompilationDatabase: build  # 指向build目录，不是"."
-  
+  # 监听根目录的编译数据库（由 CMake Tools 实时同步）
+  CompilationDatabase: .
+
   Add:
-    # MSVC兼容性标志（关键）
+    # 核心架构与编译器目标
     - "--target=x86_64-pc-windows-msvc"
-    - "-fms-compatibility-version=19.36"
+    - "-fms-compatibility-version=19.41"
     - "-fms-extensions"
     - "-fdelayed-template-parsing"
     - "-fms-compatibility"
@@ -15,31 +15,25 @@ CompileFlags:
     - "-std=c++17"
     - "-D_MSVC_LANG=201703L"
     
-    # 项目定义
+    # 项目全局宏定义
     - "-D_DEBUG"
     - "-DUNICODE"
     - "-D_UNICODE"
     - "-DAF_PLATFORM_WINDOWS"
     - "-DAF_DEBUG"
+    - "-D_CRT_SECURE_NO_WARNINGS"
+    - "-D_SCL_SECURE_NO_WARNINGS"
     
-    # 编码设置
+    # 字符集
     - "/utf-8"
     - "-finput-charset=UTF-8"
     - "-fexec-charset=UTF-8"
     
-    # 警告控制
-    - "-Wno-unknown-pragmas"
-    - "-Wno-microsoft-include"
-    - "-Wno-unused-command-line-argument"
-    - "-Wno-missing-field-initializers"
-    
-    # 包含路径 - 修正Windows路径
-    # 使用-isystem用于第三方库，-I用于项目代码
+    # 包含路径 - 核心项目路径
     - "-ID:/Test/AFEngine/AFEngine/src"
-    - "-ID:/Test/AFEngine/AFEngine/src/AF"
-    - "-ID:/Test/AFEngine/AFEngine/src/AF/Renderer"
+    - "-ID:/Test/AFEngine/AF-Editor/src"
     
-    # 第三方库（系统方式包含）
+    # 第三方库路径 (使用 -isystem 减少干扰)
     - "-isystemD:/Test/AFEngine/AFEngine/vendor/spdlog/include"
     - "-isystemD:/Test/AFEngine/AFEngine/vendor/GLFW/include"
     - "-isystemD:/Test/AFEngine/AFEngine/vendor/Glad/include"
@@ -49,114 +43,59 @@ CompileFlags:
     - "-isystemD:/Test/AFEngine/AFEngine/vendor/yaml-cpp/include"
     - "-isystemD:/Test/AFEngine/AFEngine/vendor/Box2D/include"
     - "-isystemD:/Test/AFEngine/AFEngine/vendor/Assimp/include"
-    - "-isystemD:D:/Test/AFEngine/AFEngine/vendor/stb_image"
+    - "-isystemD:/Test/AFEngine/AFEngine/vendor/stb_image"
     - "-isystemD:/Test/AFEngine/AFEngine/vendor/ImGuizmo"
     
-    # MSVC系统路径（clangd需要这些来找到Windows头文件）
-    - "-isystemC:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.36.32532/include"
-    - "-isystemC:/Program Files (x86)/Windows Kits/10/Include/10.0.22621.0/um"
-    - "-isystemC:/Program Files (x86)/Windows Kits/10/Include/10.0.22621.0/shared"
-    - "-isystemC:/Program Files (x86)/Windows Kits/10/Include/10.0.22621.0/winrt"
-    - "-isystemC:/Program Files (x86)/Windows Kits/10/Include/10.0.22621.0/ucrt"
+    # MSVC 系统包含路径 (根据您的环境 14.41.34120 修正)
+    - "-isystemE:/VS/2022/Community/VC/Tools/MSVC/14.41.34120/include"
+    - "-isystemC:/Windows Kits/10/Include/10.0.22621.0/um"
+    - "-isystemC:/Windows Kits/10/Include/10.0.22621.0/shared"
+    - "-isystemC:/Windows Kits/10/Include/10.0.22621.0/winrt"
+    - "-isystemC:/Windows Kits/10/Include/10.0.22621.0/ucrt"
     
     # 其他必要标志
     - "-fexceptions"
+    - "-fcxx-exceptions"
     - "-EHsc"
     - "/Zc:__cplusplus"
-    - "/permissive-"
 
   Remove:
-    # 只移除真正有问题的MSVC标志
-    - "/Fo.*"          # 输出文件参数（可能冲突）
-    - "/Fd.*"          # PDB文件参数
-    - "/Yu.*"          # 预编译头使用
-    - "/Fp.*"          # 预编译头文件
-    - "/FI.*"          # 强制包含
-    - "/RTC.*"         # 运行时检查
-    - "/Ob.*"          # 内联控制
-    - "/Gs.*"          # 缓冲区安全检查
-    
-    # 注意：不要移除这些重要标志
-    # - "/W*"           # 警告级别（不要移除）
-    # - "/MD*"          # 运行时库（不要移除）
-    # - "-std*"         # C++标准（不要移除）
-    # - "/Zi"           # 调试信息（不要移除）
-    # - "/FS"           # 允许同时写入PDB（可能需要）
+    # 移除可能引起 clangd 混淆的 MSVC 特有标志
+    - "/Fo.*"
+    - "/Fd.*"
+    - "/Yu.*"
+    - "/Fp.*"
+    - "/FI.*"
+    - "/RTC.*"
+    - "/showIncludes"
+    - "/W[0-4]"
+    - "/Z7"
+    - "/Zi"
+    - "/Gm-"
+    - "/diagnostics:.*"
 
 Index:
+  # 启用背景索引以支持“转到定义”
   Background: Build
-  Threads: 0  # 0表示使用所有核心
+  Threads: 0
   TrackDependency: true
 
 Diagnostics:
-  # 抑制常见错误
+  # 抑制不必要的警告
   Suppress:
     - drv_out_file_argument_with_multiple_sources
-    - pp_file_not_found
     - unknown-pragmas
     - microsoft-cast
     - msvc-include
   
-  ClangTidy:
-    Checks: >
-      -*,
-      bugprone-*,
-      performance-*,
-      modernize-*,
-      readability-*,
-      portability-*
-    
-    CheckOptions:
-      readability-identifier-naming.VariableCase: camelCase
-      readability-identifier-naming.FunctionCase: camelCase
-      readability-identifier-naming.ClassCase: PascalCase
-      readability-identifier-naming.StructCase: PascalCase
-      readability-identifier-naming.ConstantCase: UPPER_CASE
-      readability-identifier-naming.MemberCase: camelCase
-      readability-identifier-naming.GlobalConstantCase: UPPER_CASE
-      modernize-use-nullptr.CheckMacros: 'NULL'
-  
-  # 未使用头文件检查 - 设置为None避免干扰
-  UnusedIncludes: None  # 改为None，因为MSVC项目经常有预编译头
+  UnusedIncludes: None
 
-# 特殊处理：对于MSVC项目
+# 针对不同文件类型的特定处理
 If:
-  PathMatch: .*\.(cpp|cxx|cc|c|ixx)$
+  PathMatch: .*\.(cpp|cxx|cc|c)$
   CompileFlags:
     Add: 
-      - "-D_MT"           # 多线程DLL
-      - "-D_DLL"          # DLL运行时
-      - "-D_WIN32"        # Windows定义
-      - "-D_WINDOWS"      # Windows GUI程序
-  
-# 针对第三方库的特殊处理
-If:
-  PathMatch: .*/vendor/spdlog/.*
-  CompileFlags:
-    Add:
-      - "-DSPDLOG_COMPILED_LIB"
-      - "-DSPDLOG_WCHAR_FILENAMES"
-      - "-DSPDLOG_WCHAR_TO_UTF8_SUPPORT"
-      - "-DSPDLOG_NO_EXCEPTIONS"
-
-# 针对GLM的特殊处理
-If:
-  PathMatch: .*/vendor/glm/.*
-  CompileFlags:
-    Add:
-      - "-DGLM_FORCE_CTOR_INIT"
-      - "-DGLM_FORCE_RADIANS"
-      - "-DGLM_ENABLE_EXPERIMENTAL"
-
-# 修复SceneRenderer.cpp的特定问题
-If:
-  PathMatch: .*SceneRenderer\.cpp$
-  CompileFlags:
-    Add:
-      # 确保能找到SceneRenderer.h
-      - "-I${project_dir}/src/AF/Renderer"
-      # 抑制queue模板错误
-      - "-Wno-template-arg-list-different-arity"
-    Remove:
-      # 确保移除有问题的/Fo参数
-      - "/Fo.*SceneRenderer\.cpp\.obj"
+      - "-D_MT"
+      - "-D_DLL"
+      - "-D_WIN32"
+      - "-D_WINDOWS"

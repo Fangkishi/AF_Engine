@@ -1,0 +1,35 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/AFEngine/src",
+                "${workspaceFolder}/AFEngine/vendor/spdlog/include",
+                "${workspaceFolder}/AFEngine/vendor/GLFW/include",
+                "${workspaceFolder}/AFEngine/vendor/Glad/include",
+                "${workspaceFolder}/AFEngine/vendor/imgui",
+                "${workspaceFolder}/AFEngine/vendor/glm",
+                "${workspaceFolder}/AFEngine/vendor/stb_image",
+                "${workspaceFolder}/AFEngine/vendor/entt/include",
+                "${workspaceFolder}/AFEngine/vendor/yaml-cpp/include",
+                "${workspaceFolder}/AFEngine/vendor/ImGuizmo",
+                "${workspaceFolder}/AFEngine/vendor/Box2D/include",
+                "${workspaceFolder}/AFEngine/vendor/Assimp/include"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE",
+                "AF_PLATFORM_WINDOWS",
+                "AF_DEBUG"
+            ],
+            "windowsSdkVersion": "10.0.22621.0",
+            "compilerPath": "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.36.32532/bin/Hostx64/x64/cl.exe",
+            "cStandard": "c17",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "windows-msvc-x64"
+        }
+    ],
+    "version": 4
+}

@@ -5,7 +5,6 @@
 #include "AF/Renderer/RenderPass.h"
 
 #include <queue>
-
 #include <glad/glad.h>
 
 namespace AF {
@@ -84,8 +83,9 @@ namespace AF {
 
 			if (!light.Enabled) continue;
 
-			// 计算方向：从变换位置指向世界中心 (0,0,0)
-			glm::vec3 direction = glm::normalize(-transform.Translation);
+			// 1. 方向计算：从变换的旋转中获取前向向量 (0, 0, -1)
+			// 这样旋转光源实体就可以改变光照方向，而不是仅仅依靠位置
+			glm::vec3 direction = glm::normalize(glm::rotate(glm::quat(transform.Rotation), glm::vec3(0.0f, 0.0f, -1.0f)));
 
 			DirLight dirlight = {};
 			dirlight.direction = direction;
@@ -93,10 +93,15 @@ namespace AF {
 			dirlight.diffuse = light.Diffuse;
 			dirlight.specular = light.Specular;
 
-			// 创建光源视图矩阵
-			glm::vec3 lightPos = transform.Translation;
-			glm::vec3 lightTarget = glm::vec3(0.0f); // 看向世界中心
-			glm::vec3 lightUp = glm::vec3(0.0f, 1.0f, 0.0f); // 假设Y轴为上方向
+			// 2. 构造光源视图矩阵
+			// 平行光没有位置概念，但阴影图需要一个投影中心。通常让它跟随主相机。
+			glm::vec3 cameraPos = s_Data.ActiveScene->GetCamera()->GetPosition();
+			
+			// 将光源“位置”放在相机位置，并沿光照反方向偏移，以包含相机前后的物体
+			float shadowDistance = 100.0f;
+			glm::vec3 lightPos = cameraPos - direction * (shadowDistance * 0.5f);
+			glm::vec3 lightTarget = cameraPos;
+			glm::vec3 lightUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
 			// 如果光源方向与上方向过于接近，需要调整上方向以避免万向锁
 			if (glm::abs(glm::dot(direction, lightUp)) > 0.99f) {
@@ -104,11 +109,14 @@ namespace AF {
 			}
 
 			glm::mat4 lightViewMatrix = glm::lookAt(lightPos, lightTarget, lightUp);
-				float orthoSize = 100.0f;
+
+			// 3. 构造正交投影矩阵
+			// orthoSize 决定了阴影覆盖的宽度和高度，1000.0f 的远近平面通常足以覆盖场景
+			float orthoSize = 40.0f; 
 			glm::mat4 cascadeProj = glm::ortho(
 				-orthoSize, orthoSize,    // 左，右
 				-orthoSize, orthoSize,    // 下，上
-				0.1f, 1000.0f   // 近，远平面
+				0.1f, shadowDistance      // 近，远平面
 			);
 
 			// 光照空间矩阵
@@ -652,7 +660,7 @@ namespace AF {
 
 	uint32_t SceneRenderer::GetFinalColorBufferRendererID()
 	{
-		auto it = s_Data.GraphResources.find("ShadowMap");
+		auto it = s_Data.GraphResources.find("FinalColor");
 		if (it != s_Data.GraphResources.end() && it->second) {
 			return it->second->GetRendererID();
 		}

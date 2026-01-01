@@ -2,12 +2,12 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "type": "cmake",
+            "name": "调试(LLDB)",
+            "type": "lldb",
             "request": "launch",
-            "name": "CMake: 配置项目",
-            "cmakeDebugType": "configure",
-            "clean": false,
-            "configureAll": false
+            "program": "${command:cmake.launchTargetPath}",
+            "args": [],
+            "cwd": "${command:cmake.getLaunchTargetDirectory}"
         }
     ]
 }

@@ -22,5 +22,8 @@
         "--target=x86_64-pc-windows-msvc",
         "-fms-compatibility-version=19.41"
     ],
-    "C_Cpp.intelliSenseEngine": "disabled"
+    "C_Cpp.intelliSenseEngine": "disabled",
+    "cmake.debugConfig": {
+        "name": "调试(LLDB)"
+    }
 }

@@ -25,16 +25,20 @@ target_link_libraries(AF-Editor PRIVATE AFEngine)
 # 设置运行时工作目录为项目根目录 (针对 Visual Studio)
 set_target_properties(AF-Editor PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/..")
 
-# 自动将 assets 和 Resources 文件夹复制到构建目录
-add_custom_command(TARGET AF-Editor POST_BUILD
+# 自动同步 assets 和 Resources 文件夹到构建目录
+add_custom_target(AF-Editor-Resources ALL
     COMMAND ${CMAKE_COMMAND} -E copy_directory
     "${CMAKE_CURRENT_SOURCE_DIR}/assets"
-    "$<TARGET_FILE_DIR:AF-Editor>/assets"
+    "${CMAKE_CURRENT_BINARY_DIR}/assets"
     COMMAND ${CMAKE_COMMAND} -E copy_directory
     "${CMAKE_CURRENT_SOURCE_DIR}/Resources"
-    "$<TARGET_FILE_DIR:AF-Editor>/Resources"
-    COMMENT "Copying assets and Resources to build directory..."
+    "${CMAKE_CURRENT_BINARY_DIR}/Resources"
+    COMMENT "Syncing assets and Resources to build directory..."
+    VERBATIM
 )
+
+# 让 AF-Editor 依赖于资源同步目标
+add_dependencies(AF-Editor AF-Editor-Resources)
 
 # 宏定义
 target_compile_definitions(AF-Editor PRIVATE 

@@ -81,10 +81,6 @@ vec3 ReconstructWorldPos(vec2 texCoord, float depth) {
 
 // 方向光阴影计算
 float DirShadowCalculation(int lightIndex, vec3 worldPos, vec3 normal, vec3 lightDir) {
-    // 忽略背光面 (返回 1.0 表示完全在阴影中)
-    if (dot(normal, -lightDir) < 0.0)
-        return 1.0;
-
     // 转换到灯光空间坐标
     vec4 lightSpacePos = dirLights[lightIndex].LightSpaceMatrix * vec4(worldPos, 1.0);
     vec3 projCoords = lightSpacePos.xyz / lightSpacePos.w;
@@ -118,11 +114,6 @@ int GetCubeFaceIndex(vec3 dir) {
 // 点光源阴影计算
 float PointShadowCalculation(int lightIndex, vec3 worldPos, vec3 normal, vec3 lightPos) {
     vec3 fragToLight = worldPos - lightPos;
-    
-    // 忽略背光面
-    if (dot(normal, normalize(-fragToLight)) < 0.0)
-        return 1.0;
-
     // 为了正确使用非线性深度图，我们需要使用对应的灯光空间矩阵将当前片段变换到裁剪空间
     int faceIndex = GetCubeFaceIndex(fragToLight);
     vec4 lightSpacePos = pointLights[lightIndex].LightSpaceMatrix[faceIndex] * vec4(worldPos, 1.0);
@@ -132,8 +123,9 @@ float PointShadowCalculation(int lightIndex, vec3 worldPos, vec3 normal, vec3 li
     // 采样点光源阴影立方体图
     float closestDepth = texture(PointShadowMap, vec4(normalize(fragToLight), lightIndex)).r;
     
-    // 阴影偏移
-    float bias = 0.005;
+    // 阴影偏移 - 使用法线和光源方向计算动态偏移
+    vec3 lightDir = normalize(fragToLight);
+    float bias = max(0.01 * (1.0 - dot(normal, lightDir)), 0.001);
     float currentDepth = projCoords.z - bias;
     
     return currentDepth > closestDepth ? 1.0 : 0.0;
@@ -162,7 +154,8 @@ vec3 PhongLighting(vec3 worldPos, vec3 albedo, vec3 normal, float metallic, floa
 void main() {
     // 1. 从 G-Buffer 提取数据
     vec3 albedo = texture(GBufferAlbedo, v_TexCoord).rgb;
-    vec3 normal = texture(GBufferNormal, v_TexCoord).rgb;
+    // 从 [0, 1] 范围解包回 [-1, 1]
+    vec3 normal = texture(GBufferNormal, v_TexCoord).rgb * 2.0 - 1.0;
     vec2 mp = texture(GBufferMP, v_TexCoord).rg; // R: metallic, G: roughness
     float depth = texture(GBufferDepth, v_TexCoord).r;
 

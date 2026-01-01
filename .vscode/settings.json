@@ -1,0 +1,22 @@
+{
+    "cmake.generator": "Ninja",
+    "cmake.exportCompileCommandsFile": true,
+    "cmake.copyCompileCommands": "${workspaceFolder}/compile_commands.json",
+    "cmake.configureOnOpen": true,
+    "clangd.path": "clangd", 
+    "clangd.arguments": [
+        "--compile-commands-dir=${workspaceFolder}",
+        "--completion-style=detailed",
+        "--header-insertion=never",
+        "--pch-storage=memory",
+        "--all-scopes-completion",
+        "--fallback-style=google",
+        "--clang-tidy",
+        "--log=verbose",
+        "--pretty"
+    ],
+    "clangd.fallbackFlags": [
+        "-std=c++17"
+    ],
+    "C_Cpp.intelliSenseEngine": "disabled"
+}

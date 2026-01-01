@@ -4,7 +4,9 @@ project(AFEngine)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# 解决 UTF-8 字符问题 (对应 premake 的 /utf-8)
+# 导出编译命令用于 clangd
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 if(MSVC)
     add_compile_options(/utf-8)
 endif()

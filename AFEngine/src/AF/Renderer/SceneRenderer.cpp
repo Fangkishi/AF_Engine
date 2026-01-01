@@ -156,7 +156,7 @@ namespace AF {
 				glm::radians(90.0f),  // 90度FOV，正好覆盖立方体一个面
 				1.0f,          // 1:1 宽高比
 				0.1f,            // 近平面
-				10.0f              // 远平面
+				100.0f              // 远平面
 			);
 
 			// 计算6个立方体面的光照空间矩阵（投影 * 视图）
@@ -415,7 +415,7 @@ namespace AF {
 
 			AddRenderNode("Shadow_Map_Test", shadowmaptestPass, [shadowmaptestPass]() {
 				Renderer::SubmitFullscreenQuad();
-				}, { "DirShadowMap", "PointShadowMap" }, { "ShadowMap" });
+				}, { "DirShadowMap", "PointShadowMap", "FinalColor" }, { "ShadowMap" });
 		}
 	}
 

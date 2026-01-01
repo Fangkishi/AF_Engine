@@ -1,4 +1,4 @@
-#include <AF.h>
+﻿#include <AF.h>
 #include <AF/Core/EntryPoint.h>
 
 #include "Sandbox2D.h"

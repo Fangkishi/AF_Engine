@@ -1,15 +1,73 @@
-# Directories
-.vs/
+# [Build Outputs]
+out/
 bin/
 bin-int/
+build/
+Generated/
 
-# Files
-*.user
-/AFEngine/src/AF.h
-AF-Editor/assets/model
-AF-Editor/assets/scenes
-AF-Editor/assets/textures
+# [CMake]
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+Testing/
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps/
 
-# Build files
-*.lib
+# [Visual Studio]
+.vs/
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.suo
+*.opensdf
+*.sdf
+*.cache
+*.ilk
+*.log
 *.pdb
+*.idb
+*.iobj
+*.ipdb
+*.tlog
+
+# [VS Code]
+.vscode/*
+!.vscode/c_cpp_properties.json
+!.vscode/launch.json
+!.vscode/tasks.json
+!.vscode/settings.json
+
+# [JetBrains]
+.idea/
+
+# [Compiled Binaries/Libraries]
+*.exe
+*.dll
+*.lib
+*.a
+*.o
+*.obj
+*.so
+*.dylib
+*.pch
+*.gch
+
+# [Project Specific Assets]
+/AF-Editor/assets/**/*
+!/AF-Editor/assets/**/
+!/AF-Editor/assets/shaders/**
+imgui.ini
+
+# [Temporary/OS Files]
+*.tmp
+*.bak
+*.swp
+Thumbs.db
+.DS_Store
+
+# [Specific Files]
+/AFEngine/src/AF.h

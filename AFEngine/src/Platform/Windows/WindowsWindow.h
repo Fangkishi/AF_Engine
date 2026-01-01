@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "AF/Core/Window.h"
 #include "AF/Renderer/GraphicsContext.h"

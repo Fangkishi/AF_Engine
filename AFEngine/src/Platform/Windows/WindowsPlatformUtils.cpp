@@ -1,4 +1,4 @@
-#include "afpch.h"
+﻿#include "afpch.h"
 #include "AF/Utils/PlatformUtils.h"
 #include "AF/Core/Application.h"
 

@@ -1,4 +1,4 @@
-#include "EditorLayer.h"
+﻿#include "EditorLayer.h"
 #include "AF/Scene/SceneSerializer.h"
 #include "AF/Project/ProjectSerializer.h"
 #include "AF/Utils/PlatformUtils.h"
@@ -823,11 +823,11 @@ namespace AF {
 
 		if (!filepath.empty())
 		{
-			// ȷ��ʹ�þ���·��
+			// 确锟斤拷使锟矫撅拷锟斤拷路锟斤拷
 			std::filesystem::path absolutePath = std::filesystem::absolute(filepath);
 			std::string normalizedPath = absolutePath.string();
 
-			// ͳһ·���ָ���
+			// 统一路锟斤拷锟街革拷锟斤拷
 			std::replace(normalizedPath.begin(), normalizedPath.end(), '\\', '/');
 
 			AF_INFO("Loading: {}", normalizedPath);

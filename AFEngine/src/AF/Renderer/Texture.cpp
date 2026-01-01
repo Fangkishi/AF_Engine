@@ -1,4 +1,4 @@
-#include "afpch.h"
+﻿#include "afpch.h"
 #include "AF/Renderer/Texture.h"
 
 #include "AF/Renderer/Renderer.h"

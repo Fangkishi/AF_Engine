@@ -1,4 +1,4 @@
-#include "afpch.h"
+﻿#include "afpch.h"
 #include "WindowsWindow.h"
 
 #include "AF/Events/ApplicationEvent.h"

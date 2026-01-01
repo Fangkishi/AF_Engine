@@ -1,4 +1,4 @@
-#include "afpch.h"
+﻿#include "afpch.h"
 #include "AF/ImGui/ImGuiLayer.h"
 
 #include <imgui.h>

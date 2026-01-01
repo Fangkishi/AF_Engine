@@ -1,4 +1,4 @@
-#pragma once
+Ôªø#pragma once
 
 #include "RenderCommand.h"
 
@@ -21,7 +21,7 @@ namespace AF {
 		static void EndScene();
 		static void Flush();
 
-		//≥ı º¿‡–Õ
+		//ÂàùÂßãÁ±ªÂûã
 		static void DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color);
 		static void DrawQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color);
 		static void DrawQuad(const glm::vec2& position, const glm::vec2& size, const Ref<Texture2D>& texture,

@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include "AF/Scene/ScriptableEntity.h"
 #include "AF/Core/Timestep.h"
@@ -47,7 +47,7 @@ public:
 	virtual void OnDestroy() override;
 	virtual void OnUpdate(AF::Timestep ts) override;
 
-	// »ñÈ¡ÓÎÏ·×´Ì¬µÄ·½·¨
+	// è·å–æ¸¸æˆçŠ¶æ€çš„æ–¹æ³•
 	const std::vector<std::vector<TetrominoType>>& GetBoard() const { return m_Board; }
 	const Tetromino& GetCurrentTetromino() const { return m_CurrentTetromino; }
 	const Tetromino& GetNextTetromino() const { return m_NextTetromino; }
@@ -76,11 +76,11 @@ private:
 	float m_DropTime = 0.0f;
 	float m_DropSpeed = 1.0f; // 1 second per drop
 
-	// ¿ØÖÆÏà¹ØµÄ¼ÆÊ±Æ÷
+	// æ§åˆ¶ç›¸å…³çš„è®¡æ—¶å™¨
 	float m_MoveTime = 0.0f;
-	float m_MoveDelay = 0.2f; // ÑÓ³ÙÒÆ¶¯
+	float m_MoveDelay = 0.2f; // å»¶è¿Ÿç§»åŠ¨
 	float m_RotateTime = 0.0f;
-	float m_RotateDelay = 0.2f; // ÑÓ³ÙĞı×ª
+	float m_RotateDelay = 0.2f; // å»¶è¿Ÿæ—‹è½¬
 
 	int m_Score = 0;
 	GameState m_GameState = GameState::Menu;
@@ -88,7 +88,7 @@ private:
 	std::mt19937 m_RandomGenerator;
 	std::uniform_int_distribution<int> m_TetrominoDistribution;
 
-	// °´¼ü×´Ì¬×·×Ù
+	// æŒ‰é”®çŠ¶æ€è¿½è¸ª
 	bool m_LeftPressed = false;
 	bool m_RightPressed = false;
 	bool m_DownPressed = false;

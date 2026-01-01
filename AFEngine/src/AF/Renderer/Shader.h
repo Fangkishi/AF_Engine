@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "AF/Renderer/Texture.h"
 #include "AF/Renderer/UniformBuffer.h"

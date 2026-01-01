@@ -1,4 +1,4 @@
-#include "afpch.h"
+﻿#include "afpch.h"
 #include "ContentBrowserPanel.h"
 
 #include "AF/Project/Project.h"

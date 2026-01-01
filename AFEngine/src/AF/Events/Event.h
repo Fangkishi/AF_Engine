@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "AF/Debug/Instrumentor.h"
 #include "AF/Core/Base.h"

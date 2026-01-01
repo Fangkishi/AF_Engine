@@ -1,4 +1,4 @@
-#include "afpch.h"
+﻿#include "afpch.h"
 #include "Platform/OpenGL/OpenGLBuffer.h"
 
 #include <glad/glad.h>
@@ -60,7 +60,7 @@ namespace AF {
 
 		glCreateBuffers(1, &m_RendererID);
 
-		// δ��VAOʱ��Ч
+		// 未绑定VAO时无效
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(uint32_t), indices, GL_STATIC_DRAW);
 	}

@@ -1,4 +1,4 @@
-#include "afpch.h"
+﻿#include "afpch.h"
 #include "SceneSerializer.h"
 
 #include "Entity.h"
@@ -328,7 +328,7 @@ namespace AF {
 
 	void SceneSerializer::SerializeRuntime(const std::string& filepath)
 	{
-		// δʵ��
+		// 未实现
 		AF_CORE_ASSERT(false);
 	}
 
@@ -474,7 +474,7 @@ namespace AF {
 
 	bool SceneSerializer::DeserializeRuntime(const std::string& filepath)
 	{
-		// δʵ��
+		// 未实现
 		AF_CORE_ASSERT(false);
 		return false;
 	}

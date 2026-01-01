@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "RenderCommand.h"
 #include "AF/Renderer/SceneRenderer.h"

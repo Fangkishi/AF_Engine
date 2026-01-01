@@ -1,4 +1,4 @@
-#include "afpch.h"
+﻿#include "afpch.h"
 #include "Renderer.h"
 #include "AF/Renderer/Renderer2D.h"
 

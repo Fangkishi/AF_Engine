@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
  
 #include "AF/Renderer/Buffer.h"
 #include "AF/Renderer/VertexArray.h"

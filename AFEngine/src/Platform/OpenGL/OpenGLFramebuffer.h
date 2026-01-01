@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include "AF/Renderer/Framebuffer.h"
 
@@ -48,8 +48,8 @@ namespace AF {
 		std::vector<uint32_t> m_ColorAttachments;
 		uint32_t m_DepthAttachment = 0;
 
-		std::unordered_map<uint32_t, Ref<Texture>> m_ExternalColorTextures; // ÑÕÉ«¸½×ÅË÷Òı -> Íâ²¿ÎÆÀí
-		Ref<Texture> m_ExternalDepthTexture; // Íâ²¿Éî¶ÈÎÆÀí
+		std::unordered_map<uint32_t, Ref<Texture>> m_ExternalColorTextures; // é¢œè‰²é™„ç€ç´¢å¼• -> å¤–éƒ¨çº¹ç†
+		Ref<Texture> m_ExternalDepthTexture; // å¤–éƒ¨æ·±åº¦çº¹ç†
 	};
 
 }

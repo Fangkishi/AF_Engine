@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "AF/Scene/Entity.h"
 
 #include <assimp/Importer.hpp>

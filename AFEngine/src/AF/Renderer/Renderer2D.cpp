@@ -1,4 +1,4 @@
-#include "afpch.h"
+﻿#include "afpch.h"
 #include "AF/Renderer/Renderer2D.h"
 
 #include "AF/Renderer/VertexArray.h"

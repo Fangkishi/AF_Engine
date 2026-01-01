@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <AF.h>
 #include "AF/Core/Layer.h"

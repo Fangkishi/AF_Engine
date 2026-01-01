@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Camera.h"
 #include "AF/Core/Timestep.h"

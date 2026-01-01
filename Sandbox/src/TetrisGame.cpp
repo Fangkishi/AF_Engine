@@ -1,4 +1,4 @@
-#include "TetrisGame.h"
+ï»¿#include "TetrisGame.h"
 #include "AF/Core/Input.h"
 #include "AF/Core/KeyCodes.h"
 
@@ -11,7 +11,7 @@ TetrisGame::TetrisGame()
 void TetrisGame::OnCreate()
 {
 	InitBoard();
-	// ²»ÔÙÔÚ´´½¨Ê±³õÊ¼»¯·½¿é£¬µÈ´ıÓÎÏ·¿ªÊ¼
+	// ä¸å†åœ¨åˆ›å»ºæ—¶åˆå§‹åŒ–æ–¹å—ï¼Œç­‰å¾…æ¸¸æˆå¼€å§‹
 	m_NextTetromino.Type = TetrominoType::None;
 }
 
@@ -27,8 +27,8 @@ void TetrisGame::OnUpdate(AF::Timestep ts)
 
 	if (m_GameState == GameState::Menu)
 	{
-		// ÔÚ²Ëµ¥×´Ì¬£¬°´»Ø³µ¼ü¿ªÊ¼ÓÎÏ·
-		if (enterKeyDown && !m_SpacePressed) // ÖØÓÃSpacePressed±äÁ¿±ÜÃâÖØ¸´´¥·¢
+		// åœ¨èœå•çŠ¶æ€ï¼ŒæŒ‰å›è½¦é”®å¼€å§‹æ¸¸æˆ
+		if (enterKeyDown && !m_SpacePressed) // é‡ç”¨SpacePressedå˜é‡é¿å…é‡å¤è§¦å‘
 		{
 			StartGame();
 			m_SpacePressed = true;
@@ -42,7 +42,7 @@ void TetrisGame::OnUpdate(AF::Timestep ts)
 
 	if (m_GameState == GameState::GameOver)
 	{
-		// ÔÚÓÎÏ·½áÊø×´Ì¬£¬°´»Ø³µ¼üÖØĞÂ¿ªÊ¼
+		// åœ¨æ¸¸æˆç»“æŸçŠ¶æ€ï¼ŒæŒ‰å›è½¦é”®é‡æ–°å¼€å§‹
 		if (enterKeyDown && !m_SpacePressed)
 		{
 			ResetGame();
@@ -61,19 +61,19 @@ void TetrisGame::OnUpdate(AF::Timestep ts)
 	bool downKeyDown = AF::Input::IsKeyPressed(AF::Key::S);
 	bool upKeyDown = AF::Input::IsKeyPressed(AF::Key::W);
 
-	// ´¦Àí×óÒÆ
+	// å¤„ç†å·¦ç§»
 	if (leftKeyDown)
 	{
 		if (!m_LeftPressed)
 		{
-			// Á¢¼´ÒÆ¶¯
+			// ç«‹å³ç§»åŠ¨
 			MoveTetromino(-1, 0);
 			m_LeftPressed = true;
 			m_MoveTime = 0.0f;
 		}
 		else
 		{
-			// ÑÓ³ÙÖØ¸´ÒÆ¶¯
+			// å»¶è¿Ÿé‡å¤ç§»åŠ¨
 			m_MoveTime += ts;
 			if (m_MoveTime >= m_MoveDelay)
 			{
@@ -87,19 +87,19 @@ void TetrisGame::OnUpdate(AF::Timestep ts)
 		m_LeftPressed = false;
 	}
 
-	// ´¦ÀíÓÒÒÆ
+	// å¤„ç†å³ç§»
 	if (rightKeyDown)
 	{
 		if (!m_RightPressed)
 		{
-			// Á¢¼´ÒÆ¶¯
+			// ç«‹å³ç§»åŠ¨
 			MoveTetromino(1, 0);
 			m_RightPressed = true;
 			m_MoveTime = 0.0f;
 		}
 		else
 		{
-			// ÑÓ³ÙÖØ¸´ÒÆ¶¯
+			// å»¶è¿Ÿé‡å¤ç§»åŠ¨
 			m_MoveTime += ts;
 			if (m_MoveTime >= m_MoveDelay)
 			{
@@ -113,7 +113,7 @@ void TetrisGame::OnUpdate(AF::Timestep ts)
 		m_RightPressed = false;
 	}
 
-	// ´¦ÀíÏÂÒÆ
+	// å¤„ç†ä¸‹ç§»
 	if (downKeyDown)
 	{
 		if (!m_DownPressed)
@@ -137,12 +137,12 @@ void TetrisGame::OnUpdate(AF::Timestep ts)
 		m_DownPressed = false;
 	}
 
-	// ´¦ÀíĞı×ª
+	// å¤„ç†æ—‹è½¬
 	if (upKeyDown)
 	{
 		if (!m_UpPressed)
 		{
-			RotateTetromino(true); // Ë³Ê±ÕëĞı×ª
+			RotateTetromino(true); // é¡ºæ—¶é’ˆæ—‹è½¬
 			m_UpPressed = true;
 			m_RotateTime = 0.0f;
 		}
@@ -151,7 +151,7 @@ void TetrisGame::OnUpdate(AF::Timestep ts)
 			m_RotateTime += ts;
 			if (m_RotateTime >= m_RotateDelay)
 			{
-				RotateTetromino(true); // Ë³Ê±ÕëĞı×ª
+				RotateTetromino(true); // é¡ºæ—¶é’ˆæ—‹è½¬
 				m_RotateTime = 0.0f;
 			}
 		}
@@ -161,7 +161,7 @@ void TetrisGame::OnUpdate(AF::Timestep ts)
 		m_UpPressed = false;
 	}
 
-	// ´¦ÀíË²½µ
+	// å¤„ç†ç¬é™
 	if (spaceKeyDown)
 	{
 		if (!m_SpacePressed)
@@ -205,7 +205,7 @@ void TetrisGame::ResetGame()
 	m_Score = 0;
 	m_GameOver = false;
 
-	// Çå¿ÕÓÎÏ·°å
+	// æ¸…ç©ºæ¸¸æˆæ¿
 	for (int y = 0; y < BOARD_HEIGHT; y++)
 	{
 		for (int x = 0; x < BOARD_WIDTH; x++)
@@ -214,11 +214,11 @@ void TetrisGame::ResetGame()
 		}
 	}
 
-	// ÖØÖÃµ±Ç°ºÍÏÂÒ»¸ö·½¿é
+	// é‡ç½®å½“å‰å’Œä¸‹ä¸€ä¸ªæ–¹å—
 	m_CurrentTetromino = {};
 	m_NextTetromino = {};
 
-	// Éú³ÉĞÂµÄ·½¿é
+	// ç”Ÿæˆæ–°çš„æ–¹å—
 	NewTetromino();
 	if (m_NextTetromino.Type == TetrominoType::None)
 	{
@@ -335,8 +335,8 @@ void TetrisGame::RotateTetromino(bool clockwise)
 
 	if (clockwise)
 	{
-		// Ë³Ê±ÕëĞı×ª
-		// ÏÈ×ªÖÃ¾ØÕó
+		// é¡ºæ—¶é’ˆæ—‹è½¬
+		// å…ˆè½¬ç½®çŸ©é˜µ
 		for (int i = 0; i < size; i++)
 		{
 			for (int j = i; j < size; j++)
@@ -345,7 +345,7 @@ void TetrisGame::RotateTetromino(bool clockwise)
 			}
 		}
 
-		// È»ºó·´×ªĞĞ
+		// ç„¶ååè½¬è¡Œ
 		for (int i = 0; i < size / 2; i++)
 		{
 			std::swap(rotated.Shape[i], rotated.Shape[size - 1 - i]);
@@ -353,8 +353,8 @@ void TetrisGame::RotateTetromino(bool clockwise)
 	}
 	else
 	{
-		// ÄæÊ±ÕëĞı×ª
-		// ÏÈ×ªÖÃ¾ØÕó
+		// é€†æ—¶é’ˆæ—‹è½¬
+		// å…ˆè½¬ç½®çŸ©é˜µ
 		for (int i = 0; i < size; i++)
 		{
 			for (int j = i; j < size; j++)
@@ -363,7 +363,7 @@ void TetrisGame::RotateTetromino(bool clockwise)
 			}
 		}
 
-		// È»ºó·´×ªÁĞ
+		// ç„¶ååè½¬åˆ—
 		for (int i = 0; i < size; i++)
 		{
 			for (int j = 0; j < size / 2; j++)
@@ -373,32 +373,32 @@ void TetrisGame::RotateTetromino(bool clockwise)
 		}
 	}
 
-	// ¼ì²éĞı×ªÊÇ·ñÓĞĞ§£¬Èç¹ûÎŞĞ§Ôò³¢ÊÔÌßÇ½
+	// æ£€æŸ¥æ—‹è½¬æ˜¯å¦æœ‰æ•ˆï¼Œå¦‚æœæ— æ•ˆåˆ™å°è¯•è¸¢å¢™
 	if (!CheckCollision(rotated, m_CurrentTetromino.Position))
 	{
 		m_CurrentTetromino.Shape = rotated.Shape;
 	}
 	else
 	{
-		// ³¢ÊÔÌßÇ½ - Ïò×óÒÆ¶¯Ò»¸ñ
+		// å°è¯•è¸¢å¢™ - å‘å·¦ç§»åŠ¨ä¸€æ ¼
 		if (!CheckCollision(rotated, { m_CurrentTetromino.Position.x - 1, m_CurrentTetromino.Position.y }))
 		{
 			m_CurrentTetromino.Shape = rotated.Shape;
 			m_CurrentTetromino.Position.x -= 1;
 		}
-		// ³¢ÊÔÌßÇ½ - ÏòÓÒÒÆ¶¯Ò»¸ñ
+		// å°è¯•è¸¢å¢™ - å‘å³ç§»åŠ¨ä¸€æ ¼
 		else if (!CheckCollision(rotated, { m_CurrentTetromino.Position.x + 1, m_CurrentTetromino.Position.y }))
 		{
 			m_CurrentTetromino.Shape = rotated.Shape;
 			m_CurrentTetromino.Position.x += 1;
 		}
-		// ³¢ÊÔÌßÇ½ - Ïò×óÒÆ¶¯Á½¸ñ
+		// å°è¯•è¸¢å¢™ - å‘å·¦ç§»åŠ¨ä¸¤æ ¼
 		else if (!CheckCollision(rotated, { m_CurrentTetromino.Position.x - 2, m_CurrentTetromino.Position.y }))
 		{
 			m_CurrentTetromino.Shape = rotated.Shape;
 			m_CurrentTetromino.Position.x -= 2;
 		}
-		// ³¢ÊÔÌßÇ½ - ÏòÓÒÒÆ¶¯Á½¸ñ
+		// å°è¯•è¸¢å¢™ - å‘å³ç§»åŠ¨ä¸¤æ ¼
 		else if (!CheckCollision(rotated, { m_CurrentTetromino.Position.x + 2, m_CurrentTetromino.Position.y }))
 		{
 			m_CurrentTetromino.Shape = rotated.Shape;

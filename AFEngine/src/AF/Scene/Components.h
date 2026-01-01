@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include "AF/Core/UUID.h"
 #include "AF/Renderer/Texture.h"
@@ -209,7 +209,7 @@ namespace AF {
 		}
 	};
 
-	// Æ½ĞĞ¹â×é¼ş
+	// å¹³è¡Œå…‰ç»„ä»¶
 	struct DirectionalLightComponent
 	{
 		glm::vec3 Ambient = glm::vec3(0.2f);
@@ -221,7 +221,7 @@ namespace AF {
 		DirectionalLightComponent(const DirectionalLightComponent&) = default;
 	};
 
-	// µã¹âÔ´×é¼ş
+	// ç‚¹å…‰æºç»„ä»¶
 	struct PointLightComponent
 	{
 		glm::vec3 Color = glm::vec3(1.0f, 1.0f, 1.0f);

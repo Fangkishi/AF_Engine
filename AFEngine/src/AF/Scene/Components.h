@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "AF/Core/UUID.h"
 #include "AF/Renderer/Texture.h"
@@ -9,6 +9,9 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <string>
+#include <vector>
+#include <algorithm>
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
@@ -135,7 +138,7 @@ namespace AF {
 		void Bind()
 		{
 			InstantiateScript = []() { return static_cast<ScriptableEntity*>(new T()); };
-			DestroyScript = [](NativeScriptComponent* nsc) { delete nsc->Instance; nsc->Instance = nullptr; };
+			DestroyScript = [](NativeScriptComponent* nsc) { delete static_cast<T*>(nsc->Instance); nsc->Instance = nullptr; };
 		}
 	};
 
@@ -269,6 +272,7 @@ namespace AF {
 	using AllComponents =
 		ComponentGroup<TransformComponent, SpriteRendererComponent, CircleRendererComponent, 
 		CameraComponent, ScriptComponent, NativeScriptComponent, Rigidbody2DComponent,
-		BoxCollider2DComponent, CircleCollider2DComponent, MeshComponent, MaterialComponent, ParentChildComponent>;
+		BoxCollider2DComponent, CircleCollider2DComponent, MeshComponent, MaterialComponent, 
+		ParentChildComponent, DirectionalLightComponent, PointLightComponent>;
 
 }

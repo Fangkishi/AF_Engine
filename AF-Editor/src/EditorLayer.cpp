@@ -1,12 +1,13 @@
 ﻿#include "EditorLayer.h"
+#include "AF/Core/Application.h"
+#include "AF/Core/Input.h"
+#include "AF/Core/KeyCodes.h"
+#include "AF/Renderer/SceneRenderer.h"
 #include "AF/Scene/SceneSerializer.h"
-#include "AF/Project/ProjectSerializer.h"
 #include "AF/Utils/PlatformUtils.h"
-#include "AF/Math/Math.h"
 #include "AF/Loader/AssimpLoader.h"
 
 #include <imgui/imgui.h>
-
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -18,39 +19,29 @@
 namespace AF {
 
 	EditorLayer::EditorLayer()
-		: Layer("EditorLayer"), m_SquareColor({0.2f, 0.3f, 0.8f, 1.0f})
+		: Layer("EditorLayer"), m_SquareColor({ 0.2f, 0.3f, 0.8f, 1.0f })
 	{
 	}
 
+	// ===================================================================================
+	// --- 生命周期 (Lifecycle) ---
+	// ===================================================================================
+
 	void EditorLayer::OnAttach()
 	{
-		m_CheckerboardTexture = Texture2D::Create("assets/textures/defaultTexture.jpg");
-		m_IconPlay = Texture2D::Create("Resources/Icons/PlayButton.png");
-		m_IconPause = Texture2D::Create("Resources/Icons/PauseButton.png");
-		m_IconSimulate = Texture2D::Create("Resources/Icons/SimulateButton.png");
-		m_IconStep = Texture2D::Create("Resources/Icons/StepButton.png");
-		m_IconStop = Texture2D::Create("Resources/Icons/StopButton.png");
+		AF_PROFILE_FUNCTION();
 
+		// 1. 加载编辑器默认资源
+		m_CheckerboardTexture = Texture2D::Create("assets/textures/defaultTexture.jpg");
+
+		// 2. 初始化各个面板
+		m_ToolbarPanel.OnAttach();
+
+		// 3. 初始化场景 (默认创建一个空场景)
 		m_EditorScene = CreateRef<Scene>();
 		m_ActiveScene = m_EditorScene;
 
-		//auto commandLineArgs = Application::Get().GetSpecification().CommandLineArgs;
-		//if (commandLineArgs.Count > 1)
-		//{
-		//	auto projectFilePath = commandLineArgs[1];
-		//	OpenProject(projectFilePath);
-		//}
-		//else
-		//{
-		//	// TODO(Yan): Show dialog to ask user to select directory
-		//	 NewProject();
-
-		//	// If user didn't create a project, close Hazelnut
-		//	// Note: This is a temporary solution, should show project selection dialog
-		//	if (!OpenProject())
-		//		Application::Get().Close();
-		//}
-
+		// 4. 默认场景内容初始化 (演示用代码，正式项目可删除)
 #if 1
 		auto box = m_ActiveScene->CreateEntity("box");
 		auto sphere = m_ActiveScene->CreateEntity("SPHERE");
@@ -58,21 +49,16 @@ namespace AF {
 		sphere.AddComponent<MeshComponent>(Mesh::CreateSphere(1.0f));
 
 		auto material = CreateRef<Material>();
-
-		// Set material properties
 		material->SetUniform("u_Material.AlbedoColor", glm::vec4(0.82f, 0.85f, 0.88f, 1.0f));
 		material->SetUniform("u_Material.Metallic", 1.0f);
 		material->SetUniform("u_Material.Roughness", 0.15f);
 		material->SetUniform("u_Material.AmbientOcclusion", 1.0f);
-
-		// Set texture usage flags
 		material->SetUniform("u_Material.UseAlbedoMap", 1);
 		material->SetUniform("u_Material.UseNormalMap", 1);
-		material->SetUniform("u_Material.UseMetallicMap", 0); // Use ARM map
-		material->SetUniform("u_Material.UseRoughnessMap", 0); // Use ARM map
-		material->SetUniform("u_Material.UseAOMap", 0); // Use ARM map
+		material->SetUniform("u_Material.UseMetallicMap", 0);
+		material->SetUniform("u_Material.UseRoughnessMap", 0);
+		material->SetUniform("u_Material.UseAOMap", 0);
 
-		// Load textures
 		auto albedoTexture = Texture2D::Create("assets/textures/red_brick_diff_4k.jpg", 1);
 		auto normalTexture = Texture2D::Create("assets/textures/red_brick_nor_gl_4k.jpg");
 		auto armTexture = Texture2D::Create("assets/textures/red_brick_arm_4k.jpg");
@@ -80,7 +66,7 @@ namespace AF {
 		if (albedoTexture && normalTexture && armTexture) {
 			material->SetUniform("u_AlbedoMap", albedoTexture);
 			material->SetUniform("u_NormalMap", normalTexture);
-			material->SetUniform("u_ARMMap", armTexture); // ARM contains ambient occlusion, roughness and metallic
+			material->SetUniform("u_ARMMap", armTexture);
 		}
 		else {
 			AF_CORE_WARN("Failed to load one or more PBR textures");
@@ -90,86 +76,228 @@ namespace AF {
 		sphere.AddComponent<MaterialComponent>(material);
 #endif
 
+		// 5. 将场景上下文传递给 UI 面板
 		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
-
 		m_ContentBrowserPanel = CreateScope<ContentBrowserPanel>();
 
+		// 6. 初始化编辑器自由相机
 		m_EditorCamera = CreateRef<EditorCamera>(30.0f, 16.0f / 9.0f, 0.1f, 1000.0f);
 	}
 
 	void EditorLayer::OnDetach()
 	{
-
+		AF_PROFILE_FUNCTION();
 	}
+
+	// ===================================================================================
+	// --- 核心逻辑 (Core Logic) ---
+	// ===================================================================================
 
 	void EditorLayer::OnUpdate(Timestep ts)
 	{
 		AF_PROFILE_FUNCTION();
 
-		// Resize
-		if (m_ViewportSize.x > 0.0f && m_ViewportSize.y > 0.0f)
+		// 1. 处理视口尺寸调整 (只有当视口大小改变时才通知场景和相机)
+		glm::vec2 viewportSize = m_ViewportPanel.GetSize();
+		if (viewportSize.x > 0.0f && viewportSize.y > 0.0f)
 		{
 			static glm::vec2 lastViewportSize = { 0.0f, 0.0f };
-
-			if (lastViewportSize.x != m_ViewportSize.x || lastViewportSize.y != m_ViewportSize.y)
+			if (lastViewportSize.x != viewportSize.x || lastViewportSize.y != viewportSize.y)
 			{
-				m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
-				SceneRenderer::OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
-				m_EditorCamera->SetViewportSize(m_ViewportSize.x, m_ViewportSize.y);
-
-				// Update viewport size
-				lastViewportSize = m_ViewportSize;
+				m_ActiveScene->OnViewportResize((uint32_t)viewportSize.x, (uint32_t)viewportSize.y);
+				SceneRenderer::OnViewportResize((uint32_t)viewportSize.x, (uint32_t)viewportSize.y);
+				m_EditorCamera->SetViewportSize(viewportSize.x, viewportSize.y);
+				lastViewportSize = viewportSize;
 			}
 		}
 
+		// 2. 准备渲染 (清理缓冲)
 		Renderer2D::ResetStats();
 		{
 			AF_PROFILE_SCOPE("Renderer Prep");
 			RenderCommand::Clear();
 		}
 
+		// 3. 根据编辑器状态执行不同的更新与渲染逻辑
 		{
 			AF_PROFILE_SCOPE("Renderer Draw");
-
 			switch (m_SceneState)
 			{
 			case SceneState::Edit:
-			{
 				m_EditorCamera->OnUpdate(ts);
-
-				OnUpdateEditor(m_EditorCamera);
+				OnUpdateEditor(ts, m_EditorCamera);
 				break;
-			}
 			case SceneState::Simulate:
-			{
 				m_EditorCamera->OnUpdate(ts);
-
 				OnUpdateSimulation(ts, m_EditorCamera);
 				break;
-			}
 			case SceneState::Play:
-			{
 				OnUpdateRuntime(ts);
 				break;
 			}
-			}
 		}
 
+		// 4. 渲染辅助信息 (Gizmos, 碰撞框等)
 		OnOverlayRender();
+	}
+
+	void EditorLayer::OnUpdateRuntime(Timestep ts)
+	{
+		m_ActiveScene->OnUpdateRuntime(ts);
+	}
+
+	void EditorLayer::OnUpdateSimulation(Timestep ts, Ref<EditorCamera>& camera)
+	{
+		m_ActiveScene->OnUpdateSimulation(ts, camera);
+	}
+
+	void EditorLayer::OnUpdateEditor(Timestep ts, Ref<EditorCamera>& camera)
+	{
+		m_ActiveScene->OnUpdateEditor(ts, camera);
+	}
+
+	void EditorLayer::OnOverlayRender()
+	{
+		// 1. 开始 2D 渲染叠加层
+		if (m_SceneState == SceneState::Play)
+		{
+			// 运行模式使用主摄像机
+			Entity cameraEntity = m_ActiveScene->GetPrimaryCameraEntity();
+			if (cameraEntity)
+				Renderer2D::BeginScene(cameraEntity.GetComponent<CameraComponent>().Camera);
+		}
+		else
+		{
+			// 编辑/模拟模式使用编辑器相机
+			Renderer2D::BeginScene(m_EditorCamera);
+		}
+
+		// 2. 渲染物理调试信息 (如碰撞体边框)
+		if (m_ShowPhysicsColliders)
+		{
+			// TODO: 实现物理调试渲染逻辑
+		}
+
+		// 3. 结束渲染
+		Renderer2D::EndScene();
 	}
 
 	void EditorLayer::OnImGuiRender()
 	{
 		AF_PROFILE_FUNCTION();
 
-		//-------- DockSpace --------
+		// 1. 停靠空间 (DockSpace) 设置
+		UI_DrawDockSpace();
+
+		// 2. 菜单栏 (MenuBar)
+		UI_DrawMenuBar();
+
+		// 3. 渲染各个面板 (Panels)
+		UI_DrawPanels();
+
+		ImGui::End();
+	}
+
+
+
+	// ===================================================================================
+	// --- 事件处理 (Event Handling) ---
+	// ===================================================================================
+
+	void EditorLayer::OnEvent(Event& e)
+	{
+		AF_PROFILE_FUNCTION();
+
+		// 只有在编辑模式下，编辑器相机才处理事件 (如缩放、平移视角)
+		if (m_SceneState == SceneState::Edit)
+		{
+			m_EditorCamera->OnEvent(e);
+		}
+
+		EventDispatcher dispatcher(e);
+		dispatcher.Dispatch<KeyPressedEvent>(AF_BIND_EVENT_FN(EditorLayer::OnKeyPressed));
+		dispatcher.Dispatch<MouseButtonPressedEvent>(AF_BIND_EVENT_FN(EditorLayer::OnMouseButtonPressed));
+	}
+
+	bool EditorLayer::OnKeyPressed(KeyPressedEvent& e)
+	{
+		// 键盘快捷键处理
+		if (e.IsRepeat())
+			return false;
+
+		bool control = Input::IsKeyPressed(Key::LeftControl) || Input::IsKeyPressed(Key::RightControl);
+		bool shift = Input::IsKeyPressed(Key::LeftShift) || Input::IsKeyPressed(Key::RightShift);
+
+		switch (e.GetKeyCode())
+		{
+		// --- 场景文件操作 ---
+		case Key::N:
+			if (control) NewScene();
+			break;
+		case Key::O:
+			if (control)
+			{
+				if (shift) OpenProject();
+				else OpenScene();
+			}
+			break;
+		case Key::S:
+			if (control)
+			{
+				if (shift) SaveSceneAs();
+				else SaveScene();
+			}
+			break;
+
+		// --- Gizmo 切换 ---
+		case Key::Q: // 禁用 Gizmo
+			if (!ImGuizmo::IsUsing())
+				m_GizmoType = -1;
+			break;
+		case Key::W: // 平移 (Translate)
+			if (!ImGuizmo::IsUsing())
+				m_GizmoType = ImGuizmo::OPERATION::TRANSLATE;
+			break;
+		case Key::E: // 旋转 (Rotate)
+			if (!ImGuizmo::IsUsing())
+				m_GizmoType = ImGuizmo::OPERATION::ROTATE;
+			break;
+		case Key::R: // 缩放 (Scale)
+			if (!ImGuizmo::IsUsing())
+				m_GizmoType = ImGuizmo::OPERATION::SCALE;
+			break;
+		}
+		return false;
+	}
+
+	bool EditorLayer::OnMouseButtonPressed(MouseButtonPressedEvent& e)
+	{
+		// 视口内的实体选择逻辑
+		if (e.GetMouseButton() == Mouse::ButtonLeft)
+		{
+			// 如果鼠标在视口内，且没有在使用 Gizmo，且没有按下 Alt (Alt 通常用于相机旋转)
+			if (m_ViewportPanel.IsHovered() && !ImGuizmo::IsOver() && !Input::IsKeyPressed(Key::LeftAlt))
+			{
+				// 获取当前视口中鼠标点击的实体 (这里暂时简化，如果需要精确选择通常使用颜色缓冲拾取)
+				m_SceneHierarchyPanel.SetSelectedEntity(m_ViewportPanel.IsHovered() ? m_SceneHierarchyPanel.GetSelectedEntity() : Entity());
+			}
+		}
+		return false;
+	}
+
+	// ===================================================================================
+	// --- 私有辅助 (Private Helpers) ---
+	// ===================================================================================
+
+	// --- UI 辅助 (UI Helpers) ---
+
+	void EditorLayer::UI_DrawDockSpace()
+	{
 		static bool dockspaceOpen = true;
 		static bool opt_fullscreen = true;
 		static bool opt_padding = false;
 		static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
 
-		// We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
-		// because it would be confusing to have two docking targets within each others.
 		ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
 		if (opt_fullscreen)
 		{
@@ -188,26 +316,21 @@ namespace AF {
 			dockspace_flags &= ~ImGuiDockNodeFlags_PassthruCentralNode;
 		}
 
-		// When using ImGuiDockNodeFlags_PassthruCentralNode, DockSpace() will render our background
-		// and handle the pass-thru hole, so we ask Begin() to not render a background.
 		if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
 			window_flags |= ImGuiWindowFlags_NoBackground;
 
-		// Important: note that we proceed even if Begin() returns false (aka window is collapsed).
-		// This is because we want to keep our DockSpace() active. If a DockSpace() is inactive,
-		// all active windows docked into it will lose their parent and become undocked.
-		// We cannot preserve the docking relationship between an active window and an inactive docking, otherwise
-		// any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
 		if (!opt_padding)
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+
 		ImGui::Begin("DockSpace Demo", &dockspaceOpen, window_flags);
+
 		if (!opt_padding)
 			ImGui::PopStyleVar();
 
 		if (opt_fullscreen)
 			ImGui::PopStyleVar(2);
 
-		// Submit the DockSpace
+		// 提交 DockSpace
 		ImGuiIO& io = ImGui::GetIO();
 		ImGuiStyle& style = ImGui::GetStyle();
 		float minWinSizeX = style.WindowMinSize.x;
@@ -217,509 +340,75 @@ namespace AF {
 			ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
 			ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
 		}
-
 		style.WindowMinSize.x = minWinSizeX;
+	}
 
+	void EditorLayer::UI_DrawMenuBar()
+	{
 		if (ImGui::BeginMenuBar())
 		{
 			if (ImGui::BeginMenu("File"))
 			{
-				//if (ImGui::MenuItem("New Project...", "Ctrl+Shift+N"))
-					//NewProject();
-
-				//if (ImGui::MenuItem("Open Project...", "Ctrl+Shift+O"))
-					//OpenProject();
-
+				if (ImGui::MenuItem("New Scene", "Ctrl+N")) NewScene();
+				if (ImGui::MenuItem("Open Scene", "Ctrl+O")) OpenScene();
+				if (ImGui::MenuItem("Save Scene", "Ctrl+S")) SaveScene();
+				if (ImGui::MenuItem("Save Scene As...", "Ctrl+Shift+S")) SaveSceneAs();
+				if (ImGui::MenuItem("Import")) ImportModel();
 				ImGui::Separator();
-
-				if (ImGui::MenuItem("New Scene", "Ctrl+N"))
-					NewScene();
-
-				if (ImGui::MenuItem("Open Scene", "Ctrl+O"))
-					OpenScene();
-
-				if (ImGui::MenuItem("Save Scene", "Ctrl+S"))
-					SaveScene();
-
-				if (ImGui::MenuItem("Save Scene As...", "Ctrl+Shift+S"))
-					SaveSceneAs();
-
-				if (ImGui::MenuItem("Import"))
-					ImportModel();
-
-				ImGui::Separator();
-
-				if (ImGui::MenuItem("Exit"))
-					Application::Get().Close();
-
+				if (ImGui::MenuItem("Exit")) Application::Get().Close();
 				ImGui::EndMenu();
 			}
 
 			if (ImGui::BeginMenu("Script"))
 			{
-				if (ImGui::MenuItem("Reload assembly", "Ctrl+R"))
-					//ScriptEngine::ReloadAssembly();
-
-					ImGui::EndMenu();
+				if (ImGui::MenuItem("Reload assembly", "Ctrl+R")) {}
+				ImGui::EndMenu();
 			}
-
 			ImGui::EndMenuBar();
 		}
+	}
 
+	void EditorLayer::UI_DrawPanels()
+	{
+		// 3.1 场景层级面板 (Scene Hierarchy)
 		m_SceneHierarchyPanel.OnImGuiRender();
+
+		// 3.2 内容浏览器面板 (Content Browser)
 		m_ContentBrowserPanel->OnImGuiRender();
 
-		ImGui::Begin("Stats");
-		auto stats = Renderer2D::GetStats();
-		ImGui::Text("Renderer2D Stats:");
-		ImGui::Text("Draw Calls: %d", stats.DrawCalls);
-		ImGui::Text("Quads: %d", stats.QuadCount);
-		ImGui::Text("Vertices: %d", stats.GetTotalVertexCount());
-		ImGui::Text("Indices: %d", stats.GetTotalIndexCount());
+		// 3.3 性能统计面板 (Stats)
+		m_StatsPanel.OnImGuiRender();
 
-		ImGui::End();
+		// 3.4 编辑器设置面板 (Settings)
+		m_SettingsPanel.OnImGuiRender(m_ShowPhysicsColliders);
 
-		ImGui::Begin("Settings");
-		ImGui::Checkbox("Show physics colliders", &m_ShowPhysicsColliders);
+		// 3.5 属性面板 (Properties)
+		// 将当前层级面板选中的实体传递给属性面板
+		m_PropertiesPanel.SetContext(m_SceneHierarchyPanel.GetSelectedEntity());
+		m_PropertiesPanel.OnImGuiRender();
 
-		ImGui::End();
+		// 3.6 视口面板 (Viewport)
+		m_ViewportPanel.OnImGuiRender(m_ActiveScene, m_EditorCamera,
+			m_SceneHierarchyPanel.GetSelectedEntity(), m_GizmoType, m_ShowPhysicsColliders,
+			[this](const std::filesystem::path& path) { OpenScene(path); });
 
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{0, 0});
-		ImGui::Begin("Viewport");
-		auto viewportMinRegion = ImGui::GetWindowContentRegionMin();
-		auto viewportMaxRegion = ImGui::GetWindowContentRegionMax();
-		auto viewportOffset = ImGui::GetWindowPos();
-		m_ViewportBounds[0] = {viewportMinRegion.x + viewportOffset.x, viewportMinRegion.y + viewportOffset.y};
-		m_ViewportBounds[1] = {viewportMaxRegion.x + viewportOffset.x, viewportMaxRegion.y + viewportOffset.y};
+		// 如果鼠标不在视口内，则阻塞事件，防止 UI 操作干扰视口内交互
+		Application::Get().GetImGuiLayer()->BlockEvents(!m_ViewportPanel.IsHovered());
 
-		m_ViewportFocused = ImGui::IsWindowFocused();
-		m_ViewportHovered = ImGui::IsWindowHovered();
-
-		Application::Get().GetImGuiLayer()->BlockEvents(!m_ViewportHovered);
-
-		ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
-		m_ViewportSize = {viewportPanelSize.x, viewportPanelSize.y};
-
-		uint64_t textureID = SceneRenderer::GetBufferRendererID();
-		ImGui::Image(reinterpret_cast<void*>(textureID), ImVec2{m_ViewportSize.x, m_ViewportSize.y}, ImVec2{0, 1},
-		             ImVec2{1, 0});
-
-		if (ImGui::BeginDragDropTarget())
-		{
-			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
-			{
-				const wchar_t* path = (const wchar_t*)payload->Data;
-				OpenScene(path);
-			}
-			ImGui::EndDragDropTarget();
-		}
-
-		// Gizmos
-		Entity selectedEntity = m_SceneHierarchyPanel.GetSelectedEntity();
-		if (selectedEntity && m_GizmoType != -1)
-		{
-			ImGuizmo::SetOrthographic(false);
-			ImGuizmo::SetDrawlist();
-
-			ImGuizmo::SetRect(m_ViewportBounds[0].x, m_ViewportBounds[0].y,
-			                  m_ViewportBounds[1].x - m_ViewportBounds[0].x,
-			                  m_ViewportBounds[1].y - m_ViewportBounds[0].y);
-
-			// Camera
-			//Runtime camera from entity
-			//auto cameraEntity = m_ActiveScene->GetPrimaryCameraEntity();
-			//const auto& camera = cameraEntity.GetComponent<CameraComponent>().Camera;
-			//const glm::mat4& cameraProjection = camera.GetProjection();
-			//glm::mat4 cameraView = glm::inverse(cameraEntity.GetComponent<TransformComponent>().GetTransform());
-
-			// Editor camera
-			const glm::mat4& cameraProjection = m_EditorCamera->GetProjection();
-			glm::mat4 cameraView = m_EditorCamera->GetViewMatrix();
-
-			// Entity transform
-			auto& tc = selectedEntity.GetComponent<TransformComponent>();
-			glm::mat4 transform = tc.GetTransform();
-
-			// Snapping
-			bool snap = Input::IsKeyPressed(Key::LeftControl);
-			float snapValue = 0.5f; // Snap to 0.5m for translation/scale
-			// Snap to 45 degrees for rotation
-			if (m_GizmoType == ImGuizmo::OPERATION::ROTATE)
-				snapValue = 45.0f;
-
-			float snapValues[3] = {snapValue, snapValue, snapValue};
-
-			ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection),
-			                     (ImGuizmo::OPERATION)m_GizmoType, ImGuizmo::LOCAL, glm::value_ptr(transform),
-			                     nullptr, snap ? snapValues : nullptr);
-
-			if (ImGuizmo::IsUsing())
-			{
-				glm::vec3 translation, rotation, scale;
-				Math::DecomposeTransform(transform, translation, rotation, scale);
-
-				glm::vec3 deltaRotation = rotation - tc.Rotation;
-				tc.Translation = translation;
-				tc.Rotation += deltaRotation;
-				tc.Scale = scale;
-			}
-		}
-
-		ImGui::End();
-		ImGui::PopStyleVar();
-
-		UI_Toolbar();
-
-		ImGui::End();
+		// 3.6 顶部工具栏 (Toolbar)
+		m_ToolbarPanel.OnImGuiRender((int)m_SceneState, m_ActiveScene->IsPaused(),
+			[this]() { OnScenePlay(); },
+			[this]() { OnSceneSimulate(); },
+			[this]() { OnSceneStop(); },
+			[this]() {
+				bool isPaused = m_ActiveScene->IsPaused();
+				m_ActiveScene->SetPaused(!isPaused);
+			},
+			[this]() { m_ActiveScene->Step(); }
+		);
 	}
 
-	void EditorLayer::UI_Toolbar()
-	{
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 2));
-		ImGui::PushStyleVar(ImGuiStyleVar_ItemInnerSpacing, ImVec2(0, 0));
-		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
-		auto& colors = ImGui::GetStyle().Colors;
-		const auto& buttonHovered = colors[ImGuiCol_ButtonHovered];
-		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(buttonHovered.x, buttonHovered.y, buttonHovered.z, 0.5f));
-		const auto& buttonActive = colors[ImGuiCol_ButtonActive];
-		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(buttonActive.x, buttonActive.y, buttonActive.z, 0.5f));
-
-		ImGui::Begin("##toolbar", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
-
-		bool toolbarEnabled = (bool)m_ActiveScene;
-
-		ImVec4 tintColor = ImVec4(1, 1, 1, 1);
-		if (!toolbarEnabled)
-			tintColor.w = 0.5f;
-
-		float size = ImGui::GetWindowHeight() - 4.0f;
-		ImGui::SetCursorPosX((ImGui::GetWindowContentRegionMax().x * 0.5f) - (size * 0.5f));
-
-		bool hasPlayButton = m_SceneState == SceneState::Edit || m_SceneState == SceneState::Play;
-		bool hasSimulateButton = m_SceneState == SceneState::Edit || m_SceneState == SceneState::Simulate;
-		bool hasPauseButton = m_SceneState != SceneState::Edit;
-
-		if (hasPlayButton)
-		{
-			Ref<Texture2D> icon = (m_SceneState == SceneState::Edit || m_SceneState == SceneState::Simulate) ? m_IconPlay : m_IconStop;
-			if (ImGui::ImageButton((ImTextureID)(uint64_t)icon->GetRendererID(), ImVec2(size, size), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.0f, 0.0f, 0.0f), tintColor) && toolbarEnabled)
-			{
-				if (m_SceneState == SceneState::Edit || m_SceneState == SceneState::Simulate)
-					OnScenePlay();
-				else if (m_SceneState == SceneState::Play)
-					OnSceneStop();
-			}
-		}
-
-		if (hasSimulateButton)
-		{
-			if (hasPlayButton)
-				ImGui::SameLine();
-
-			Ref<Texture2D> icon = (m_SceneState == SceneState::Edit || m_SceneState == SceneState::Play) ? m_IconSimulate : m_IconStop;
-			if (ImGui::ImageButton((ImTextureID)(uint64_t)icon->GetRendererID(), ImVec2(size, size), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.0f, 0.0f, 0.0f), tintColor) && toolbarEnabled)
-			{
-				if (m_SceneState == SceneState::Edit || m_SceneState == SceneState::Play)
-					OnSceneSimulate();
-				else if (m_SceneState == SceneState::Simulate)
-					OnSceneStop();
-			}
-		}
-
-		if (hasPauseButton)
-		{
-			bool isPaused = m_ActiveScene->IsPaused();
-			ImGui::SameLine();
-			{
-				Ref<Texture2D> icon = m_IconPause;
-				if (ImGui::ImageButton((ImTextureID)(uint64_t)icon->GetRendererID(), ImVec2(size, size), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.0f, 0.0f, 0.0f), tintColor) && toolbarEnabled)
-				{
-					m_ActiveScene->SetPaused(!isPaused);
-				}
-			}
-
-			// Step button
-			if (isPaused)
-			{
-				ImGui::SameLine();
-				{
-					Ref<Texture2D> icon = m_IconStep;
-					bool isPaused = m_ActiveScene->IsPaused();
-					if (ImGui::ImageButton((ImTextureID)(uint64_t)icon->GetRendererID(), ImVec2(size, size), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0.0f, 0.0f, 0.0f, 0.0f), tintColor) && toolbarEnabled)
-					{
-						m_ActiveScene->Step();
-					}
-				}
-			}
-		}
-
-		ImGui::PopStyleVar(2);
-		ImGui::PopStyleColor(3);
-		ImGui::End();
-	}
-
-	void EditorLayer::OnEvent(Event& e)
-	{
-		AF_PROFILE_FUNCTION();
-
-		if (m_SceneState == SceneState::Edit)
-		{
-			m_EditorCamera->OnEvent(e);
-		}
-
-		EventDispatcher dispatcher(e);
-		dispatcher.Dispatch<KeyPressedEvent>(AF_BIND_EVENT_FN(EditorLayer::OnKeyPressed));
-		dispatcher.Dispatch<MouseButtonPressedEvent>(AF_BIND_EVENT_FN(EditorLayer::OnMouseButtonPressed));
-	}
-
-	bool EditorLayer::OnKeyPressed(KeyPressedEvent& e)
-	{
-		// Shortcuts
-		if (e.IsRepeat())
-			return false;
-
-		bool control = Input::IsKeyPressed(Key::LeftControl) || Input::IsKeyPressed(Key::RightControl);
-		bool shift = Input::IsKeyPressed(Key::LeftShift) || Input::IsKeyPressed(Key::RightShift);
-
-		switch (e.GetKeyCode())
-		{
-		case Key::N:
-			{
-				if (control)
-					NewScene();
-
-				break;
-			}
-		case Key::O:
-			{
-				if (control)
-				{
-					if (shift)
-						OpenProject();
-					else
-						OpenScene();
-				}
-
-				break;
-			}
-		case Key::S:
-			{
-				if (control)
-				{
-					if (shift)
-						SaveSceneAs();
-					else
-						SaveScene();
-				}
-
-				break;
-			}
-
-		// Scene Commands
-		case Key::D:
-			{
-				if (control)
-					OnDuplicateEntity();
-
-					break;
-			}
-
-		// Gizmos
-		case Key::Q:
-			{
-				if (!ImGuizmo::IsUsing())
-					m_GizmoType = (m_GizmoType != -1) ? -1 : 0;
-				break;
-			}
-		case Key::W:
-			{
-				if (!ImGuizmo::IsUsing())
-					m_GizmoType = (m_GizmoType != ImGuizmo::OPERATION::TRANSLATE) ? ImGuizmo::OPERATION::TRANSLATE : -1;
-				break;
-			}
-		case Key::E:
-			{
-				if (!ImGuizmo::IsUsing())
-					m_GizmoType = (m_GizmoType != ImGuizmo::OPERATION::ROTATE) ? ImGuizmo::OPERATION::ROTATE : -1;
-				break;
-			}
-		case Key::R:
-			{
-				if (control)
-				{
-					//ScriptEngine::ReloadAssembly();
-				}
-				else
-				{
-					if (!ImGuizmo::IsUsing())
-						m_GizmoType = (m_GizmoType != ImGuizmo::OPERATION::SCALE) ? ImGuizmo::OPERATION::SCALE : -1;
-				}
-				break;
-			}
-		case Key::Delete:
-			{
-				if (Application::Get().GetImGuiLayer()->GetActiveWidgetID() == 0)
-				{
-					Entity selectedEntity = m_SceneHierarchyPanel.GetSelectedEntity();
-					if (selectedEntity)
-					{
-						m_SceneHierarchyPanel.SetSelectedEntity({});
-						m_EditorScene->DestroyEntity(selectedEntity);
-					}
-				}
-				break;
-			}
-		}
-
-		return false;
-	}
-
-	bool EditorLayer::OnMouseButtonPressed(MouseButtonPressedEvent& e)
-	{
-		if (e.GetMouseButton() == Mouse::ButtonLeft)
-		{
-			if (m_ViewportHovered && !ImGuizmo::IsOver() && !Input::IsKeyPressed(Key::LeftAlt))
-			{
-				auto [mx, my] = ImGui::GetMousePos();
-				mx -= m_ViewportBounds[0].x;
-				my -= m_ViewportBounds[0].y;
-				glm::vec2 viewportSize = m_ViewportBounds[1] - m_ViewportBounds[0];
-				my = viewportSize.y - my;
-				int mouseX = (int)mx;
-				int mouseY = (int)my;
-
-				if (mouseX >= 0 && mouseY >= 0 && mouseX < (int)viewportSize.x && mouseY < (int)viewportSize.y)
-				{
-					int pixelData = SceneRenderer::ReadPixel(mouseX, mouseY);
-					auto HoveredEntity = pixelData == -1 ? Entity() : Entity((entt::entity)pixelData, m_ActiveScene.get());
-					m_SceneHierarchyPanel.SetSelectedEntity(HoveredEntity);
-				}
-			}
-		}
-		return false;
-	}
-
-	void EditorLayer::OnOverlayRender()
-	{
-		if (m_SceneState == SceneState::Play)
-		{
-			Entity camera = m_ActiveScene->GetPrimaryCameraEntity();
-			if (!camera)
-				return;
-
-			auto& PrimaryCamera = camera.GetComponent<CameraComponent>().Camera;
-			PrimaryCamera->SetViewMatrix(camera.GetComponent<TransformComponent>().GetTransform());
-			Renderer2D::BeginScene(PrimaryCamera);
-		}
-		else
-		{
-			Renderer2D::BeginScene(m_EditorCamera);
-		}
-
-		if (m_ShowPhysicsColliders)
-		{
-			// Box Colliders
-			{
-				auto view = m_ActiveScene->GetAllEntitiesWithView<TransformComponent, BoxCollider2DComponent>();
-				for (auto entity : view)
-				{
-					auto [tc, bc2d] = view.get<TransformComponent, BoxCollider2DComponent>(entity);
-
-					glm::vec3 translation = tc.Translation + glm::vec3(bc2d.Offset, 0.001f);
-					glm::vec3 scale = tc.Scale * glm::vec3(bc2d.Size * 2.0f, 1.0f);
-
-					glm::mat4 transform = glm::translate(glm::mat4(1.0f), tc.Translation)
-						* glm::rotate(glm::mat4(1.0f), tc.Rotation.z, glm::vec3(0.0f, 0.0f, 1.0f))
-						* glm::translate(glm::mat4(1.0f), glm::vec3(bc2d.Offset, 0.001f))
-						* glm::scale(glm::mat4(1.0f), scale);
-
-					Renderer2D::DrawRect(transform, glm::vec4(0, 1, 0, 1));
-				}
-			}
-
-			// Circle Colliders
-			{
-				auto view = m_ActiveScene->GetAllEntitiesWithView<TransformComponent, CircleCollider2DComponent>();
-				for (auto entity : view)
-				{
-					auto [tc, cc2d] = view.get<TransformComponent, CircleCollider2DComponent>(entity);
-
-					glm::vec3 translation = tc.Translation + glm::vec3(cc2d.Offset, 0.001f);
-					glm::vec3 scale = tc.Scale * glm::vec3(cc2d.Radius * 2.0f);
-
-					glm::mat4 transform = glm::translate(glm::mat4(1.0f), translation)
-						* glm::scale(glm::mat4(1.0f), scale);
-
-					Renderer2D::DrawCircle(transform, glm::vec4(0, 1, 0, 1), 0.01f);
-				}
-			}
-		}
-
-		// Draw selected entity outline 
-		if (Entity selectedEntity = m_SceneHierarchyPanel.GetSelectedEntity())
-		{
-			const TransformComponent& transform = selectedEntity.GetComponent<TransformComponent>();
-			Renderer2D::DrawRect(transform.GetTransform(), glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
-		}
-
-		Renderer2D::EndScene();
-	}
-
-	void EditorLayer::OnUpdateRuntime(Timestep ts)
-	{
-		m_ActiveScene->UpdateScripts(ts);
-
-		m_ActiveScene->UpdatePhysics(ts);
-
-		// Render 2D
-		{
-			auto view = m_ActiveScene->GetAllEntitiesWithView<TransformComponent, CameraComponent>();
-			for (auto entity : view)
-			{
-				auto [transform, camera] = view.get<TransformComponent, CameraComponent>(entity);
-
-				if (camera.Primary)
-				{
-					auto activeCamera = camera.Camera;
-					activeCamera->SetPosition(transform.Translation);
-					activeCamera->SetViewMatrix(glm::inverse(transform.GetTransform()));
-					m_ActiveScene->SetCamera(activeCamera);
-					if (activeCamera)
-					{
-						// Render
-						RenderScene();
-					}
-					break;
-				}
-			}
-		}
-
-
-	}
-
-	void EditorLayer::OnUpdateSimulation(Timestep ts, Ref<EditorCamera>& camera)
-	{
-		m_ActiveScene->SetCamera(camera);
-
-		m_ActiveScene->UpdatePhysics(ts);
-
-		// Render
-		RenderScene();
-	}
-
-	void EditorLayer::OnUpdateEditor(Ref<EditorCamera>& camera)
-	{
-		m_ActiveScene->SetCamera(camera);
-		// Render
-		RenderScene();
-	}
-
-	void EditorLayer::RenderScene()
-	{
-		SceneRenderer::BeginScene(m_ActiveScene);
-
-		SceneRenderer::EndScene();
-	}
+	// --- 项目与场景管理 ---
 
 	void EditorLayer::NewProject()
 	{
@@ -728,7 +417,7 @@ namespace AF {
 
 	bool EditorLayer::OpenProject()
 	{
-		std::string filepath = FileDialogs::OpenFile("AF Project (*.afproj)\0*.afproj\0");
+		std::string filepath = FileDialogs::OpenFile("Hazel Project (*.hproj)\0*.hproj\0");
 		if (filepath.empty())
 			return false;
 
@@ -740,9 +429,6 @@ namespace AF {
 	{
 		if (Project::Load(path))
 		{
-			//ScriptEngine::Init();
-
-			auto activeProject = Project::GetActive();
 			auto startScenePath = Project::GetAssetFileSystemPath(Project::GetActive()->GetConfig().StartScene);
 			OpenScene(startScenePath);
 			m_ContentBrowserPanel = CreateScope<ContentBrowserPanel>();
@@ -751,21 +437,21 @@ namespace AF {
 
 	void EditorLayer::SaveProject()
 	{
-		//Project::SaveActive();
+		// Project::SaveActive();
 	}
 
 	void EditorLayer::NewScene()
 	{
 		m_EditorScene = CreateRef<Scene>();
-		m_SceneHierarchyPanel.SetContext(m_EditorScene);
-
+		m_EditorScene->OnViewportResize((uint32_t)m_ViewportPanel.GetSize().x, (uint32_t)m_ViewportPanel.GetSize().y);
 		m_ActiveScene = m_EditorScene;
+		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
 		m_EditorScenePath = std::filesystem::path();
 	}
 
 	void EditorLayer::OpenScene()
 	{
-		std::string filepath = FileDialogs::OpenFile("AF Scene (*.af)\0*.af\0");
+		std::string filepath = FileDialogs::OpenFile("Hazel Scene (*.hazel)\0*.hazel\0");
 		if (!filepath.empty())
 			OpenScene(filepath);
 	}
@@ -775,9 +461,9 @@ namespace AF {
 		if (m_SceneState != SceneState::Edit)
 			OnSceneStop();
 
-		if (path.extension().string() != ".af")
+		if (path.extension().string() != ".hazel")
 		{
-			AF_WARN("Could not load {0} - not a scene file", path.filename().string());
+			AF_CORE_WARN("Could not load {0} - not a scene file", path.filename().string());
 			return;
 		}
 
@@ -786,8 +472,8 @@ namespace AF {
 		if (serializer.Deserialize(path.string()))
 		{
 			m_EditorScene = newScene;
+			m_EditorScene->OnViewportResize((uint32_t)m_ViewportPanel.GetSize().x, (uint32_t)m_ViewportPanel.GetSize().y);
 			m_SceneHierarchyPanel.SetContext(m_EditorScene);
-
 			m_ActiveScene = m_EditorScene;
 			m_EditorScenePath = path;
 		}
@@ -803,7 +489,7 @@ namespace AF {
 
 	void EditorLayer::SaveSceneAs()
 	{
-		std::string filepath = FileDialogs::SaveFile("AF Scene (*.af)\0*.af\0");
+		std::string filepath = FileDialogs::SaveFile("Hazel Scene (*.hazel)\0*.hazel\0");
 		if (!filepath.empty())
 		{
 			SerializeScene(m_EditorScene, filepath);
@@ -813,22 +499,18 @@ namespace AF {
 
 	void EditorLayer::ImportModel()
 	{
-		std::string filepath = FileDialogs::OpenFile(
-			"3D Model Files\0*.fbx;*.obj;*.gltf;*.glb;*.dae;*.blend;*.3ds;*.x;*.stl;*.ply\0"
-			"All Files (*.*)\0*.*\0"
-		);
-
+		std::string filepath = FileDialogs::OpenFile("Model (*.obj;*.fbx;*.gltf)\0*.obj;*.fbx;*.gltf\0");
 		if (!filepath.empty())
 		{
-			// 确锟斤拷使锟矫撅拷锟斤拷路锟斤拷
+			// 确认使用绝对路径
 			std::filesystem::path absolutePath = std::filesystem::absolute(filepath);
 			std::string normalizedPath = absolutePath.string();
 
-			// 统一路锟斤拷锟街革拷锟斤拷
+			// 统一路径分隔符
 			std::replace(normalizedPath.begin(), normalizedPath.end(), '\\', '/');
 
 			AF_INFO("Loading: {}", normalizedPath);
-			AssimpLoader::Load(normalizedPath, m_ActiveScene);
+			AssimpLoader::Load(normalizedPath, m_EditorScene);
 		}
 	}
 
@@ -838,29 +520,43 @@ namespace AF {
 		serializer.Serialize(path.string());
 	}
 
+	// --- 播放状态控制 ---
+
 	void EditorLayer::OnScenePlay()
 	{
+		// 检查场景中是否存在主摄像机，如果不存在则不允许播放
+		Entity cameraEntity = m_EditorScene->GetPrimaryCameraEntity();
+		if (!cameraEntity)
+		{
+			AF_CORE_WARN("无法开始播放：场景中没有设置主摄像机！");
+			return;
+		}
+
 		if (m_SceneState == SceneState::Simulate)
 			OnSceneStop();
 
 		m_SceneState = SceneState::Play;
-
 		m_ActiveScene = Scene::Copy(m_EditorScene);
 		m_ActiveScene->OnRuntimeStart();
-
 		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
 	}
 
 	void EditorLayer::OnSceneSimulate()
 	{
+		// 检查场景中是否存在主摄像机，如果不存在则不允许模拟
+		Entity cameraEntity = m_EditorScene->GetPrimaryCameraEntity();
+		if (!cameraEntity)
+		{
+			AF_CORE_WARN("无法开始模拟：场景中没有设置主摄像机！");
+			return;
+		}
+
 		if (m_SceneState == SceneState::Play)
 			OnSceneStop();
 
 		m_SceneState = SceneState::Simulate;
-
 		m_ActiveScene = Scene::Copy(m_EditorScene);
 		m_ActiveScene->OnSimulationStart();
-
 		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
 	}
 
@@ -874,9 +570,7 @@ namespace AF {
 			m_ActiveScene->OnSimulationStop();
 
 		m_SceneState = SceneState::Edit;
-
 		m_ActiveScene = m_EditorScene;
-
 		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
 	}
 
@@ -885,20 +579,20 @@ namespace AF {
 		if (m_SceneState == SceneState::Edit)
 			return;
 
-		m_ActiveScene->SetPaused(true);
+		m_ActiveScene->SetPaused(!m_ActiveScene->IsPaused());
 	}
+
+	// --- 实体操作 ---
 
 	void EditorLayer::OnDuplicateEntity()
 	{
+		// 只有在编辑模式下才允许复制实体，防止污染运行时副本
 		if (m_SceneState != SceneState::Edit)
 			return;
 
 		Entity selectedEntity = m_SceneHierarchyPanel.GetSelectedEntity();
 		if (selectedEntity)
-		{
-			Entity newEntity = m_EditorScene->DuplicateEntity(selectedEntity);
-			m_SceneHierarchyPanel.SetSelectedEntity(newEntity);
-		}
+			m_EditorScene->DuplicateEntity(selectedEntity);
 	}
 
 }

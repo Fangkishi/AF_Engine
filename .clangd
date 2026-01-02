@@ -77,8 +77,6 @@ CompileFlags:
 Index:
   # 启用背景索引以支持“转到定义”
   Background: Build
-  Threads: 0
-  TrackDependency: true
 
 Diagnostics:
   UnusedIncludes: None
@@ -90,11 +88,12 @@ Diagnostics:
     - msvc-include
 
 # 针对不同文件类型的特定处理
+---
 If:
   PathMatch: .*\.(cpp|cxx|cc|c)$
-  CompileFlags:
-    Add: 
-      - "-D_MT"
-      - "-D_DLL"
-      - "-D_WIN32"
-      - "-D_WINDOWS"
+CompileFlags:
+  Add:
+    - "-D_MT"
+    - "-D_DLL"
+    - "-D_WIN32"
+    - "-D_WINDOWS"

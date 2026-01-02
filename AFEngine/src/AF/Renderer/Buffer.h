@@ -1,5 +1,12 @@
 #pragma once
 
+#include <string>
+#include <cstdint>
+#include <memory>
+#include <vector>
+
+#include "AF/Core/Base.h"
+
 namespace AF {
 	enum class ShaderDataType
 	{
@@ -21,6 +28,7 @@ namespace AF {
 		case ShaderDataType::Int3: return 4 * 3;
 		case ShaderDataType::Int4: return 4 * 4;
 		case ShaderDataType::Bool: return 1;
+		case ShaderDataType::None: break;
 		}
 
 		AF_CORE_ASSERT(false, "Unknown ShaderDataType!");
@@ -57,6 +65,7 @@ namespace AF {
 			case ShaderDataType::Int3: return 3;
 			case ShaderDataType::Int4: return 4;
 			case ShaderDataType::Bool: return 1;
+			case ShaderDataType::None: break;
 			}
 
 			AF_CORE_ASSERT(false, "Unknown ShaderDataType!");

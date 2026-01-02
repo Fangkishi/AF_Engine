@@ -38,13 +38,14 @@ target_compile_definitions(AFEngine PUBLIC
 )
 
 # 链接库
+find_package(OpenGL REQUIRED)
 target_link_libraries(AFEngine PUBLIC 
     GLFW
     Glad
     ImGui
     yaml-cpp
     Box2D
-    opengl32.lib
+    OpenGL::GL
 )
 
 # Windows 特定配置 (Assimp 库)

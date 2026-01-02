@@ -1,4 +1,3 @@
-﻿#include "afpch.h"
 #include "AssimpLoader.h"
 #include "AF/Math/Math.h"
 
@@ -19,12 +18,12 @@ namespace AF {
 
 		Assimp::Importer importer;
         const aiScene* ai_scene = importer.ReadFile(path, 
-            aiProcess_Triangulate | 
-            aiProcess_GenSmoothNormals |  // 生成平滑法线
-            aiProcess_CalcTangentSpace |  // 计算切线和副切线空间
-            aiProcess_JoinIdenticalVertices | // 合并相同顶点
-            aiProcess_ImproveCacheLocality |  // 优化缓存局部性
-            aiProcess_OptimizeMeshes          // 优化网格
+            aiProcess_Triangulate |           // 将所有图元三角化 (确保仅使用三角形面)
+            aiProcess_GenSmoothNormals |      // 生成平滑法线 (如果模型没有法线，则生成它们)
+            aiProcess_CalcTangentSpace |      // 计算切线和副切线空间 (用于法线贴图计算)
+            aiProcess_JoinIdenticalVertices | // 合并相同顶点 (去除冗余数据)
+            aiProcess_ImproveCacheLocality |  // 优化缓存局部性 (提升 GPU 渲染性能)
+            aiProcess_OptimizeMeshes          // 优化网格 (合并小网格以减少 Draw Calls)
         );
 		//验证读取是否正确顺利
 		if (!ai_scene || ai_scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !ai_scene->mRootNode) {

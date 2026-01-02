@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "AF/Core/Timestep.h"
 #include "AF/Core/UUID.h"
@@ -12,7 +12,7 @@ namespace AF {
 
 	class Entity;
 
-	class Scene
+	class Scene : public std::enable_shared_from_this<Scene>
 	{
 	public:
 		Scene();
@@ -29,6 +29,10 @@ namespace AF {
 
 		void OnSimulationStart();
 		void OnSimulationStop();
+
+		void OnUpdateRuntime(Timestep ts);
+		void OnUpdateSimulation(Timestep ts, Ref<EditorCamera>& camera);
+		void OnUpdateEditor(Timestep ts, Ref<EditorCamera>& camera);
 
 		void UpdateScripts(Timestep ts);
 		void UpdatePhysics(Timestep ts);

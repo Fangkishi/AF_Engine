@@ -158,6 +158,39 @@ namespace AF {
 		OnPhysics2DStop();
 	}
 
+	void Scene::OnUpdateRuntime(Timestep ts)
+	{
+		UpdateScripts(ts);
+		UpdatePhysics(ts);
+
+		// Render
+		Entity cameraEntity = GetPrimaryCameraEntity();
+		if (cameraEntity)
+		{
+ 	 	 	 SetCamera(cameraEntity.GetComponent<CameraComponent>().Camera); 
+ 	 	 	 SceneRenderer::BeginScene(shared_from_this()); 
+ 	 	 	 SceneRenderer::EndScene(); 
+ 	 	 } 
+ 	 }
+
+	void Scene::OnUpdateSimulation(Timestep ts, Ref<EditorCamera>& camera)
+	{
+		UpdatePhysics(ts);
+
+		// Render
+		SetCamera(camera);
+		SceneRenderer::BeginScene(shared_from_this());
+		SceneRenderer::EndScene();
+	}
+
+	void Scene::OnUpdateEditor(Timestep ts, Ref<EditorCamera>& camera)
+	{
+		// Render
+		SetCamera(camera);
+		SceneRenderer::BeginScene(shared_from_this());
+		SceneRenderer::EndScene();
+	}
+
 	void Scene::UpdateScripts(Timestep ts)
 	{
 		if (!m_IsPaused || m_StepFrames-- > 0)

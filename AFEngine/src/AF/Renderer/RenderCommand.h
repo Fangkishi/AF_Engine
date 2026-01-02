@@ -1,5 +1,6 @@
-﻿#pragma once
+#pragma once
 
+#include "AF/Core/Base.h"
 #include "RendererAPI.h"
 
 namespace AF {

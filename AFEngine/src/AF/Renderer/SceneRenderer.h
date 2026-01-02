@@ -3,6 +3,9 @@
 
 #include "AF/Renderer/RenderPass.h"
 #include "AF/Renderer/UniformBuffer.h"
+#include <string>
+#include <vector>
+#include <functional>
 
 namespace AF {
 

@@ -42,7 +42,7 @@ namespace AF {
 		glm::vec3 Rotation = {0.0f, 0.0f, 0.0f};
 		glm::vec3 Scale = {1.0f, 1.0f, 1.0f};
 
-		// 缂傛挸鐡ㄩ崣妯诲床閻晠妯€
+		// 缓存变换矩阵
 		glm::mat4 Transform = glm::mat4(1.0f);
 		glm::mat3 NormalMatrix = glm::mat3(1.0f);
 
@@ -54,7 +54,7 @@ namespace AF {
 		{
 		}
 
-		/** @brief 閺囧瓨鏌婇獮鎯板箯閸欐牕褰夐幑銏㈢叐闂?*/
+		/** @brief 更新并获取变换矩阵 */
 		const glm::mat4& UpdateTransform()
 		{
 			glm::mat4 rotation = glm::toMat4(glm::quat(Rotation));
@@ -195,13 +195,13 @@ namespace AF {
 	struct MeshComponent
 	{
 		Ref<Mesh> mesh;
-		UniformContainer instanceUniforms; ///< 鐎圭偘绶ョ粔浣规箒閻?Uniform 鐎圭懓娅掗敍鍫㈠缁斿绱?
-		int EntityID = -1; // 鐎涙ê鍋嶇€圭偘缍?ID 閻ㄥ嫬澹囬張顒婄礉閻劋绨崷?UniformContainer 娑擃厼绱╅悽銊旂€规氨娈戦崷鏉挎絻
+		UniformContainer instanceUniforms; ///< 实例私有的 Uniform 容器（独立）
+		int EntityID = -1; // 存储实体 ID 的副本，用于在 UniformContainer 中引用稳定的地址
 
 		MeshComponent() = default;
 		MeshComponent(const MeshComponent&) = default;
 
-		/** @brief 缂佹垵鐣炬径鏍劥缂佸嫪娆㈠鏇犳暏閿涘苯缂撶粩?Uniform 閸忓疇浠?*/
+		/** @brief 绑定外部组件引用，建立 Uniform 关联 */
 		void Bind(TransformComponent& transform, int entityID)
 		{
 			EntityID = entityID;
@@ -238,7 +238,7 @@ namespace AF {
 		}
 	};
 
-	// 楠炲疇顢戦崗澶岀矋娴?
+	// 平行光组件
 	struct DirectionalLightComponent
 	{
 		glm::vec3 Ambient = glm::vec3(0.2f);
@@ -250,7 +250,7 @@ namespace AF {
 		DirectionalLightComponent(const DirectionalLightComponent&) = default;
 	};
 
-	// 閻愮懓鍘滃┃鎰矋娴?
+	// 点光源组件
 	struct PointLightComponent
 	{
 		glm::vec3 Color = glm::vec3(1.0f, 1.0f, 1.0f);

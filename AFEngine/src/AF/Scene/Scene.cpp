@@ -91,6 +91,16 @@ namespace AF {
 		// Copy components (except IDComponent and TagComponent)
 		CopyComponent(AllComponents{}, dstSceneRegistry, srcSceneRegistry, enttMap);
 
+		// Fix up MeshComponent bindings to point to the new TransformComponent in the new scene
+		{
+			auto view = newScene->m_Registry.view<TransformComponent, MeshComponent>();
+			for (auto entity : view)
+			{
+				auto [transform, mesh] = view.get<TransformComponent, MeshComponent>(entity);
+				mesh.Bind(transform, (int)entity);
+			}
+		}
+
 		return newScene;
 	}
 
@@ -166,10 +176,15 @@ namespace AF {
 		Entity cameraEntity = GetPrimaryCameraEntity();
 		if (cameraEntity)
 		{
- 	 	 	 SetCamera(cameraEntity.GetComponent<CameraComponent>().Camera); 
- 	 	 	 SceneRenderer::BeginScene(shared_from_this()); 
- 	 	 	 SceneRenderer::EndScene(); 
- 	 	 } 
+			auto& camera = cameraEntity.GetComponent<CameraComponent>().Camera;
+			auto& tc = cameraEntity.GetComponent<TransformComponent>();
+			camera->SetViewMatrix(glm::inverse(tc.GetTransform()));
+			camera->SetPosition(tc.Translation);
+
+			SetCamera(camera);
+			SceneRenderer::BeginScene(shared_from_this());
+			SceneRenderer::EndScene();
+		} 
  	 }
 
 	void Scene::OnUpdateSimulation(Timestep ts, Ref<EditorCamera>& camera)

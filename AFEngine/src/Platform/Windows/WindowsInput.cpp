@@ -1,4 +1,4 @@
-﻿#include "afpch.h"
+#include "afpch.h"
 #include "AF/Core/Input.h"
 
 #include "AF/Core/Application.h"

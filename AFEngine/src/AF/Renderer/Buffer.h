@@ -1,10 +1,5 @@
 #pragma once
 
-#include <string>
-#include <cstdint>
-#include <memory>
-#include <vector>
-
 #include "AF/Core/Base.h"
 
 namespace AF {

@@ -1,9 +1,8 @@
-﻿#include "afpch.h"
-#include "Application.h"
+#include "afpch.h"
+#include "AF/Core/Application.h"
 
+#include "AF/Core/Input.h"
 #include "AF/Renderer/Renderer.h"
-
-#include "Input.h"
 #include "AF/Utils/PlatformUtils.h"
 
 namespace AF {

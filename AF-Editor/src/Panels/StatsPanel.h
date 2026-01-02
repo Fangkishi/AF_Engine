@@ -1,7 +1,7 @@
 #pragma once
 
 #include "AF/Renderer/Renderer2D.h"
-#include <imgui/imgui.h>
+#include <imgui.h>
 #include <string>
 
 namespace AF {

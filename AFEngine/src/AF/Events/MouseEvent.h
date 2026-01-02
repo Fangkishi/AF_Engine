@@ -1,6 +1,6 @@
-﻿#pragma once
+#pragma once
 
-#include "Event.h"
+#include "AF/Events/Event.h"
 #include "AF/Core/MouseCodes.h"
 
 namespace AF {

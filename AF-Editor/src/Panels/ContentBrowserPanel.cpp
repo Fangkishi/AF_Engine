@@ -1,9 +1,9 @@
-#include "afpch.h"
 #include "ContentBrowserPanel.h"
 
 #include "AF/Project/Project.h"
 
-#include <imgui/imgui.h>
+#include <imgui.h>
+#include <string>
 
 namespace AF {
 	

@@ -1,6 +1,7 @@
-﻿#pragma once
+#pragma once
 
 #include "AF/Scene/Components.h"
+#include "AF/Core/Assert.h"
 
 #include "box2d/b2_body.h"
 

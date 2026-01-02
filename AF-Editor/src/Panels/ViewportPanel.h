@@ -4,7 +4,7 @@
 #include "AF/Renderer/EditorCamera.h"
 #include "AF/Scene/Entity.h"
 
-#include <imgui/imgui.h>
+#include <imgui.h>
 #include <glm/glm.hpp>
 #include <functional>
 #include <filesystem>

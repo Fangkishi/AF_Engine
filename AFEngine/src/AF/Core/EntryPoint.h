@@ -1,4 +1,9 @@
-﻿#pragma once
+#pragma once
+
+#include "AF/Core/Base.h"
+#include "AF/Core/Application.h"
+#include "AF/Core/Log.h"
+#include "AF/Debug/Instrumentor.h"
 
 #ifdef AF_PLATFORM_WINDOWS
 

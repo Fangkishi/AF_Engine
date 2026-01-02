@@ -1,7 +1,7 @@
 #include "afpch.h"
-#include "Shader.h"
+#include "AF/Renderer/Shader.h"
 
-#include "Renderer.h"
+#include "AF/Renderer/Renderer.h"
 
 #include "Platform/OpenGL/OpenGLShader.h"
 

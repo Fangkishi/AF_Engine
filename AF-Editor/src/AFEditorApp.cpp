@@ -6,8 +6,8 @@
  * 它负责初始化编辑器图层 (EditorLayer) 并启动应用程序循环。
  */
 
-#include <AF.h>
-#include <AF/Core/EntryPoint.h>
+#include "AF.h"
+#include "AF/Core/EntryPoint.h"
 
 #include "EditorLayer.h"
 

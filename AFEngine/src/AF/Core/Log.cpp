@@ -1,5 +1,5 @@
-﻿#include "afpch.h"
-#include "Log.h"
+#include "afpch.h"
+#include "AF/Core/Log.h"
 
 #include <spdlog/sinks/stdout_color_sinks.h>
 

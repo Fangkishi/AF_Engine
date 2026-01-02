@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "AF/Core/KeyCodes.h"
 #include "AF/Core/MouseCodes.h"

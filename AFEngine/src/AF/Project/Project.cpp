@@ -1,7 +1,7 @@
-﻿#include "afpch.h"
-#include "Project.h"
+#include "afpch.h"
+#include "AF/Project/Project.h"
 
-#include "ProjectSerializer.h"
+#include "AF/Project/ProjectSerializer.h"
 
 namespace AF {
 

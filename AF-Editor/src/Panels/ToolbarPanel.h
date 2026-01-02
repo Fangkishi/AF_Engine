@@ -1,7 +1,7 @@
 #pragma once
 
 #include "AF/Renderer/Texture.h"
-#include <imgui/imgui.h>
+#include <imgui.h>
 
 namespace AF {
 

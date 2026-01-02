@@ -1,9 +1,7 @@
-﻿#pragma once
+#pragma once
 
-#include "RenderCommand.h"
-
+#include "AF/Renderer/RenderCommand.h"
 #include "AF/Renderer/Texture.h"
-
 #include "AF/Renderer/Camera.h"
 #include "AF/Renderer/EditorCamera.h"
 

@@ -1,7 +1,7 @@
-﻿#pragma once
+#pragma once
 
 #include "AF/Core/Base.h"
-#include "Layer.h"
+#include "AF/Core/Layer.h"
 
 namespace AF {
 	class LayerStack

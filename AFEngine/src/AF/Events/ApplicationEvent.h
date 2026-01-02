@@ -1,6 +1,6 @@
-﻿#pragma once
+#pragma once
 
-#include "Event.h"
+#include "AF/Events/Event.h"
 
 namespace AF {
 	class WindowResizeEvent : public Event

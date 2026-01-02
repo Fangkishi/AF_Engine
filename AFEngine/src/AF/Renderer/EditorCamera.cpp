@@ -1,5 +1,5 @@
 #include "afpch.h"
-#include "EditorCamera.h"
+#include "AF/Renderer/EditorCamera.h"
 
 #include "AF/Core/Input.h"
 #include "AF/Core/KeyCodes.h"

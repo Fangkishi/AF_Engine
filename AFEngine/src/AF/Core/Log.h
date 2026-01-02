@@ -1,6 +1,6 @@
-﻿#pragma once
+#pragma once
 
-#include "Base.h"
+#include "AF/Core/Base.h"
 #include "spdlog/spdlog.h"
 #include "spdlog/fmt/ostr.h"
 #include "spdlog/fmt/std.h"

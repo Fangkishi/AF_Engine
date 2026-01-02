@@ -1,8 +1,5 @@
 #pragma once
 
-#include <memory>
-#include <vector>
-
 #include "AF/Core/Base.h"
 #include "AF/Renderer/Buffer.h"
 

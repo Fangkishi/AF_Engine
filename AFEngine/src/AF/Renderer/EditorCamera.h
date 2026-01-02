@@ -1,6 +1,6 @@
-﻿#pragma once
+#pragma once
 
-#include "Camera.h"
+#include "AF/Renderer/Camera.h"
 #include "AF/Core/Timestep.h"
 #include "AF/Events/Event.h"
 #include "AF/Events/MouseEvent.h"

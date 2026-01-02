@@ -1,4 +1,4 @@
-﻿#include "afpch.h"
+#include "afpch.h"
 #include "Platform/OpenGL/OpenGLRendererAPI.h"
 
 #include <glad/glad.h>

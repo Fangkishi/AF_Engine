@@ -1,22 +1,21 @@
 #include "afpch.h"
-#include "Scene.h"
+#include "AF/Scene/Scene.h"
 
-#include "Components.h"
-#include "ScriptableEntity.h"
+#include "AF/Scene/Components.h"
+#include "AF/Scene/Entity.h"
+#include "AF/Scene/ScriptableEntity.h"
+
 #include "AF/Renderer/Renderer.h"
 #include "AF/Renderer/Renderer2D.h"
 #include "AF/Physics/Physics2D.h"
 
 #include <glm/glm.hpp>
 
-#include "Entity.h"
-
-// Box2D
-#include "box2d/b2_world.h"
-#include "box2d/b2_body.h"
-#include "box2d/b2_fixture.h"
-#include "box2d/b2_polygon_shape.h"
-#include "box2d/b2_circle_shape.h"
+#include <box2d/b2_world.h>
+#include <box2d/b2_body.h>
+#include <box2d/b2_fixture.h>
+#include <box2d/b2_polygon_shape.h>
+#include <box2d/b2_circle_shape.h>
 
 namespace AF {
 

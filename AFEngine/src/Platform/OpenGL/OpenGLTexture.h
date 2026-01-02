@@ -1,7 +1,8 @@
-﻿#pragma once
+#pragma once
 
 #include "AF/Renderer/Texture.h"
 
+#include <string>
 #include <glad/glad.h>
 
 namespace AF {

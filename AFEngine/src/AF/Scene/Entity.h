@@ -1,10 +1,10 @@
-﻿#pragma once
+#pragma once
 
 #include "AF/Core/UUID.h"
-#include "Scene.h"
-#include "Components.h"
+#include "AF/Scene/Scene.h"
+#include "AF/Scene/Components.h"
 
-#include "entt.hpp"
+#include <entt.hpp>
 
 namespace AF {
 	class Entity

@@ -1,5 +1,5 @@
-﻿#include "afpch.h"
-#include "Layer.h"
+#include "afpch.h"
+#include "AF/Core/Layer.h"
 
 namespace AF {
 	Layer::Layer(const std::string& debugName)

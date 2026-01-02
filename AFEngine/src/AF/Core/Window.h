@@ -1,8 +1,7 @@
-﻿#pragma once
-
-#include "afpch.h"
+#pragma once
 
 #include "AF/Core/Base.h"
+
 #include "AF/Events/Event.h"
 
 namespace AF {

@@ -1,4 +1,4 @@
-﻿#include "EditorLayer.h"
+#include "EditorLayer.h"
 #include "AF/Core/Application.h"
 #include "AF/Core/Input.h"
 #include "AF/Core/KeyCodes.h"
@@ -7,14 +7,13 @@
 #include "AF/Utils/PlatformUtils.h"
 #include "AF/Loader/AssimpLoader.h"
 
-#include <imgui/imgui.h>
+#include "AF/Project/Project.h"
+
+#include <imgui.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 #include "ImGuizmo.h"
-
-// Project related includes
-#include "AF/Project/Project.h"
 
 namespace AF {
 

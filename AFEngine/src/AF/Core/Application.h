@@ -1,13 +1,12 @@
-﻿#pragma once
+#pragma once
 
-#include "Base.h"
+#include "AF/Core/Base.h"
+#include "AF/Core/Window.h"
+#include "AF/Core/LayerStack.h"
+#include "AF/Core/Timestep.h"
 
-#include "Window.h"
 #include "AF/Events/Event.h"
 #include "AF/Events/ApplicationEvent.h"
-#include "AF/Core/LayerStack.h"
-
-#include "AF/Core/Timestep.h"
 
 #include "AF/ImGui/ImGuiLayer.h"
 

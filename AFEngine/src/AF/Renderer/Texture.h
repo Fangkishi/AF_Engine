@@ -1,6 +1,4 @@
-﻿#pragma once
-
-#include <string>
+#pragma once
 
 #include "AF/Core/Base.h"
 

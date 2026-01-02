@@ -1,5 +1,7 @@
 #pragma once
 
+#include "AF/Core/Base.h"
+
 namespace AF {
 	class GraphicsContext
 	{

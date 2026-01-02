@@ -1,5 +1,5 @@
 #include "afpch.h"
-#include "Math.h"
+#include "AF/Math/Math.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/matrix_decompose.hpp>

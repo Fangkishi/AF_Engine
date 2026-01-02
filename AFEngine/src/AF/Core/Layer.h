@@ -1,8 +1,9 @@
-﻿#pragma once
+#pragma once
 
 #include "AF/Core/Base.h"
-#include "AF/Events/Event.h"
 #include "AF/Core/Timestep.h"
+
+#include "AF/Events/Event.h"
 
 namespace AF {
 	class Layer

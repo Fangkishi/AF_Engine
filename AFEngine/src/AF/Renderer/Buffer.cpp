@@ -1,7 +1,7 @@
-﻿#include "afpch.h"
-#include "Buffer.h"
+#include "afpch.h"
+#include "AF/Renderer/Buffer.h"
 
-#include "Renderer.h"
+#include "AF/Renderer/Renderer.h"
 
 #include "Platform/OpenGL/OpenGLBuffer.h"
 

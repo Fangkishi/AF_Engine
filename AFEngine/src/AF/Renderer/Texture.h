@@ -19,9 +19,7 @@ namespace AF {
 
 		// Depth/stencil
 		DEPTH24STENCIL8,
-
-		// Defaults
-		Depth = DEPTH24STENCIL8
+		DEPTH,
 	};
 
 	struct TextureSpecification

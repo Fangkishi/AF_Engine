@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "AF/Core/Base.h"
 #include "AF/Renderer/Texture.h"
@@ -19,8 +19,8 @@ namespace AF {
 		// Depth/stencil
 		DEPTH24STENCIL8,
 
-		// Defaults
-		Depth = DEPTH24STENCIL8
+		// Depth
+		DEPTH,
 	};
 
 	struct FramebufferTextureSpecification

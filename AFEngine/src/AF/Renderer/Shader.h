@@ -1,10 +1,11 @@
-﻿#pragma once
+#pragma once
 
 #include "AF/Renderer/Texture.h"
 #include "AF/Renderer/UniformBuffer.h"
 
 #include <string>
 #include <unordered_map>
+#include <variant>
 
 #include <glm/glm.hpp>
 
@@ -20,8 +21,15 @@ namespace AF {
 		glm::mat4,
 		Ref<Texture>,
 		Ref<UniformBuffer>,
-		Ref<ShaderStorageBuffer>
-		// Add more types as needed
+		Ref<ShaderStorageBuffer>,
+		// 引用类型（指针），用于直接引用外部组件数据
+		const int*,
+		const float*,
+		const glm::vec2*,
+		const glm::vec3*,
+		const glm::vec4*,
+		const glm::mat3*,
+		const glm::mat4*
 	>;
 
 	class Shader

@@ -1,4 +1,4 @@
-﻿#include "afpch.h"
+#include "afpch.h"
 #include "Platform/OpenGL/OpenGLTexture.h"
 
 #include <stb_image.h>
@@ -15,6 +15,7 @@ namespace AF {
 			case ImageFormat::SRGB8: return GL_SRGB8;
 			case ImageFormat::SRGBA8: return GL_SRGB8_ALPHA8;
 			case ImageFormat::DEPTH24STENCIL8: return GL_DEPTH_STENCIL;
+			case ImageFormat::DEPTH: return GL_DEPTH_COMPONENT;
 			}
 
 			//AF_CORE_ASSERT(false);
@@ -30,6 +31,7 @@ namespace AF {
 			case ImageFormat::SRGB8: return GL_SRGB8;
 			case ImageFormat::SRGBA8: return GL_SRGB8_ALPHA8;
 			case ImageFormat::DEPTH24STENCIL8: return GL_DEPTH24_STENCIL8;
+			case ImageFormat::DEPTH: return GL_DEPTH_COMPONENT32F;
 			}
 
 			//AF_CORE_ASSERT(false);

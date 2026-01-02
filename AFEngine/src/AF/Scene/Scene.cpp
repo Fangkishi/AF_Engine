@@ -403,6 +403,10 @@ namespace AF {
 	template<>
 	void Scene::OnComponentAdded<MeshComponent>(Entity entity, MeshComponent& component)
 	{
+		if (entity.HasComponent<TransformComponent>())
+		{
+			component.Bind(entity.GetComponent<TransformComponent>(), (int)(uint32_t)entity);
+		}
 	}
 
 	template<>

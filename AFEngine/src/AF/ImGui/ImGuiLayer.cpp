@@ -62,8 +62,8 @@ namespace AF {
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
 		ImGui_ImplOpenGL3_Init("#version 410");
 
-		// 设置 ini 文件路径到源码目录下的 AF-Editor 文件夹
-		io.IniFilename = "../../../AF-Editor/imgui.ini";
+		// 设置 ini 文件路径。该文件会由 CMake 从源码目录同步到构建目录
+		io.IniFilename = "imgui.ini";
 	}
 
 	void ImGuiLayer::OnDetach()

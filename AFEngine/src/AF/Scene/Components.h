@@ -42,12 +42,30 @@ namespace AF {
 		glm::vec3 Rotation = {0.0f, 0.0f, 0.0f};
 		glm::vec3 Scale = {1.0f, 1.0f, 1.0f};
 
+		// 缓存变换矩阵
+		glm::mat4 Transform = glm::mat4(1.0f);
+		glm::mat3 NormalMatrix = glm::mat3(1.0f);
+
 		TransformComponent() = default;
 		TransformComponent(const TransformComponent&) = default;
 
 		TransformComponent(const glm::vec3& translation)
 			: Translation(translation)
 		{
+		}
+
+		/** @brief 更新并获取变换矩阵 */
+		const glm::mat4& UpdateTransform()
+		{
+			glm::mat4 rotation = glm::toMat4(glm::quat(Rotation));
+
+			Transform = glm::translate(glm::mat4(1.0f), Translation)
+				* rotation
+				* glm::scale(glm::mat4(1.0f), Scale);
+
+			NormalMatrix = glm::transpose(glm::inverse(glm::mat3(Transform)));
+
+			return Transform;
 		}
 
 		glm::mat4 GetTransform() const
@@ -177,9 +195,20 @@ namespace AF {
 	struct MeshComponent
 	{
 		Ref<Mesh> mesh;
+		UniformContainer instanceUniforms; ///< 实例私有的 Uniform 容器（独立）
+		int EntityID = -1; // 存储实体 ID 的副本，用于在 UniformContainer 中引用稳定的地址
 
 		MeshComponent() = default;
 		MeshComponent(const MeshComponent&) = default;
+
+		/** @brief 绑定外部组件引用，建立 Uniform 关联 */
+		void Bind(TransformComponent& transform, int entityID)
+		{
+			EntityID = entityID;
+			instanceUniforms.SetUniform("u_Transform", &transform.Transform);
+			instanceUniforms.SetUniform("u_NormalMatrix", &transform.NormalMatrix);
+			instanceUniforms.SetUniform("u_EntityID", &EntityID);
+		}
 	};
 
 	struct MaterialComponent

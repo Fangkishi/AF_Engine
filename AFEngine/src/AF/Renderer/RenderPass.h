@@ -1,38 +1,28 @@
 ﻿#pragma once
-
 #include "AF/Renderer/Framebuffer.h"
-#include "AF/Renderer/Shader.h"
+#include "AF/Renderer/UniformContainer.h"
 
 namespace AF {
 
+	/**
+	 * @struct RenderPassSpecification
+	 * @brief 渲染通道配置，包含目标帧缓冲和所使用的着色器
+	 */
 	struct RenderPassSpecification
 	{
 		Ref<Framebuffer> TargetFramebuffer;
 		Ref<Shader> m_Shader;
-		std::unordered_map<std::string, UniformValue> PassUniforms;
 	};
 
-	class RenderPass
+	/**
+	 * @class RenderPass
+	 * @brief 渲染通道类，封装了一次绘制过程所需的资源（Framebuffer, Shader）和全局参数（Uniforms）。
+	 */
+	class RenderPass : public UniformContainer
 	{
 	public:
 		RenderPass(const RenderPassSpecification& spec);
 		~RenderPass() = default;
-
-		// 设置Uniform值
-		template<typename T>
-		void SetUniform(const std::string& name, const T& value) {
-			m_Specification.PassUniforms[name] = value;
-		}
-
-		// 获取Uniform值 (使用前需知道确切类型)
-		template<typename T>
-		const T& GetUniform(const std::string& name) const {
-			return std::get<T>(m_Specification.PassUniforms.at(name));
-		}
-
-		bool HasUniform(const std::string& name) const {
-			return m_Specification.PassUniforms.find(name) != m_Specification.PassUniforms.end();
-		}
 
 		const RenderPassSpecification& GetSpecification() const { return m_Specification; }
 

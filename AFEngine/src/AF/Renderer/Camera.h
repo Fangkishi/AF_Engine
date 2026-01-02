@@ -16,7 +16,7 @@ namespace AF {
 		virtual ~Camera() = default;
 
 		void SetPosition(glm::vec3& position) { m_Position = position; }
-		void SetViewMatrix(glm::mat4& viewMatrix) { m_ViewMatrix = viewMatrix; }
+		void SetViewMatrix(const glm::mat4& viewMatrix) { m_ViewMatrix = viewMatrix; }
 
 		const glm::vec3& GetPosition() const { return m_Position; }
 		const glm::mat4& GetViewMatrix() const { return m_ViewMatrix; }

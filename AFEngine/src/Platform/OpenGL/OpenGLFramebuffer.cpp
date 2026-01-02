@@ -72,7 +72,9 @@ namespace AF {
 		{
 			switch (format)
 			{
-			case FramebufferTextureFormat::DEPTH24STENCIL8: return true;
+			case FramebufferTextureFormat::DEPTH24STENCIL8:
+			case FramebufferTextureFormat::DEPTH:
+				return true;
 			}
 
 			return false;
@@ -169,6 +171,10 @@ namespace AF {
 			case FramebufferTextureFormat::DEPTH24STENCIL8:
 				Utils::AttachDepthTexture(m_DepthAttachment, m_Specification.Samples, GL_DEPTH24_STENCIL8,
 				                          GL_DEPTH_STENCIL_ATTACHMENT, m_Specification.Width, m_Specification.Height);
+				break;
+			case FramebufferTextureFormat::DEPTH:
+				Utils::AttachDepthTexture(m_DepthAttachment, m_Specification.Samples, GL_DEPTH_COMPONENT32F,
+					GL_DEPTH_ATTACHMENT, m_Specification.Width, m_Specification.Height);
 				break;
 			}
 		}
@@ -291,8 +297,8 @@ namespace AF {
 		auto& spec = texture->GetSpecification();
 
 		GLenum attachmentPoint;
-		if (spec.Format == ImageFormat::Depth) {
-			attachmentPoint = GL_DEPTH_STENCIL_ATTACHMENT;  // 深度附件
+		if (spec.Format == ImageFormat::DEPTH || spec.Format == ImageFormat::DEPTH24STENCIL8) {
+			attachmentPoint = (spec.Format == ImageFormat::DEPTH) ? GL_DEPTH_ATTACHMENT : GL_DEPTH_STENCIL_ATTACHMENT;
 			// 存储外部深度纹理引用，并更新深度附着ID
 			m_ExternalDepthTexture = texture;
 			m_DepthAttachment = textureID;
@@ -321,8 +327,8 @@ namespace AF {
 		uint32_t textureID = texture->GetRendererID();
 
 		GLenum attachmentPoint;
-		if (texture->GetSpecification().Format == ImageFormat::Depth) {
-			attachmentPoint = GL_DEPTH_STENCIL_ATTACHMENT;  // 深度附件
+		if (texture->GetSpecification().Format == ImageFormat::DEPTH || texture->GetSpecification().Format == ImageFormat::DEPTH24STENCIL8) {
+			attachmentPoint = (texture->GetSpecification().Format == ImageFormat::DEPTH) ? GL_DEPTH_ATTACHMENT : GL_DEPTH_STENCIL_ATTACHMENT;
 			m_ExternalDepthTexture = texture;
 			m_DepthAttachment = textureID;
 		}

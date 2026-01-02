@@ -33,7 +33,10 @@ add_custom_target(AF-Editor-Resources ALL
     COMMAND ${CMAKE_COMMAND} -E copy_directory
     "${CMAKE_CURRENT_SOURCE_DIR}/Resources"
     "${CMAKE_CURRENT_BINARY_DIR}/Resources"
-    COMMENT "Syncing assets and Resources to build directory..."
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    "${CMAKE_CURRENT_SOURCE_DIR}/imgui.ini"
+    "${CMAKE_CURRENT_BINARY_DIR}/imgui.ini"
+    COMMENT "Syncing assets, Resources and imgui.ini to build directory..."
     VERBATIM
 )
 

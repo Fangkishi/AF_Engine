@@ -3,10 +3,15 @@
 #include "AF/Renderer/Buffer.h"
 #include "AF/Renderer/VertexArray.h"
 #include "AF/Renderer/Material.h"
+#include "AF/Renderer/UniformContainer.h"
 
 namespace AF {
 
-	class Mesh
+	/**
+	 * @class Mesh
+	 * @brief 网格类，包含顶点数据、索引数据以及网格级的 Uniform 变量。
+	 */
+	class Mesh : public UniformContainer
 	{
 	public:
 		Mesh();

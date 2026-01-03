@@ -37,6 +37,8 @@ namespace AF {
 			std::function<void(const std::filesystem::path&)> onSceneOpen);
 
 		glm::vec2 GetSize() const { return m_ViewportSize; }
+		glm::vec2 GetViewportMinBound() const { return m_ViewportBounds[0]; }
+		glm::vec2 GetViewportMaxBound() const { return m_ViewportBounds[1]; }
 		bool IsFocused() const { return m_Focused; }
 		bool IsHovered() const { return m_Hovered; }
 

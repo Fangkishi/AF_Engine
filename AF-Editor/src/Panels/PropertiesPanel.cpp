@@ -181,52 +181,263 @@ namespace AF {
 		}
 	}
 
+	static void DrawTextureUI(const std::string& name, const std::string& label, Ref<Texture> texture, MaterialComponent& component)
+	{
+		ImGui::BeginGroup();
+
+		// 左侧：图片预览
+		float thumbnailSize = 64.0f;
+		
+		Ref<Texture2D> texture2D = std::dynamic_pointer_cast<Texture2D>(texture);
+		uint32_t id = texture ? texture->GetRendererID() : 0; 
+		
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 1)); // 黑色背景
+		
+		if (texture)
+		{
+			if (ImGui::ImageButton((ImTextureID)(uintptr_t)id, ImVec2(thumbnailSize, thumbnailSize), ImVec2(0, 1), ImVec2(1, 0)))
+			{
+				// TODO: Open file dialog on click?
+			}
+		}
+		else
+		{
+			ImGui::Button("NULL", ImVec2(thumbnailSize, thumbnailSize));
+		}
+		
+		ImGui::PopStyleColor();
+
+		if (ImGui::IsItemHovered() && texture)
+		{
+			ImGui::BeginTooltip();
+			ImGui::Text("Renderer ID: %d", texture->GetRendererID());
+			ImGui::Text("Size: %dx%d", texture->GetWidth(), texture->GetHeight());
+			ImGui::Text("Path: %s", texture->GetPath().c_str());
+			ImGui::EndTooltip();
+		}
+
+		// 拖拽处理 (Target on Image)
+		if (ImGui::BeginDragDropTarget())
+		{
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
+			{
+				const wchar_t* path = (const wchar_t*)payload->Data;
+				std::filesystem::path texturePath(path);
+				
+				// 简单的扩展名检查
+				std::string extension = texturePath.extension().string();
+				std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
+				
+				if (extension == ".png" || extension == ".jpg" || extension == ".jpeg" || extension == ".tga" || extension == ".bmp" || extension == ".hdr" || extension == ".psd")
+				{
+					// 默认根据名称判断是否可能是 sRGB
+					bool isSRGB = false;
+					std::string pathStr = texturePath.string();
+					if (pathStr.find("diff") != std::string::npos || pathStr.find("albedo") != std::string::npos)
+						isSRGB = true;
+
+					Ref<Texture2D> newTexture;
+					if (TextureLibrary::Exists(pathStr, isSRGB))
+					{
+						newTexture = TextureLibrary::GetTexture(pathStr, isSRGB);
+					}
+					else
+					{
+						TextureLibrary::LoadTexture(pathStr, isSRGB);
+						if (TextureLibrary::Exists(pathStr, isSRGB))
+							newTexture = TextureLibrary::GetTexture(pathStr, isSRGB);
+					}
+
+					if (newTexture && newTexture->IsLoaded())
+					{
+						component.material->SetUniform(name, (Ref<Texture>)newTexture);
+					}
+					else
+					{
+						AF_CORE_WARN("Failed to load texture from: {}", pathStr);
+					}
+				}
+				else
+				{
+					AF_CORE_WARN("Invalid texture file type: {}", extension);
+				}
+			}
+			ImGui::EndDragDropTarget();
+		}
+
+		ImGui::SameLine();
+
+		// 右侧：信息与操作
+		ImGui::BeginGroup();
+		
+		// 1. 名字
+		ImGui::Text("%s", label.c_str());
+
+		// 2. 属性与操作
+		if (texture2D)
+		{
+			bool isSRGB = (texture2D->GetSpecification().Format == ImageFormat::SRGB8 || texture2D->GetSpecification().Format == ImageFormat::SRGBA8);
+			if (ImGui::Checkbox("sRGB", &isSRGB))
+			{
+				// 重新加载纹理
+				std::string path = texture2D->GetPath();
+				Ref<Texture2D> newTexture;
+				if (TextureLibrary::Exists(path, isSRGB))
+				{
+					newTexture = TextureLibrary::GetTexture(path, isSRGB);
+				}
+				else
+				{
+					TextureLibrary::LoadTexture(path, isSRGB);
+					if (TextureLibrary::Exists(path, isSRGB))
+						newTexture = TextureLibrary::GetTexture(path, isSRGB);
+				}
+
+				if (newTexture && newTexture->IsLoaded())
+				{
+					component.material->SetUniform(name, (Ref<Texture>)newTexture);
+				}
+			}
+
+			if (ImGui::Button("Clear"))
+			{
+				component.material->SetUniform(name, Ref<Texture>(nullptr));
+			}
+		}
+		
+		ImGui::EndGroup();
+
+		ImGui::EndGroup();
+	}
+
 	// 绘制 Material 组件 UI，支持纹理拖拽
 	static void DrawMaterialUI(MaterialComponent& component)
 	{
 		if (component.material)
 		{
-			const float thumbnailSize = 64.0f;
-			ImGui::Text("Diffuse Map");
-			Ref<Texture> diffuseTexture;
-			bool hasDiffuse = false;
+			const auto& uniforms = component.material->GetUniforms();
 
-			if (component.material->HasUniform("u_DiffuseMap"))
+			// 分类容器
+			std::vector<std::string> textures;
+			std::vector<std::string> colors;
+			std::vector<std::string> params;
+
+			// 1. 分类
+			for (const auto& [name, value] : uniforms)
 			{
-				try {
-					diffuseTexture = component.material->GetUniform<Ref<Texture>>("u_DiffuseMap");
-					hasDiffuse = true;
-				} catch (...) { hasDiffuse = false; }
+				std::visit([&](auto&& arg) {
+					using T = std::decay_t<decltype(arg)>;
+					if constexpr (std::is_same_v<T, Ref<Texture>>)
+						textures.push_back(name);
+					else if constexpr (std::is_same_v<T, glm::vec3> || std::is_same_v<T, glm::vec4>)
+						colors.push_back(name);
+					else
+						params.push_back(name);
+				}, value);
 			}
 
-			if (hasDiffuse && diffuseTexture)
+			// 3. 绘制 - 颜色 (Colors)
+			if (!colors.empty())
 			{
-				ImGui::ImageButton((ImTextureID)(uintptr_t)diffuseTexture->GetRendererID(), ImVec2(thumbnailSize, thumbnailSize), ImVec2(0, 1), ImVec2(1, 0));
-			}
-			else
-			{
-				ImGui::Button("##Drag Texture Here", ImVec2(thumbnailSize, thumbnailSize));
-			}
-
-			// 处理纹理拖拽接收
-			if (ImGui::BeginDragDropTarget())
-			{
-				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
+				if (ImGui::CollapsingHeader("Colors", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanFullWidth))
 				{
-					const wchar_t* path = (const wchar_t*)payload->Data;
-					std::filesystem::path texturePath(path);
-					Ref<Texture2D> texture = Texture2D::Create(texturePath.string());
-					if (texture->IsLoaded()) component.material->SetUniform("u_DiffuseMap", texture);
+					ImGui::Unindent();
+					for (const auto& name : colors)
+					{
+						ImGui::PushID(name.c_str());
+						std::string label = name;
+						if (label.find("u_Material.") == 0) label = label.substr(11);
+						else if (label.find("u_") == 0) label = label.substr(2);
+
+						auto& value = uniforms.at(name);
+						std::visit([&](auto&& arg) {
+							using T = std::decay_t<decltype(arg)>;
+							if constexpr (std::is_same_v<T, glm::vec3>) {
+								glm::vec3 val = arg;
+								if (ImGui::ColorEdit3(label.c_str(), glm::value_ptr(val))) component.material->SetUniform(name, val);
+							}
+							else if constexpr (std::is_same_v<T, glm::vec4>) {
+								glm::vec4 val = arg;
+								if (ImGui::ColorEdit4(label.c_str(), glm::value_ptr(val))) component.material->SetUniform(name, val);
+							}
+						}, value);
+						ImGui::PopID();
+					}
+					ImGui::Indent();
 				}
-				ImGui::EndDragDropTarget();
 			}
 
-			// Specular Map logic similar to Diffuse...
-			// (注意：这里保留了原代码的注释，表示逻辑重复)
+			// 4. 绘制 - 参数 (Parameters)
+			if (!params.empty())
+			{
+				if (ImGui::CollapsingHeader("Parameters", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanFullWidth))
+				{
+					ImGui::Unindent();
+					for (const auto& name : params)
+					{
+						ImGui::PushID(name.c_str());
+						std::string label = name;
+						if (label.find("u_Material.") == 0) label = label.substr(11);
+						else if (label.find("u_") == 0) label = label.substr(2);
+
+						auto& value = uniforms.at(name);
+						std::visit([&](auto&& arg) {
+							using T = std::decay_t<decltype(arg)>;
+							if constexpr (std::is_same_v<T, int>) {
+								int val = arg;
+								if (label.find("Use") == 0 || label.find("Is") == 0 || label.find("Has") == 0) {
+									bool bVal = (val != 0);
+									if (ImGui::Checkbox(label.c_str(), &bVal)) component.material->SetUniform(name, bVal ? 1 : 0);
+								} else {
+									if (ImGui::DragInt(label.c_str(), &val)) component.material->SetUniform(name, val);
+								}
+							}
+							else if constexpr (std::is_same_v<T, float>) {
+								float val = arg;
+								if (ImGui::DragFloat(label.c_str(), &val, 0.01f)) component.material->SetUniform(name, val);
+							}
+							else if constexpr (std::is_same_v<T, glm::vec2>) {
+								glm::vec2 val = arg;
+								if (ImGui::DragFloat2(label.c_str(), glm::value_ptr(val), 0.01f)) component.material->SetUniform(name, val);
+							}
+						}, value);
+						ImGui::PopID();
+					}
+					ImGui::Indent();
+				}
+			}
+
+			// 5. 绘制 - 纹理 (Textures)
+			if (!textures.empty())
+			{
+				if (ImGui::CollapsingHeader("Textures", ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanFullWidth))
+				{
+					ImGui::Unindent();
+					for (const auto& name : textures)
+					{
+						ImGui::PushID(name.c_str());
+						std::string label = name;
+						if (label.find("u_Material.") == 0) label = label.substr(11);
+						else if (label.find("u_") == 0) label = label.substr(2);
+						
+						Ref<Texture> tex = std::get<Ref<Texture>>(uniforms.at(name));
+						
+						DrawTextureUI(name, label, tex, component);
+						
+						ImGui::PopID();
+						ImGui::Separator();
+					}
+					ImGui::Indent();
+				}
+			}
 		}
 		else
 		{
 			ImGui::Text("No material assigned");
+			if (ImGui::Button("Create PBR Material"))
+			{
+				component.material = Material::CreatePBR();
+			}
 		}
 	}
 
@@ -234,18 +445,78 @@ namespace AF {
 	static void DrawSpriteRendererUI(SpriteRendererComponent& component)
 	{
 		ImGui::ColorEdit4("Color", glm::value_ptr(component.Color));
-		ImGui::Button("Texture", ImVec2(100.0f, 0.0f));
+		
+		ImGui::Text("Texture");
+		ImGui::SameLine();
+		
+		std::string texName = component.Texture ? component.Texture->GetPath() : "None";
+		if (ImGui::Button(texName.c_str(), ImVec2(100.0f, 0.0f)))
+		{
+			// TODO: Open file dialog?
+		}
+
 		if (ImGui::BeginDragDropTarget())
 		{
 			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
 			{
 				const wchar_t* path = (const wchar_t*)payload->Data;
 				std::filesystem::path texturePath(path);
-				Ref<Texture2D> texture = Texture2D::Create(texturePath.string());
-				if (texture->IsLoaded()) component.Texture = texture;
+				
+				// 简单的扩展名检查
+				std::string extension = texturePath.extension().string();
+				std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
+
+				if (extension == ".png" || extension == ".jpg" || extension == ".jpeg" || extension == ".tga" || extension == ".bmp" || extension == ".hdr" || extension == ".psd")
+				{
+					bool isSRGB = false;
+					std::string pathStr = texturePath.string();
+					if (pathStr.find("diff") != std::string::npos || pathStr.find("albedo") != std::string::npos)
+						isSRGB = true;
+
+					if (TextureLibrary::Exists(pathStr, isSRGB))
+					{
+						component.Texture = TextureLibrary::GetTexture(pathStr, isSRGB);
+					}
+					else
+					{
+						TextureLibrary::LoadTexture(pathStr, isSRGB);
+						if (TextureLibrary::Exists(pathStr, isSRGB))
+							component.Texture = TextureLibrary::GetTexture(pathStr, isSRGB);
+						else
+							AF_CORE_WARN("Failed to load texture from: {}", pathStr);
+					}
+				}
+				else
+				{
+					AF_CORE_WARN("Invalid texture file type: {}", extension);
+				}
 			}
 			ImGui::EndDragDropTarget();
 		}
+
+		if (component.Texture)
+		{
+			bool isSRGB = (component.Texture->GetSpecification().Format == ImageFormat::SRGB8 || component.Texture->GetSpecification().Format == ImageFormat::SRGBA8);
+			if (ImGui::Checkbox("sRGB", &isSRGB))
+			{
+				std::string path = component.Texture->GetPath();
+				if (TextureLibrary::Exists(path, isSRGB))
+				{
+					component.Texture = TextureLibrary::GetTexture(path, isSRGB);
+				}
+				else
+				{
+					TextureLibrary::LoadTexture(path, isSRGB);
+					if (TextureLibrary::Exists(path, isSRGB))
+						component.Texture = TextureLibrary::GetTexture(path, isSRGB);
+				}
+			}
+
+			ImGui::SameLine();
+			if (ImGui::Button("Clear"))
+				component.Texture = nullptr;
+		}
+
 		ImGui::DragFloat("Tiling Factor", &component.TilingFactor, 0.1f, 0.0f, 100.0f);
 	}
 

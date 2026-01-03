@@ -4,6 +4,7 @@
 
 #include <imgui.h>
 #include <string>
+#include <algorithm>
 
 namespace AF {
 	
@@ -20,6 +21,8 @@ namespace AF {
 		// 加载资产浏览器图标
 		m_DirectoryIcon = Texture2D::Create("Resources/Icons/ContentBrowser/DirectoryIcon.png");
 		m_FileIcon = Texture2D::Create("Resources/Icons/ContentBrowser/FileIcon.png");
+
+		PreloadAssets();
 	}
 
 	// ===================================================================================
@@ -35,9 +38,6 @@ namespace AF {
 
 		// 2. 网格布局计算与内容绘制
 		RenderItems();
-
-		// 3. 底部设置工具栏
-		RenderBottomBar();
 
 		ImGui::End();
 	}
@@ -60,7 +60,7 @@ namespace AF {
 
 	void ContentBrowserPanel::RenderItems()
 	{
-		float cellSize = m_ThumbnailSize + m_Padding;
+		float cellSize = m_ThumbnailSize + 8.0f;
 
 		float panelWidth = ImGui::GetContentRegionAvail().x;
 		int columnCount = (int)(panelWidth / cellSize);
@@ -79,6 +79,27 @@ namespace AF {
 
 			// 根据文件类型选择显示图标
 			Ref<Texture2D> icon = directoryEntry.is_directory() ? m_DirectoryIcon : m_FileIcon;
+
+			if (!directoryEntry.is_directory())
+			{
+				std::string extension = path.extension().string();
+				std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
+
+				if (extension == ".png" || extension == ".jpg" || extension == ".jpeg" || extension == ".bmp" || extension == ".tga" || extension == ".hdr" || extension == ".psd")
+				{
+					std::string pathStr = path.string();
+					if (TextureLibrary::Exists(pathStr))
+					{
+						icon = TextureLibrary::GetTexture(pathStr);
+					}
+					else
+					{
+						TextureLibrary::LoadTexture(pathStr);
+						if (TextureLibrary::Exists(pathStr))
+							icon = TextureLibrary::GetTexture(pathStr);
+					}
+				}
+			}
 
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
 			ImGui::ImageButton((ImTextureID)icon->GetRendererID(), { m_ThumbnailSize, m_ThumbnailSize }, { 0, 1 }, { 1, 0 });
@@ -103,7 +124,9 @@ namespace AF {
 			if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
 			{
 				if (directoryEntry.is_directory())
+				{
 					m_CurrentDirectory /= path.filename();
+				}
 			}
 
 			// 显示文件名 (自动换行)
@@ -117,11 +140,25 @@ namespace AF {
 		ImGui::Columns(1);
 	}
 
-	void ContentBrowserPanel::RenderBottomBar()
+	void ContentBrowserPanel::PreloadAssets()
 	{
-		ImGui::Separator();
-		ImGui::SliderFloat("Thumbnail Size", &m_ThumbnailSize, 16, 512);
-		ImGui::SliderFloat("Padding", &m_Padding, 0, 32);
+		if (!std::filesystem::exists(m_BaseDirectory))
+			return;
+
+		for (auto& directoryEntry : std::filesystem::recursive_directory_iterator(m_BaseDirectory))
+		{
+			if (!directoryEntry.is_directory())
+			{
+				auto path = directoryEntry.path();
+				std::string extension = path.extension().string();
+				std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
+
+				if (extension == ".png" || extension == ".jpg" || extension == ".jpeg" || extension == ".bmp" || extension == ".tga" || extension == ".hdr" || extension == ".psd")
+				{
+					TextureLibrary::LoadTexture(path.string());
+				}
+			}
+		}
 	}
 
 }

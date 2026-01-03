@@ -47,25 +47,21 @@ namespace AF {
 		box.AddComponent<MeshComponent>(Mesh::CreateBox(1.0f));
 		sphere.AddComponent<MeshComponent>(Mesh::CreateSphere(1.0f));
 
-		auto material = CreateRef<Material>();
+		auto material = Material::CreatePBR();
 		material->SetUniform("u_Material.AlbedoColor", glm::vec4(0.82f, 0.85f, 0.88f, 1.0f));
 		material->SetUniform("u_Material.Metallic", 1.0f);
 		material->SetUniform("u_Material.Roughness", 0.15f);
-		material->SetUniform("u_Material.AmbientOcclusion", 1.0f);
 		material->SetUniform("u_Material.UseAlbedoMap", 1);
 		material->SetUniform("u_Material.UseNormalMap", 1);
-		material->SetUniform("u_Material.UseMetallicMap", 0);
-		material->SetUniform("u_Material.UseRoughnessMap", 0);
-		material->SetUniform("u_Material.UseAOMap", 0);
 
 		auto albedoTexture = Texture2D::Create("assets/textures/red_brick_diff_4k.jpg", 1);
 		auto normalTexture = Texture2D::Create("assets/textures/red_brick_nor_gl_4k.jpg");
 		auto armTexture = Texture2D::Create("assets/textures/red_brick_arm_4k.jpg");
 
 		if (albedoTexture && normalTexture && armTexture) {
-			material->SetUniform("u_AlbedoMap", albedoTexture);
-			material->SetUniform("u_NormalMap", normalTexture);
-			material->SetUniform("u_ARMMap", armTexture);
+			material->SetUniform("u_AlbedoMap", (Ref<Texture>)albedoTexture);
+			material->SetUniform("u_NormalMap", (Ref<Texture>)normalTexture);
+			material->SetUniform("u_ARMMap", (Ref<Texture>)armTexture);
 		}
 		else {
 			AF_CORE_WARN("Failed to load one or more PBR textures");
@@ -277,8 +273,28 @@ namespace AF {
 			// 如果鼠标在视口内，且没有在使用 Gizmo，且没有按下 Alt (Alt 通常用于相机旋转)
 			if (m_ViewportPanel.IsHovered() && !ImGuizmo::IsOver() && !Input::IsKeyPressed(Key::LeftAlt))
 			{
-				// 获取当前视口中鼠标点击的实体 (这里暂时简化，如果需要精确选择通常使用颜色缓冲拾取)
-				m_SceneHierarchyPanel.SetSelectedEntity(m_ViewportPanel.IsHovered() ? m_SceneHierarchyPanel.GetSelectedEntity() : Entity());
+				auto [mx, my] = ImGui::GetMousePos();
+				mx -= m_ViewportPanel.GetViewportMinBound().x;
+				my -= m_ViewportPanel.GetViewportMinBound().y;
+				glm::vec2 viewportSize = m_ViewportPanel.GetViewportMaxBound() - m_ViewportPanel.GetViewportMinBound();
+				my = viewportSize.y - my;
+
+				int mouseX = (int)mx;
+				int mouseY = (int)my;
+
+				if (mouseX >= 0 && mouseY >= 0 && mouseX < (int)viewportSize.x && mouseY < (int)viewportSize.y)
+				{
+					int pixelData = SceneRenderer::ReadPixel(mouseX, mouseY);
+					if (pixelData != -1)
+					{
+						Entity pickedEntity = Entity((entt::entity)pixelData, m_ActiveScene.get());
+						m_SceneHierarchyPanel.SetSelectedEntity(pickedEntity);
+					}
+					else
+					{
+						m_SceneHierarchyPanel.SetSelectedEntity(Entity());
+					}
+				}
 			}
 		}
 		return false;

@@ -261,23 +261,42 @@ namespace AF {
 
 				// --- 方向光阴影 ---
 				shader->SetInt("u_LightType", 0);
-				for (size_t i = 0; i < s_Data.DirLightBuffer.size(); i++) {
-					fb->AttachTextureLayer(s_Data.DirShadowMapArray, 0, (uint32_t)i);
-					RenderCommand::Clear();
-					for (auto entity : entities) {
-						auto [transform, mesh] = view.get<TransformComponent, MeshComponent>(entity);
-						transform.UpdateTransform();
-						Renderer::SubmitShadow(mesh.mesh, mesh.instanceUniforms);
+				fb->AttachTexture(s_Data.DirShadowMapArray, 0);
+				RenderCommand::Clear();
+
+				const int dirBatchSize = 32;
+				int dirLightCount = (int)s_Data.DirLightBuffer.size();
+
+				if (dirLightCount > 0)
+				{
+					for (int i = 0; i < dirLightCount; i += dirBatchSize) {
+						int count = std::min(dirBatchSize, dirLightCount - i);
+						shader->SetInt("u_LightStart", i);
+						shader->SetInt("u_LightCount", count);
+
+						for (auto entity : entities) {
+							auto [transform, mesh] = view.get<TransformComponent, MeshComponent>(entity);
+							transform.UpdateTransform();
+							Renderer::SubmitShadow(mesh.mesh, mesh.instanceUniforms);
+						}
 					}
 				}
 
 				// --- 点光源阴影 ---
 				shader->SetInt("u_LightType", 1);
-				for (size_t i = 0; i < s_Data.PointLightBuffer.size(); i++) {
-					for (uint32_t face = 0; face < 6; face++) {
-						fb->AttachCubeMapLayer(s_Data.PointShadowMapArray, 0, face, (uint32_t)i);
-						shader->SetInt("u_TexIndex", face);
-						RenderCommand::Clear();
+				fb->AttachTexture(s_Data.PointShadowMapArray, 0);
+				RenderCommand::Clear();
+
+				const int pointBatchSize = 5;
+				int pointLightCount = (int)s_Data.PointLightBuffer.size();
+
+				if (pointLightCount > 0)
+				{
+					for (int i = 0; i < pointLightCount; i += pointBatchSize) {
+						int count = std::min(pointBatchSize, pointLightCount - i);
+						shader->SetInt("u_LightStart", i);
+						shader->SetInt("u_LightCount", count);
+
 						for (auto entity : entities) {
 							auto [transform, mesh] = view.get<TransformComponent, MeshComponent>(entity);
 							transform.UpdateTransform();

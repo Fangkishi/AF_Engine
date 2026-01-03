@@ -157,46 +157,55 @@ vec4 SampleAlbedo()
 // 采样金属度
 float SampleMetallic()
 {
-    float metallic = u_Material.Metallic;
-    if (u_Material.UseMetallicMap == 1)
+    // 1. 优先使用独立金属度贴图 (如果启用且有效)
+    if (u_Material.UseMetallicMap == 1 && textureSize(u_MetallicMap, 0).x > 1)
     {
-        metallic = texture(u_MetallicMap, Input.TexCoord).r;
+        return clamp(texture(u_MetallicMap, Input.TexCoord).r, 0.0, 1.0);
     }
+    // 2. 其次尝试使用 ARM 贴图 (如果存在)
     else if (textureSize(u_ARMMap, 0).x > 1)
     {
-        metallic = texture(u_ARMMap, Input.TexCoord).b; // ARM 贴图的 B 通道通常是金属度
+        return clamp(texture(u_ARMMap, Input.TexCoord).b, 0.0, 1.0); // ARM 贴图的 B 通道通常是金属度
     }
-    return clamp(metallic, 0.0, 1.0);
+    
+    // 3. 最后使用材质参数数值
+    return clamp(u_Material.Metallic, 0.0, 1.0);
 }
 
 // 采样粗糙度
 float SampleRoughness()
 {
-    float roughness = u_Material.Roughness;
-    if (u_Material.UseRoughnessMap == 1)
+    // 1. 优先使用独立粗糙度贴图 (如果启用且有效)
+    if (u_Material.UseRoughnessMap == 1 && textureSize(u_RoughnessMap, 0).x > 1)
     {
-        roughness = texture(u_RoughnessMap, Input.TexCoord).r;
+        return clamp(texture(u_RoughnessMap, Input.TexCoord).r, 0.01, 1.0);
     }
+    // 2. 其次尝试使用 ARM 贴图 (如果存在)
     else if (textureSize(u_ARMMap, 0).x > 1)
     {
-        roughness = texture(u_ARMMap, Input.TexCoord).g; // ARM 贴图的 G 通道通常是粗糙度
+        return clamp(texture(u_ARMMap, Input.TexCoord).g, 0.01, 1.0); // ARM 贴图的 G 通道通常是粗糙度
     }
-    return clamp(roughness, 0.01, 1.0);
+
+    // 3. 最后使用材质参数数值
+    return clamp(u_Material.Roughness, 0.01, 1.0);
 }
 
 // 采样环境遮蔽 (AO)
 float SampleAmbientOcclusion()
 {
-    float ao = u_Material.AmbientOcclusion;
-    if (u_Material.UseAOMap == 1)
+    // 1. 优先使用独立 AO 贴图 (如果启用且有效)
+    if (u_Material.UseAOMap == 1 && textureSize(u_AOMap, 0).x > 1)
     {
-        ao = texture(u_AOMap, Input.TexCoord).r;
+        return clamp(texture(u_AOMap, Input.TexCoord).r, 0.0, 1.0);
     }
+    // 2. 其次尝试使用 ARM 贴图 (如果存在)
     else if (textureSize(u_ARMMap, 0).x > 1)
     {
-        ao = texture(u_ARMMap, Input.TexCoord).r; // ARM 贴图的 R 通道通常是 AO
+        return clamp(texture(u_ARMMap, Input.TexCoord).r, 0.0, 1.0); // ARM 贴图的 R 通道通常是 AO
     }
-    return clamp(ao, 0.0, 1.0);
+
+    // 3. 最后使用材质参数数值
+    return clamp(u_Material.AmbientOcclusion, 0.0, 1.0);
 }
 
 void main()

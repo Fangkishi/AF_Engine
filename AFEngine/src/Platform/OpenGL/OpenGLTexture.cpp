@@ -86,16 +86,21 @@ namespace AF {
 			m_Width = width;
 			m_Height = height;
 
+			m_Specification.Width = width;
+			m_Specification.Height = height;
+
 			GLenum internalFormat = 0, dataFormat = 0;
 			if (channels == 4)
 			{
 				if (isSRGB)
 				{
 					internalFormat = GL_SRGB8_ALPHA8;  // sRGB空间
+					m_Specification.Format = ImageFormat::SRGBA8;
 				}
 				else
 				{
 					internalFormat = GL_RGBA8;         // 线性空间（法线、金属度等）
+					m_Specification.Format = ImageFormat::RGBA8;
 				}
 				dataFormat = GL_RGBA;
 			}
@@ -104,10 +109,12 @@ namespace AF {
 				if (isSRGB)
 				{
 					internalFormat = GL_SRGB8;         // sRGB空间
+					m_Specification.Format = ImageFormat::SRGB8;
 				}
 				else
 				{
 					internalFormat = GL_RGB8;          // 线性空间
+					m_Specification.Format = ImageFormat::RGB8;
 				}
 				dataFormat = GL_RGB;
 			}
@@ -249,16 +256,21 @@ namespace AF {
 			m_Width = width / 4; // 假设是十字形布局的立方体贴图
 			m_Height = height / 3;
 
+			m_Specification.Width = m_Width;
+			m_Specification.Height = m_Height;
+
 			GLenum internalFormat = 0, dataFormat = 0;
 			if (channels == 4)
 			{
 				if (isSRGB)
 				{
 					internalFormat = GL_SRGB8_ALPHA8;
+					m_Specification.Format = ImageFormat::SRGBA8;
 				}
 				else
 				{
 					internalFormat = GL_RGBA8;
+					m_Specification.Format = ImageFormat::RGBA8;
 				}
 				dataFormat = GL_RGBA;
 			}
@@ -267,10 +279,12 @@ namespace AF {
 				if (isSRGB)
 				{
 					internalFormat = GL_SRGB8;
+					m_Specification.Format = ImageFormat::SRGB8;
 				}
 				else
 				{
 					internalFormat = GL_RGB8;
+					m_Specification.Format = ImageFormat::RGB8;
 				}
 				dataFormat = GL_RGB;
 			}

@@ -16,6 +16,8 @@ namespace AF {
 				return GL_VERTEX_SHADER;
 			if (type == "fragment" || type == "pixel")
 				return GL_FRAGMENT_SHADER;
+			if (type == "geometry")
+				return GL_GEOMETRY_SHADER;
 
 			AF_CORE_ASSERT(false, "Unknown shader type!");
 			return 0;
@@ -127,9 +129,10 @@ namespace AF {
 	void OpenGLShader::Compile(const std::unordered_map<GLenum, std::string>& shaderSources)
 	{
 		GLuint program = glCreateProgram();;
-		AF_CORE_ASSERT(shaderSources.size() <= 2, "目前只支持两个着色器");
-		std::array<GLenum, 2> glShaderIDs;
-		int glShaderIDIndex = 0;
+		AF_CORE_ASSERT(shaderSources.size() <= 3, "目前只支持三个着色器");
+		std::vector<GLenum> glShaderIDs;
+		glShaderIDs.reserve(shaderSources.size());
+
 		for (auto& kv : shaderSources)
 		{
 			GLenum type = kv.first;
@@ -169,7 +172,7 @@ namespace AF {
 			}
 			// 附加着色器到程序
 			glAttachShader(program, Shader);
-			glShaderIDs[glShaderIDIndex++] = Shader;
+			glShaderIDs.push_back(Shader);
 		}
 
 		// 链接程序

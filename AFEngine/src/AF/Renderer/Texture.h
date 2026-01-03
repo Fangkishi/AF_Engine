@@ -67,4 +67,12 @@ namespace AF {
 		static Ref<TextureCube> Create(uint32_t rendererID, uint32_t width, uint32_t height);
 	};
 
+	class TextureLibrary
+	{
+	public:
+		static void LoadTexture(const std::string& path, bool isSRGB = false);
+		static Ref<Texture2D> GetTexture(const std::string& path, bool isSRGB = false);
+		static bool Exists(const std::string& path, bool isSRGB = false);
+	};
+
 }

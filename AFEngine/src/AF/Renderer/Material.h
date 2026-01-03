@@ -14,6 +14,8 @@ namespace AF {
 		Material();
 		~Material();
 
+		static Ref<Material> CreatePBR();
+
 	private:
 		friend class Renderer;
 		friend class AssimpLoader;

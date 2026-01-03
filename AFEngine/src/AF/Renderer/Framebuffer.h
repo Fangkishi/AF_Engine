@@ -82,6 +82,7 @@ namespace AF {
 
 		virtual const FramebufferSpecification& GetSpecification() const = 0;
 
+		virtual void AttachTexture(Ref<Texture> texture, uint32_t attachment = 0) = 0;
 		virtual void AttachTextureLayer(Ref<Texture2D> texture, uint32_t attachment, uint32_t layer = 0) = 0;
 		virtual void AttachCubeMapLayer(Ref<TextureCube> texture, uint32_t attachment, uint32_t face, uint32_t layer = 0) = 0;
 

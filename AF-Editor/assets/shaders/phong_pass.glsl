@@ -1,8 +1,8 @@
 #type vertex
 #version 450 core
 
-// 延迟渲染 Phong 光照阶段 - 顶点阶段
-// 这是一个全屏四边形着色器
+// --- 延迟渲染：全屏光照阶段顶点着色器 ---
+// 负责渲染覆盖全屏的四边形，将纹理坐标传递给片元着色器。
 
 layout(location = 0) in vec3 a_Position;   // 顶点位置
 layout(location = 1) in vec2 a_TexCoord;   // 纹理坐标
@@ -18,36 +18,40 @@ void main()
 #type fragment
 #version 450 core
 
-// 延迟渲染 Phong 光照阶段 - 片段阶段
-// 从 G-Buffer 读取数据并应用 Phong 光照模型和阴影计算
+// --- 延迟渲染：全屏光照阶段片元着色器 ---
+// 核心职责：
+// 1. 从 G-Buffer 读取几何与材质数据。
+// 2. 重建片段的世界空间坐标。
+// 3. 计算多光源的阴影贡献。
+// 4. 应用 Phong 光照模型并输出最终颜色。
 
 in vec2 v_TexCoord;
 
 layout(location = 0) out vec4 o_Color;
 
-// --- G-Buffer 采样器 ---
-uniform sampler2D GBufferAlbedo;  // 基础色
-uniform sampler2D GBufferNormal;  // 法线
-uniform sampler2D GBufferMP;      // 材质参数 (R: 金属度, G: 粗糙度)
-uniform sampler2D GBufferDepth;   // 深度图
+// --- G-Buffer 采样器绑定 ---
+uniform sampler2D GBufferAlbedo;  // 颜色 / 基础色
+uniform sampler2D GBufferNormal;  // 世界空间法线
+uniform sampler2D GBufferMP;      // 材质属性 (R: 金属度, G: 粗糙度)
+uniform sampler2D GBufferDepth;   // 硬件深度图
 
-// --- 光源结构定义 ---
+// --- 数据结构定义 ---
 struct DirLight {
-    vec3 direction;          // 方向
-    vec3 ambient;            // 环境光
-    vec3 diffuse;            // 漫反射
-    vec3 specular;           // 镜面反射
-    mat4 LightSpaceMatrix;   // 灯光空间变换矩阵 (用于阴影)
+    vec3 direction;
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+    mat4 LightSpaceMatrix;   // 用于阴影采样的灯光空间变换矩阵
 };
 
 struct PointLight {
-    vec3 position;           // 位置
-    vec3 color;              // 颜色
-    float intensity;         // 强度
-    mat4 LightSpaceMatrix[6]; // 6 个方向的灯光空间矩阵 (用于点光源立方体阴影)
+    vec3 position;
+    vec3 color;
+    float intensity;
+    mat4 LightSpaceMatrix[6]; // 用于点光源阴影的 6 个方向变换矩阵
 };
 
-// 光源 SSBO
+// --- SSBO & UBO 绑定 ---
 layout(std430, binding = 0) buffer DirLights {
     DirLight dirLights[];
 };
@@ -56,53 +60,58 @@ layout(std430, binding = 1) buffer PointLights {
     PointLight pointLights[];
 };
 
-// 相机数据 UBO
-layout(std140, binding = 0) uniform Camera
-{
-    vec3 u_ViewPos;
+layout(std140, binding = 0) uniform Camera {
+    vec3 u_ViewPos;           // 摄像机世界坐标
     mat4 u_View;
     mat4 u_ViewInverse;
     mat4 u_Projection;
-    mat4 u_ProjectionInverse;
+    mat4 u_ProjectionInverse; // 用于重建世界空间坐标
 };
 
-uniform sampler2D u_EnvMap;               // 环境贴图 (暂未使用)
-uniform sampler2DArray DirShadowMap;      // 方向光阴影图数组
-uniform samplerCubeArray PointShadowMap;  // 点光源阴影立方体贴图数组
+// --- 阴影资源绑定 ---
+uniform sampler2D u_EnvMap;               // 环境映射 (IBL 占位)
+uniform sampler2DArray DirShadowMap;      // 方向光阴影贴图数组 (每个图层对应一个光源)
+uniform samplerCubeArray PointShadowMap;  // 点光源阴影贴图数组 (每个立方体对应一个光源)
 
-// 根据深度图和逆投影矩阵重建世界空间坐标
+/**
+ * @brief 根据深度图重建世界空间坐标
+ */
 vec3 ReconstructWorldPos(vec2 texCoord, float depth) {
-    // OpenGL 深度图范围 [0, 1] 映射到 NDC Z 范围 [-1, 1]
+    // OpenGL 深度范围 [0, 1] -> NDC 范围 [-1, 1]
     vec4 clipPos = vec4(texCoord * 2.0 - 1.0, depth * 2.0 - 1.0, 1.0);
     vec4 viewPos = u_ProjectionInverse * clipPos;
-    viewPos /= viewPos.w;
+    viewPos /= viewPos.w; // 透视除法
     return (u_ViewInverse * viewPos).xyz;
 }
 
-// 方向光阴影计算
+/**
+ * @brief 计算方向光阴影
+ */
 float DirShadowCalculation(int lightIndex, vec3 worldPos, vec3 normal, vec3 lightDir) {
-    // 转换到灯光空间坐标
+    // 变换到灯光空间
     vec4 lightSpacePos = dirLights[lightIndex].LightSpaceMatrix * vec4(worldPos, 1.0);
     vec3 projCoords = lightSpacePos.xyz / lightSpacePos.w;
-    projCoords = projCoords * 0.5 + 0.5; // 映射到 [0, 1]
+    projCoords = projCoords * 0.5 + 0.5; // 映射到 [0, 1] 范围
 
-    // 超出灯光范围不产生阴影 (处理 X, Y, Z 边界以防止阴影图重复平铺)
+    // 处理超出边界的情况
     if (projCoords.z > 1.0 || projCoords.z < 0.0 || 
         projCoords.x > 1.0 || projCoords.x < 0.0 || 
         projCoords.y > 1.0 || projCoords.y < 0.0)
         return 0.0;
 
-    // 阴影偏移 (防止阴影失真/痤疮)
+    // 计算动态 Bias 解决阴影失真 (Shadow Acne)
     float bias = max(0.005 * (1.0 - dot(normal, -lightDir)), 0.0005);
     
-    // 采样阴影图
+    // 从 Texture Array 采样深度
     float closestDepth = texture(DirShadowMap, vec3(projCoords.xy, lightIndex)).r;
     float currentDepth = projCoords.z - bias;
     
     return currentDepth > closestDepth ? 1.0 : 0.0;
 }
 
-// 获取点光源阴影的面索引
+/**
+ * @brief 获取点光源阴影对应的立方体面索引
+ */
 int GetCubeFaceIndex(vec3 dir) {
     vec3 absDir = abs(dir);
     float maxComponent = max(absDir.x, max(absDir.y, absDir.z));
@@ -111,55 +120,57 @@ int GetCubeFaceIndex(vec3 dir) {
     return dir.z > 0 ? 4 : 5; // +Z, -Z
 }
 
-// 点光源阴影计算
+/**
+ * @brief 计算点光源阴影
+ */
 float PointShadowCalculation(int lightIndex, vec3 worldPos, vec3 normal, vec3 lightPos) {
     vec3 fragToLight = worldPos - lightPos;
-    // 为了正确使用非线性深度图，我们需要使用对应的灯光空间矩阵将当前片段变换到裁剪空间
     int faceIndex = GetCubeFaceIndex(fragToLight);
+    
+    // 使用对应面的变换矩阵计算当前片段深度
     vec4 lightSpacePos = pointLights[lightIndex].LightSpaceMatrix[faceIndex] * vec4(worldPos, 1.0);
     vec3 projCoords = lightSpacePos.xyz / lightSpacePos.w;
-    projCoords = projCoords * 0.5 + 0.5; // 映射到 [0, 1]
+    projCoords = projCoords * 0.5 + 0.5;
 
-    // 采样点光源阴影立方体图
+    // 从 samplerCubeArray 采样深度
     float closestDepth = texture(PointShadowMap, vec4(normalize(fragToLight), lightIndex)).r;
     
-    // 阴影偏移 - 使用法线和光源方向计算动态偏移
-    vec3 lightDir = normalize(fragToLight);
-    float bias = max(0.01 * (1.0 - dot(normal, lightDir)), 0.001);
+    float bias = max(0.01 * (1.0 - dot(normal, normalize(fragToLight))), 0.001);
     float currentDepth = projCoords.z - bias;
     
     return currentDepth > closestDepth ? 1.0 : 0.0;
 }
 
-// 基础 Phong 光照计算函数
+/**
+ * @brief Phong 光照模型计算
+ */
 vec3 PhongLighting(vec3 worldPos, vec3 albedo, vec3 normal, float metallic, float roughness, 
                   vec3 lightDir, vec3 lightColor, float shadow) {
-    // 环境光 (Ambient)
+    // 1. 环境光
     vec3 ambient = 0.05 * albedo * lightColor;
 
-    // 漫反射 (Diffuse)
+    // 2. 漫反射
     float diff = max(dot(normal, -lightDir), 0.0);
     vec3 diffuse = diff * albedo * lightColor;
 
-    // 镜面反射 (Specular) - 简化的 Phong
+    // 3. 镜面反射 (基于 roughness 调整高光指数)
     vec3 viewDir = normalize(u_ViewPos - worldPos);
     vec3 reflectDir = reflect(lightDir, normal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), mix(1.0, 128.0, 1.0 - roughness));
     vec3 specular = spec * mix(vec3(0.04), albedo, metallic) * lightColor;
 
-    // 应用阴影
+    // 4. 合并并应用阴影
     return (ambient + (diffuse + specular) * (1.0 - shadow));
 }
 
 void main() {
-    // 1. 从 G-Buffer 提取数据
+    // 1. 读取 G-Buffer 数据
     vec3 albedo = texture(GBufferAlbedo, v_TexCoord).rgb;
-    // 从 [0, 1] 范围解包回 [-1, 1]
-    vec3 normal = texture(GBufferNormal, v_TexCoord).rgb * 2.0 - 1.0;
-    vec2 mp = texture(GBufferMP, v_TexCoord).rg; // R: metallic, G: roughness
+    vec3 normal = texture(GBufferNormal, v_TexCoord).rgb * 2.0 - 1.0; // 解包法线
+    vec2 mp = texture(GBufferMP, v_TexCoord).rg; 
     float depth = texture(GBufferDepth, v_TexCoord).r;
 
-    // 如果是背景 (深度为 1.0)，则直接丢弃或输出背景色
+    // 2. 边界检查 (背景处理)
     if (depth >= 1.0) {
         o_Color = vec4(0.0, 0.0, 0.0, 1.0);
         return;
@@ -168,13 +179,13 @@ void main() {
     float metallic = mp.r;
     float roughness = mp.g;
     
-    // 2. 重建世界空间位置
+    // 3. 场景信息准备
     vec3 worldPos = ReconstructWorldPos(v_TexCoord, depth);
     normal = normalize(normal);
 
     vec3 totalLight = vec3(0.0);
 
-    // 3. 遍历方向光
+    // 4. 处理所有方向光
     for (int i = 0; i < dirLights.length(); i++) {
         DirLight light = dirLights[i];
         float shadow = DirShadowCalculation(i, worldPos, normal, light.direction);
@@ -182,14 +193,13 @@ void main() {
                                    light.direction, light.diffuse, shadow);
     }
 
-    // 4. 遍历点光源
+    // 5. 处理所有点光源 (包含阴影与距离衰减)
     for (int i = 0; i < pointLights.length(); i++) {
         PointLight light = pointLights[i];
         vec3 lightToFrag = worldPos - light.position;
-        vec3 lightDir = normalize(lightToFrag); // 方向: 从灯光到片段
+        vec3 lightDir = normalize(lightToFrag);
         float shadow = PointShadowCalculation(i, worldPos, normal, light.position);
         
-        // 计算简单的距离衰减
         float distance = length(lightToFrag);
         float attenuation = 1.0 / (1.0 + 0.09 * distance + 0.032 * distance * distance);
         
@@ -197,6 +207,6 @@ void main() {
                                    lightDir, light.color * light.intensity, shadow) * attenuation;
     }
 
-    // 5. 输出最终光照颜色
+    // 6. 最终颜色输出
     o_Color = vec4(totalLight, 1.0);
 }

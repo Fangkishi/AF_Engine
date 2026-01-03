@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "AF/Renderer/Framebuffer.h"
 
@@ -35,6 +35,7 @@ namespace AF {
 
 		virtual const FramebufferSpecification& GetSpecification() const override { return m_Specification; }
 
+		virtual void AttachTexture(Ref<Texture> texture, uint32_t attachment = 0) override;
 		virtual void AttachTextureLayer(Ref<Texture2D> texture, uint32_t attachment, uint32_t layer = 0) override;
 		virtual void AttachCubeMapLayer(Ref<TextureCube> texture, uint32_t attachment, uint32_t face, uint32_t layer = 0) override;
 

@@ -1,4 +1,4 @@
-﻿#include "afpch.h"
+#include "afpch.h"
 #include "Platform/OpenGL/OpenGLFramebuffer.h"
 #include "Platform/OpenGL/OpenGLTexture.h"
 
@@ -289,6 +289,27 @@ namespace AF {
 
 		// 内部纹理：按原逻辑创建
 		return Texture2D::Create(m_DepthAttachment, m_Specification.Width, m_Specification.Height);
+	}
+
+	void OpenGLFramebuffer::AttachTexture(Ref<Texture> texture, uint32_t attachment)
+	{
+		uint32_t textureID = texture->GetRendererID();
+		auto& spec = texture->GetSpecification();
+
+		GLenum attachmentPoint;
+		if (spec.Format == ImageFormat::DEPTH || spec.Format == ImageFormat::DEPTH24STENCIL8) {
+			attachmentPoint = GL_DEPTH_ATTACHMENT;
+			if (spec.Format == ImageFormat::DEPTH24STENCIL8)
+				attachmentPoint = GL_DEPTH_STENCIL_ATTACHMENT;
+			
+			m_ExternalDepthTexture = texture;
+		}
+		else {
+			attachmentPoint = GL_COLOR_ATTACHMENT0 + attachment;
+			m_ExternalColorTextures[attachment] = texture;
+		}
+
+		glFramebufferTexture(GL_FRAMEBUFFER, attachmentPoint, textureID, 0);
 	}
 
 	void OpenGLFramebuffer::AttachTextureLayer(Ref<Texture2D> texture, uint32_t attachment, uint32_t layer)

@@ -46,6 +46,7 @@ namespace AF {
 				}
 
 				texture->Bind(texUnit);
+
 				cache[texID] = texUnit;
 
 				// 3. 更新计数器

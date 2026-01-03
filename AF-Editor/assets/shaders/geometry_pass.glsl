@@ -119,7 +119,8 @@ mat3 CalculateTBNMatrix()
 // 采样法线贴图
 vec3 SampleNormalMap()
 {
-    if (u_Material.UseNormalMap == 0)
+    // 增加贴图有效性检查，防止在未绑定贴图时采样到错误的纹理单元（如帧缓冲残留）
+    if (u_Material.UseNormalMap == 0 || textureSize(u_NormalMap, 0).x <= 1)
         return normalize(Input.Normal);
     
     // 从法线贴图采样并转换到 [-1, 1] 范围
@@ -147,7 +148,9 @@ vec3 SampleNormalMap()
 vec4 SampleAlbedo()
 {
     vec4 albedo = u_Material.AlbedoColor;
-    if (u_Material.UseAlbedoMap == 1)
+    // 增加 textureSize 检查，与 SampleMetallic 等函数保持一致
+    // 这能防止 UseAlbedoMap 为 1 但实际未绑定有效纹理时采样到残留的 Framebuffer
+    if (u_Material.UseAlbedoMap == 1 && textureSize(u_AlbedoMap, 0).x > 1)
     {
         albedo *= texture(u_AlbedoMap, Input.TexCoord);
     }
@@ -163,7 +166,7 @@ float SampleMetallic()
         return clamp(texture(u_MetallicMap, Input.TexCoord).r, 0.0, 1.0);
     }
     // 2. 其次尝试使用 ARM 贴图 (如果存在)
-    else if (textureSize(u_ARMMap, 0).x > 1)
+    else if (u_Material.UseMetallicMap == 1 && textureSize(u_ARMMap, 0).x > 1)
     {
         return clamp(texture(u_ARMMap, Input.TexCoord).b, 0.0, 1.0); // ARM 贴图的 B 通道通常是金属度
     }
@@ -181,7 +184,7 @@ float SampleRoughness()
         return clamp(texture(u_RoughnessMap, Input.TexCoord).r, 0.01, 1.0);
     }
     // 2. 其次尝试使用 ARM 贴图 (如果存在)
-    else if (textureSize(u_ARMMap, 0).x > 1)
+    else if (u_Material.UseRoughnessMap == 1 && textureSize(u_ARMMap, 0).x > 1)
     {
         return clamp(texture(u_ARMMap, Input.TexCoord).g, 0.01, 1.0); // ARM 贴图的 G 通道通常是粗糙度
     }
@@ -199,7 +202,7 @@ float SampleAmbientOcclusion()
         return clamp(texture(u_AOMap, Input.TexCoord).r, 0.0, 1.0);
     }
     // 2. 其次尝试使用 ARM 贴图 (如果存在)
-    else if (textureSize(u_ARMMap, 0).x > 1)
+    else if (u_Material.UseAOMap == 1 && textureSize(u_ARMMap, 0).x > 1)
     {
         return clamp(texture(u_ARMMap, Input.TexCoord).r, 0.0, 1.0); // ARM 贴图的 R 通道通常是 AO
     }

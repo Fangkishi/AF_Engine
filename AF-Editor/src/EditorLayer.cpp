@@ -48,24 +48,6 @@ namespace AF {
 		sphere.AddComponent<MeshComponent>(Mesh::CreateSphere(1.0f));
 
 		auto material = Material::CreatePBR();
-		material->SetUniform("u_Material.AlbedoColor", glm::vec4(0.82f, 0.85f, 0.88f, 1.0f));
-		material->SetUniform("u_Material.Metallic", 1.0f);
-		material->SetUniform("u_Material.Roughness", 0.15f);
-		material->SetUniform("u_Material.UseAlbedoMap", 1);
-		material->SetUniform("u_Material.UseNormalMap", 1);
-
-		auto albedoTexture = Texture2D::Create("assets/textures/red_brick_diff_4k.jpg", 1);
-		auto normalTexture = Texture2D::Create("assets/textures/red_brick_nor_gl_4k.jpg");
-		auto armTexture = Texture2D::Create("assets/textures/red_brick_arm_4k.jpg");
-
-		if (albedoTexture && normalTexture && armTexture) {
-			material->SetUniform("u_AlbedoMap", (Ref<Texture>)albedoTexture);
-			material->SetUniform("u_NormalMap", (Ref<Texture>)normalTexture);
-			material->SetUniform("u_ARMMap", (Ref<Texture>)armTexture);
-		}
-		else {
-			AF_CORE_WARN("Failed to load one or more PBR textures");
-		}
 
 		box.AddComponent<MaterialComponent>(material);
 		sphere.AddComponent<MaterialComponent>(material);

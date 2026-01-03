@@ -189,6 +189,13 @@ namespace AF {
 		glBindTextureUnit(slot, m_RendererID);
 	}
 
+	void OpenGLTexture2D::Unbind(uint32_t slot) const
+	{
+		AF_PROFILE_FUNCTION();
+
+		glBindTextureUnit(slot, 0);
+	}
+
 	OpenGLTextureCube::OpenGLTextureCube(const TextureSpecification& specification)
 		: m_Specification(specification), m_Width(m_Specification.Width), m_Height(m_Specification.Height)
 	{
@@ -357,5 +364,11 @@ namespace AF {
 	{
 		AF_PROFILE_FUNCTION();
 		glBindTextureUnit(slot, m_RendererID);
+	}
+
+	void OpenGLTextureCube::Unbind(uint32_t slot) const
+	{
+		AF_PROFILE_FUNCTION();
+		glBindTextureUnit(slot, 0);
 	}
 }

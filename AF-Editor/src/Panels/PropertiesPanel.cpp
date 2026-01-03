@@ -336,6 +336,11 @@ namespace AF {
 				}, value);
 			}
 
+			// 2. 排序
+			std::sort(textures.begin(), textures.end());
+			std::sort(colors.begin(), colors.end());
+			std::sort(params.begin(), params.end());
+
 			// 3. 绘制 - 颜色 (Colors)
 			if (!colors.empty())
 			{

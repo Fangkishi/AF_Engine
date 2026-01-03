@@ -27,6 +27,8 @@ namespace AF {
 
 		virtual void Bind(uint32_t slot = 0) const override;
 
+		virtual void Unbind(uint32_t slot = 0) const override;
+
 		virtual bool IsLoaded() const override { return m_IsLoaded; }
 
 		virtual bool operator==(const Texture& other) const override
@@ -64,6 +66,8 @@ namespace AF {
 		virtual void SetData(void* data, uint32_t size) override;
 
 		virtual void Bind(uint32_t slot = 0) const override;
+
+		virtual void Unbind(uint32_t slot = 0) const override;
 
 		virtual bool IsLoaded() const override { return m_IsLoaded; }
 

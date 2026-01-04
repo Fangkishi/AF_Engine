@@ -148,8 +148,7 @@ vec3 SampleNormalMap()
 vec4 SampleAlbedo()
 {
     vec4 albedo = u_Material.AlbedoColor;
-    // 增加 textureSize 检查，与 SampleMetallic 等函数保持一致
-    // 这能防止 UseAlbedoMap 为 1 但实际未绑定有效纹理时采样到残留的 Framebuffer
+    // 如果启用贴图，且贴图单元有效（尺寸 > 1），则进行采样
     if (u_Material.UseAlbedoMap == 1 && textureSize(u_AlbedoMap, 0).x > 1)
     {
         albedo *= texture(u_AlbedoMap, Input.TexCoord);
@@ -160,15 +159,15 @@ vec4 SampleAlbedo()
 // 采样金属度
 float SampleMetallic()
 {
-    // 1. 优先使用独立金属度贴图 (如果启用且有效)
+    // 1. 优先使用独立金属度贴图 (如果启用且单元有效)
     if (u_Material.UseMetallicMap == 1 && textureSize(u_MetallicMap, 0).x > 1)
     {
         return clamp(texture(u_MetallicMap, Input.TexCoord).r, 0.0, 1.0);
     }
-    // 2. 其次尝试使用 ARM 贴图 (如果存在)
+    // 2. 其次尝试使用 ARM 贴图 (如果启用且单元有效)
     else if (u_Material.UseMetallicMap == 1 && textureSize(u_ARMMap, 0).x > 1)
     {
-        return clamp(texture(u_ARMMap, Input.TexCoord).b, 0.0, 1.0); // ARM 贴图的 B 通道通常是金属度
+        return clamp(texture(u_ARMMap, Input.TexCoord).b, 0.0, 1.0);
     }
     
     // 3. 最后使用材质参数数值
@@ -178,15 +177,15 @@ float SampleMetallic()
 // 采样粗糙度
 float SampleRoughness()
 {
-    // 1. 优先使用独立粗糙度贴图 (如果启用且有效)
+    // 1. 优先使用独立粗糙度贴图 (如果启用且单元有效)
     if (u_Material.UseRoughnessMap == 1 && textureSize(u_RoughnessMap, 0).x > 1)
     {
         return clamp(texture(u_RoughnessMap, Input.TexCoord).r, 0.01, 1.0);
     }
-    // 2. 其次尝试使用 ARM 贴图 (如果存在)
+    // 2. 其次尝试使用 ARM 贴图 (如果启用且单元有效)
     else if (u_Material.UseRoughnessMap == 1 && textureSize(u_ARMMap, 0).x > 1)
     {
-        return clamp(texture(u_ARMMap, Input.TexCoord).g, 0.01, 1.0); // ARM 贴图的 G 通道通常是粗糙度
+        return clamp(texture(u_ARMMap, Input.TexCoord).g, 0.01, 1.0);
     }
 
     // 3. 最后使用材质参数数值
@@ -196,15 +195,15 @@ float SampleRoughness()
 // 采样环境遮蔽 (AO)
 float SampleAmbientOcclusion()
 {
-    // 1. 优先使用独立 AO 贴图 (如果启用且有效)
+    // 1. 优先使用独立 AO 贴图 (如果启用且单元有效)
     if (u_Material.UseAOMap == 1 && textureSize(u_AOMap, 0).x > 1)
     {
         return clamp(texture(u_AOMap, Input.TexCoord).r, 0.0, 1.0);
     }
-    // 2. 其次尝试使用 ARM 贴图 (如果存在)
+    // 2. 其次尝试使用 ARM 贴图 (如果启用且单元有效)
     else if (u_Material.UseAOMap == 1 && textureSize(u_ARMMap, 0).x > 1)
     {
-        return clamp(texture(u_ARMMap, Input.TexCoord).r, 0.0, 1.0); // ARM 贴图的 R 通道通常是 AO
+        return clamp(texture(u_ARMMap, Input.TexCoord).r, 0.0, 1.0);
     }
 
     // 3. 最后使用材质参数数值

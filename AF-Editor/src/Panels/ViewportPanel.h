@@ -34,7 +34,10 @@ namespace AF {
 			Entity selectedEntity,
 			int& gizmoType,
 			bool showPhysicsColliders,
-			std::function<void(const std::filesystem::path&)> onSceneOpen);
+			std::function<void(const std::filesystem::path&)> onSceneOpen,
+			const std::string& debugTextureName = "",
+			int debugLayer = 0,
+			int debugFace = 0);
 
 		glm::vec2 GetSize() const { return m_ViewportSize; }
 		glm::vec2 GetViewportMinBound() const { return m_ViewportBounds[0]; }

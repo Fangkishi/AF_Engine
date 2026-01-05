@@ -107,7 +107,7 @@ namespace AF {
 		 * @brief 获取渲染图中指定名称的资源纹理。
 		 * @param name 资源名称 (如 "FinalColor", "GBufferAlbedo", "DirShadowMap")
 		 */
-		static Ref<Texture2D> GetBuffer(const std::string& name = "FinalColor");
+		static Ref<Texture> GetBuffer(const std::string& name = "FinalColor");
 
 		/**
 		 * @brief 获取指定资源的 OpenGL Renderer ID。
@@ -120,6 +120,8 @@ namespace AF {
 		 * 用于基于 ID 的物体拾取 (Entity Picking)。
 		 */
 		static int ReadPixel(int x, int y);
+
+		static const std::vector<RenderGraphNode>& GetRenderNodes() { return s_Data.RenderNodes; }
 
 	private:
 		// ===================================================================================

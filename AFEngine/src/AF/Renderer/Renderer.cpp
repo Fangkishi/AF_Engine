@@ -53,31 +53,7 @@ namespace AF {
 		SceneRenderer::Init();
 
 		// 2. 配置默认 PBR 材质参数 (兜底方案)
-		auto DefaultMaterial = CreateRef<Material>();
-		DefaultMaterial->SetUniform("u_Material.AlbedoColor", glm::vec4(0.8f, 0.8f, 0.8f, 1.0f));
-		DefaultMaterial->SetUniform("u_Material.Metallic", 0.04f);
-		DefaultMaterial->SetUniform("u_Material.Roughness", 0.8f);
-		DefaultMaterial->SetUniform("u_Material.AmbientOcclusion", 1.0f);
-		DefaultMaterial->SetUniform("u_Material.UseAlbedoMap", 1);
-		DefaultMaterial->SetUniform("u_Material.UseNormalMap", 1);
-		DefaultMaterial->SetUniform("u_Material.UseMetallicMap", 0);
-		DefaultMaterial->SetUniform("u_Material.UseRoughnessMap", 0);
-		DefaultMaterial->SetUniform("u_Material.UseAOMap", 0);
-
-		// 尝试加载引擎内置的基础贴图包
-		auto albedoTexture = Texture2D::Create("assets/textures/red_brick_diff_4k.jpg");
-		auto normalTexture = Texture2D::Create("assets/textures/red_brick_nor_gl_4k.jpg");
-		auto armTexture = Texture2D::Create("assets/textures/red_brick_arm_4k.jpg");
-
-		if (albedoTexture && normalTexture && armTexture) {
-			DefaultMaterial->SetUniform("u_AlbedoMap", albedoTexture);
-			DefaultMaterial->SetUniform("u_NormalMap", normalTexture);
-			DefaultMaterial->SetUniform("u_ARMMap", armTexture); // ARM 映射: R=AO, G=Roughness, B=Metallic
-		}
-		else {
-			AF_CORE_WARN("Renderer: 无法加载默认纹理包，物体将显示为默认灰色材质。");
-		}
-		s_Data.DefaultMaterial = DefaultMaterial;
+		s_Data.DefaultMaterial = Material::CreatePBR();
 
 		// 3. 初始默认着色器
 		s_Data.DefaultShader = Shader::Create("assets/shaders/phong.glsl");

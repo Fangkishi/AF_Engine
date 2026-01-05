@@ -1,6 +1,7 @@
 #pragma once
 
 #include <imgui.h>
+#include <string>
 
 namespace AF {
 
@@ -16,7 +17,8 @@ namespace AF {
 		/**
 		 * @brief 渲染 ImGui 设置面板
 		 * @param showPhysicsColliders 是否显示物理碰撞体 (引用，可修改)
+		 * @param debugTextureName 当前选中的调试纹理名称 (引用，可修改)
 		 */
-		void OnImGuiRender(bool& showPhysicsColliders);
+		void OnImGuiRender(bool& showPhysicsColliders, std::string& debugTextureName);
 	};
 }

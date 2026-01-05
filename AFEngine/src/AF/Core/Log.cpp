@@ -9,6 +9,10 @@ namespace AF {
 
 	void Log::Init()
 	{
+#ifdef AF_PLATFORM_WINDOWS
+		SetConsoleOutputCP(65001);
+#endif
+
 		spdlog::set_pattern("%^[%T] %n: %v%$");
 		s_CoreLogger = spdlog::stdout_color_mt("AF");
 		s_CoreLogger->set_level(spdlog::level::trace);

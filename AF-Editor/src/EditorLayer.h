@@ -96,6 +96,9 @@ namespace AF {
 		// --- 实体操作 ---
 		void OnDuplicateEntity();                                               // 复制当前选中的实体
 
+		// --- 调试状态 ---
+		std::string m_DebugTextureName;                                         // 当前视口调试显示的纹理名称
+
 	private:
 		// --- 场景与相机 ---
 		Ref<Scene> m_ActiveScene;                                               // 当前活跃的场景 (可能是编辑场景或运行副本)

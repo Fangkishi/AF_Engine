@@ -377,7 +377,7 @@ namespace AF {
 		m_StatsPanel.OnImGuiRender();
 
 		// 3.4 编辑器设置面板 (Settings)
-		m_SettingsPanel.OnImGuiRender(m_ShowPhysicsColliders);
+		m_SettingsPanel.OnImGuiRender(m_ShowPhysicsColliders, m_DebugTextureName);
 
 		// 3.5 属性面板 (Properties)
 		// 将当前层级面板选中的实体传递给属性面板
@@ -387,7 +387,8 @@ namespace AF {
 		// 3.6 视口面板 (Viewport)
 		m_ViewportPanel.OnImGuiRender(m_ActiveScene, m_EditorCamera,
 			m_SceneHierarchyPanel.GetSelectedEntity(), m_GizmoType, m_ShowPhysicsColliders,
-			[this](const std::filesystem::path& path) { OpenScene(path); });
+			[this](const std::filesystem::path& path) { OpenScene(path); },
+			m_DebugTextureName);
 
 		// 如果鼠标不在视口内，则阻塞事件，防止 UI 操作干扰视口内交互
 		Application::Get().GetImGuiLayer()->BlockEvents(!m_ViewportPanel.IsHovered());

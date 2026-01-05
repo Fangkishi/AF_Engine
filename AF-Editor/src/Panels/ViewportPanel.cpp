@@ -4,6 +4,7 @@
 
 #include "AF/Math/Math.h"
 #include "AF/Renderer/SceneRenderer.h"
+#include "AF/Renderer/Texture.h"
 #include "AF/Core/Input.h"
 #include "AF/Core/KeyCodes.h"
 #include "AF/Scene/Components.h"
@@ -22,7 +23,10 @@ namespace AF {
 		Entity selectedEntity,
 		int& gizmoType,
 		bool showPhysicsColliders,
-		std::function<void(const std::filesystem::path&)> onSceneOpen)
+		std::function<void(const std::filesystem::path&)> onSceneOpen,
+		const std::string& debugTextureName,
+		int debugLayer,
+		int debugFace)
 	{
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
 		ImGui::Begin("Viewport");
@@ -43,12 +47,61 @@ namespace AF {
 		m_ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };
 
 		// 4. 渲染场景纹理
-		// 获取当前渲染管线的最终输出缓冲纹理 ID
-		uint64_t textureID = SceneRenderer::GetBufferRendererID();
+		// ---------------------------------------------------------
+		uint64_t textureID = 0;
+		Ref<Texture> debugTexture = nullptr;
+		if (!debugTextureName.empty())
+		{
+			debugTexture = SceneRenderer::GetBuffer(debugTextureName);
+		}
+		
+		// 如果请求的调试纹理无效，回退到最终颜色输出
+		if (!debugTexture)
+		{
+			debugTexture = SceneRenderer::GetBuffer("FinalColor");
+		}
+
+		// 检查纹理类型是否支持直接预览
+		bool isSupported = true;
+		if (debugTexture)
+		{
+			const auto& spec = debugTexture->GetSpecification();
+			bool isArray = spec.ArraySize > 1;
+			bool isCube = (std::dynamic_pointer_cast<TextureCube>(debugTexture) != nullptr);
+
+			if (isArray || isCube)
+			{
+				isSupported = false;
+			}
+		}
+
+		// 如果不支持直接预览，回退显示 FinalColor，但保留 debugTexture 用于显示警告
+		Ref<Texture> displayTexture = debugTexture;
+		if (!isSupported)
+		{
+			displayTexture = SceneRenderer::GetBuffer("FinalColor");
+		}
+
+		if (displayTexture)
+		{
+			textureID = displayTexture->GetRendererID();
+		}
+		
+		// 绘制纹理到 ImGui 窗口
+		// 注意：此处目前直接拉伸纹理以填充视口，未保持长宽比
 		ImGui::Image(reinterpret_cast<void*>(textureID), 
 			ImVec2{ m_ViewportSize.x, m_ViewportSize.y }, 
 			ImVec2{ 0, 1 }, 
 			ImVec2{ 1, 0 });
+
+		// 如果不支持，在画面上叠加警告文字
+		if (!isSupported && debugTexture)
+		{
+			ImGui::GetWindowDrawList()->AddText(
+				ImVec2(m_ViewportBounds[0].x + 10, m_ViewportBounds[0].y + 10),
+				IM_COL32(255, 50, 50, 255),
+				"Preview not supported for this texture type/format (Depth/Array/Cube).");
+		}
 
 		// 5. 处理文件拖放 (Drag & Drop)
 		// 允许从内容浏览器拖拽场景文件 (*.af) 到视口直接打开

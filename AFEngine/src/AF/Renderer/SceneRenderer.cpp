@@ -133,11 +133,11 @@ namespace AF {
 	/**
 	 * @brief 获取渲染图中指定名称的资源纹理
 	 */
-	Ref<Texture2D> SceneRenderer::GetBuffer(const std::string& name)
+	Ref<Texture> SceneRenderer::GetBuffer(const std::string& name)
 	{
 		auto it = s_Data.GraphResources.find(name);
 		if (it != s_Data.GraphResources.end() && it->second) {
-			return std::dynamic_pointer_cast<Texture2D>(it->second);
+			return it->second;
 		}
 		AF_CORE_ERROR("RenderGraph: 资源 {0} 未找到!", name);
 		return nullptr;

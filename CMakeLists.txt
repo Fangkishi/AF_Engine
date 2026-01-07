@@ -38,3 +38,6 @@ add_subdirectory(AFEngine)
 
 # AF-Editor 应用程序
 add_subdirectory(AF-Editor)
+
+# Sandbox 应用程序
+add_subdirectory(Sandbox)

@@ -171,20 +171,35 @@ int GetCubeFaceIndex(vec3 dir) {
 // 计算点光源阴影
 float CalculatePointShadow(int lightIndex, vec3 worldPos, vec3 N, vec3 lightPos) {
     vec3 fragToLight = worldPos - lightPos;
-    int faceIndex = GetCubeFaceIndex(fragToLight);
-    
-    // 使用对应面的投影矩阵将世界坐标转到灯光投影空间
-    vec4 lightSpacePos = pointLights[lightIndex].LightSpaceMatrix[faceIndex] * vec4(worldPos, 1.0);
-    vec3 projCoords = lightSpacePos.xyz / lightSpacePos.w;
-    projCoords = projCoords * 0.5 + 0.5;
-
-    float bias = max(0.01 * (1.0 - dot(N, normalize(fragToLight))), 0.001);
     
     // 从 CubeArray 采样深度
-    float closestDepth = texture(PointShadowMap, vec4(normalize(fragToLight), lightIndex)).r;
-    float currentDepth = projCoords.z - bias;
+    float closestDepth = texture(PointShadowMap, vec4(fragToLight, lightIndex)).r;
+    
+    // 如果阴影贴图生成时使用的是标准的透视投影（未做线性化）：
+    // 那么 texture() 返回的 depth 是在 [0, 1] 之间的非线性值。
+    // 我们需要将当前片元的实际距离转换为相同的 [0, 1] 非线性深度来进行比较。
+    
+    // 找到 fragToLight 绝对值最大的分量
+    vec3 absDir = abs(fragToLight);
+    float z = max(absDir.x, max(absDir.y, absDir.z));
+    
+    // 使用与 SceneRenderer.cpp 中相同的投影矩阵参数计算非线性深度
+    // glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 100.0f);
+    float near = 0.1;
+    float far = 100.0;
+    
+    // OpenGL 中透视投影矩阵将 Z 映射到 [-1, 1] 的公式：
+    // z_ndc = ( (far + near) / (near - far) * z + (2 * far * near) / (near - far) ) / -z
+    float currentDepthNDC = ((far + near) * z - 2.0 * far * near) / ((far - near) * z);
+    
+    // 映射到 [0, 1]
+    float currentDepth = currentDepthNDC * 0.5 + 0.5;
 
-    return currentDepth > closestDepth ? 1.0 : 0.0;
+    // 动态 Bias
+    float bias = max(0.005 * (1.0 - dot(N, normalize(-fragToLight))), 0.0005);
+    
+    // 比较
+    return currentDepth - bias > closestDepth ? 1.0 : 0.0;
 }
 
 void main() {
@@ -274,13 +289,16 @@ void main() {
         Lo += (kD * albedo / PI + specular) * radiance * NdotL * (1.0 - shadow);
     }
 
-    // 6. 环境光 (IBL 简化，这里仅用常数模拟 AO)
-    vec3 ambient = vec3(0.03) * albedo * ao;
+    // 6. 环境光 (IBL 简化，这里仅用常数模拟基础环境光)
+    // 降低基础环境光强度，否则暗部被环境光照亮，导致 AO 不明显
+    vec3 ambient = vec3(0.01) * albedo * ao;
     vec3 color = ambient + Lo;
 
-    // 7. 色调映射 (Reinhard) 与 Gamma 校正
-    color = color / (color + vec3(1.0));
-    color = pow(color, vec3(1.0/2.2)); 
+    // 7. 移除此处的 Tone Mapping 和 Gamma 校正！
+    // 因为这会压缩动态范围，导致最终 hdr.glsl 拿到的不是线性 HDR 数据。
+    // 而且这里过早地提亮了暗部（Gamma 校正会把暗部拉亮），导致后期的 SSAO 压不下去。
+    // color = color / (color + vec3(1.0));
+    // color = pow(color, vec3(1.0/2.2)); 
 
     o_Color = vec4(color, 1.0);
 }

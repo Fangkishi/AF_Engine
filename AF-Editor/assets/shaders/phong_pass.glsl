@@ -73,6 +73,15 @@ uniform sampler2D u_EnvMap;               // 环境映射 (IBL 占位)
 uniform sampler2DArray DirShadowMap;      // 方向光阴影贴图数组 (每个图层对应一个光源)
 uniform samplerCubeArray PointShadowMap;  // 点光源阴影贴图数组 (每个立方体对应一个光源)
 
+const float PI = 3.14159265359;
+
+vec3 SampleSphericalMap(vec3 v)
+{
+    float u = atan(v.z, v.x) / (2.0 * PI) + 0.5;
+    float v_uv = asin(v.y) / PI + 0.5;
+    return texture(u_EnvMap, vec2(u, v_uv)).rgb;
+}
+
 /**
  * @brief 根据深度图重建世界空间坐标
  */
@@ -172,7 +181,13 @@ void main() {
 
     // 2. 边界检查 (背景处理)
     if (depth >= 1.0) {
-        o_Color = vec4(0.0, 0.0, 0.0, 1.0);
+        // 重建远平面世界坐标以计算视线方向
+        vec3 worldPos = ReconstructWorldPos(v_TexCoord, 1.0);
+        vec3 viewDir = normalize(worldPos - u_ViewPos);
+        
+        // 采样环境贴图作为背景
+        vec3 envColor = SampleSphericalMap(normalize(viewDir));
+        o_Color = vec4(envColor, 1.0);
         return;
     }
 

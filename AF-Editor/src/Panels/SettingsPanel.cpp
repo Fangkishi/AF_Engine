@@ -15,6 +15,11 @@ namespace AF {
 		// 物理调试选项
 		ImGui::Checkbox("Show physics colliders", &showPhysicsColliders);
 
+		// 渲染选项
+		ImGui::Separator();
+		ImGui::Text("Render Settings");
+		ImGui::Checkbox("Enable SSGI & SSAO", &SceneRenderer::GetEnableSSGIRef());
+    
 		ImGui::Separator();
 		ImGui::Text("Render Graph Debug");
 

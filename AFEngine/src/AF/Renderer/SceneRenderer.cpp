@@ -313,7 +313,7 @@ namespace AF {
 		{
 			FramebufferSpecification spec;
 			spec.Attachments = { FramebufferTextureFormat::RGBA16F }; // HDR Support
-			auto pass = RenderPass::Create({ Framebuffer::Create(spec), Shader::Create("assets/shaders/phong_pass.glsl") });
+			auto pass = RenderPass::Create({ Framebuffer::Create(spec), Shader::Create("assets/shaders/lighting_pass.glsl") });
 			pass->SetUniform("u_EnvMap", s_Data.EnvMap);
 
 			AddRenderNode("DeferredLighting", pass, []() {
@@ -322,16 +322,69 @@ namespace AF {
 		}
 
 		// -----------------------------------------------------------------------------------
-		// 4. 后处理与混合 (PostProcess Pass)
+		// 4. 原始环境光遮蔽 (SSAO Pass)
 		// -----------------------------------------------------------------------------------
 		{
 			FramebufferSpecification spec;
-			spec.Attachments = { FramebufferTextureFormat::RGBA8 };
-			auto pass = RenderPass::Create({ Framebuffer::Create(spec), Shader::Create("assets/shaders/hdr.glsl") });
-			
-			AddRenderNode("Composite", pass, []() {
-				Renderer::SubmitFullscreenQuad();
-			}, { "LightingResult" }, { "FinalColor" });
+			spec.Attachments = {FramebufferTextureFormat::RGBA8};
+			auto pass =
+				RenderPass::Create({Framebuffer::Create(spec),
+									Shader::Create("assets/shaders/ssao_pass.glsl")});
+			pass->SetUniform("u_EnvMap", s_Data.EnvMap);
+
+			AddRenderNode(
+				"SSAO", pass, []() { Renderer::SubmitFullscreenQuad(); },
+				{"GBufferAlbedo", "GBufferNormal", "GBufferMP", "GBufferDepth"},
+				{"SSAOResult"});
+		}
+
+		// -----------------------------------------------------------------------------------
+		// 5. 原始间接光 (SSGI Pass)
+		// -----------------------------------------------------------------------------------
+		{
+			FramebufferSpecification spec;
+			spec.Attachments = {FramebufferTextureFormat::RGBA16F}; // HDR Support
+			auto pass =
+				RenderPass::Create({Framebuffer::Create(spec),
+									Shader::Create("assets/shaders/ssgi_pass.glsl")});
+			pass->SetUniform("u_EnvMap", s_Data.EnvMap);
+
+			AddRenderNode("SSGI", pass, []() { Renderer::SubmitFullscreenQuad(); },
+						{"GBufferAlbedo", "GBufferNormal", "GBufferMP",
+						"GBufferDepth", "SSAOResult", "LightingResult"},
+						{"SSGIResult"});
+		}
+
+		// -----------------------------------------------------------------------------------
+		// 6. 降噪阶段 (Denoise Pass)
+		// -----------------------------------------------------------------------------------
+		{
+			FramebufferSpecification spec;
+			spec.Attachments = {FramebufferTextureFormat::RGBA16F}; // HDR Support
+			auto pass = RenderPass::Create(
+				{Framebuffer::Create(spec),
+				Shader::Create("assets/shaders/denoise_pass.glsl")});
+			pass->SetUniform("u_EnvMap", s_Data.EnvMap);
+
+			AddRenderNode("Denoise", pass, []() { Renderer::SubmitFullscreenQuad(); },
+						{"SSAOResult", "SSGIResult", "GBufferNormal", "GBufferDepth"},
+						{"DenoisedResult"});
+		}
+
+		// -----------------------------------------------------------------------------------
+		// 7. 后处理与混合 (PostProcess Pass)
+		// -----------------------------------------------------------------------------------
+		{
+			FramebufferSpecification spec;
+			spec.Attachments = {FramebufferTextureFormat::RGBA8};
+			auto pass = RenderPass::Create(
+				{Framebuffer::Create(spec), Shader::Create("assets/shaders/hdr.glsl")});
+
+			AddRenderNode("Composite", pass, [pass]() { 
+				pass->GetSpecification().m_Shader->SetInt("u_EnableSSGI", s_Data.EnableSSGI ? 1 : 0);
+				Renderer::SubmitFullscreenQuad(); 
+			},
+						{"LightingResult", "DenoisedResult"}, {"FinalColor"});
 		}
 	}
 

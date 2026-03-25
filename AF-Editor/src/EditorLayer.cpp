@@ -42,15 +42,80 @@ namespace AF {
 
 		// 4. 默认场景内容初始化 (演示用代码，正式项目可删除)
 #if 1
-		auto box = m_ActiveScene->CreateEntity("box");
-		auto sphere = m_ActiveScene->CreateEntity("SPHERE");
-		box.AddComponent<MeshComponent>(Mesh::CreateBox(1.0f));
-		sphere.AddComponent<MeshComponent>(Mesh::CreateSphere(1.0f));
+		// --- SSGI 演示场景 (Cornell Box 变体) ---
+		
+		// 1. 创建材质 (稍微增加粗糙度，降低反射率，使得漫反射溢色更纯粹)
+		auto matWhite = Material::CreatePBR();
+		matWhite->SetUniform("u_Material.AlbedoColor", glm::vec4(0.85f, 0.85f, 0.85f, 1.0f));
+		matWhite->SetUniform("u_Material.Roughness", 1.0f);
+		matWhite->SetUniform("u_Material.Metallic", 0.0f);
 
-		auto material = Material::CreatePBR();
+		auto matRed = Material::CreatePBR();
+		matRed->SetUniform("u_Material.AlbedoColor", glm::vec4(0.85f, 0.05f, 0.05f, 1.0f)); // 更纯的红
+		matRed->SetUniform("u_Material.Roughness", 1.0f);
+		matRed->SetUniform("u_Material.Metallic", 0.0f);
 
-		box.AddComponent<MaterialComponent>(material);
-		sphere.AddComponent<MaterialComponent>(material);
+		auto matGreen = Material::CreatePBR();
+		matGreen->SetUniform("u_Material.AlbedoColor", glm::vec4(0.05f, 0.85f, 0.05f, 1.0f)); // 更纯的绿
+		matGreen->SetUniform("u_Material.Roughness", 1.0f);
+		matGreen->SetUniform("u_Material.Metallic", 0.0f);
+
+		// 2. 搭建经典的等比例 Cornell Box (假设房间内部尺寸为 4x4x4，原点在底面中心)
+		auto floor = m_ActiveScene->CreateEntity("Floor");
+		floor.AddComponent<MeshComponent>(Mesh::CreateBox(1.0f));
+		floor.AddComponent<MaterialComponent>(matWhite);
+		floor.GetComponent<TransformComponent>().Translation = { 0.0f, 0.0f, 0.0f };
+		floor.GetComponent<TransformComponent>().Scale = { 4.0f, 0.1f, 4.0f };
+
+		auto ceiling = m_ActiveScene->CreateEntity("Ceiling");
+		ceiling.AddComponent<MeshComponent>(Mesh::CreateBox(1.0f));
+		ceiling.AddComponent<MaterialComponent>(matWhite);
+		ceiling.GetComponent<TransformComponent>().Translation = { 0.0f, 4.0f, 0.0f };
+		ceiling.GetComponent<TransformComponent>().Scale = { 4.0f, 0.1f, 4.0f };
+
+		auto leftWall = m_ActiveScene->CreateEntity("Left Wall");
+		leftWall.AddComponent<MeshComponent>(Mesh::CreateBox(1.0f));
+		leftWall.AddComponent<MaterialComponent>(matRed);
+		leftWall.GetComponent<TransformComponent>().Translation = { -2.0f, 2.0f, 0.0f };
+		leftWall.GetComponent<TransformComponent>().Scale = { 0.1f, 4.0f, 4.0f };
+
+		auto rightWall = m_ActiveScene->CreateEntity("Right Wall");
+		rightWall.AddComponent<MeshComponent>(Mesh::CreateBox(1.0f));
+		rightWall.AddComponent<MaterialComponent>(matGreen);
+		rightWall.GetComponent<TransformComponent>().Translation = { 2.0f, 2.0f, 0.0f };
+		rightWall.GetComponent<TransformComponent>().Scale = { 0.1f, 4.0f, 4.0f };
+
+		auto backWall = m_ActiveScene->CreateEntity("Back Wall");
+		backWall.AddComponent<MeshComponent>(Mesh::CreateBox(1.0f));
+		backWall.AddComponent<MaterialComponent>(matWhite);
+		backWall.GetComponent<TransformComponent>().Translation = { 0.0f, 2.0f, -2.0f };
+		backWall.GetComponent<TransformComponent>().Scale = { 4.0f, 4.0f, 0.1f };
+
+		// 3. 放置中心物体
+		// 高盒子 (靠后，靠左，轻微旋转)
+		auto tallBox = m_ActiveScene->CreateEntity("Tall Box");
+		tallBox.AddComponent<MeshComponent>(Mesh::CreateBox(1.0f));
+		tallBox.AddComponent<MaterialComponent>(matWhite);
+		tallBox.GetComponent<TransformComponent>().Translation = { -0.6f, 1.2f, -0.6f };
+		tallBox.GetComponent<TransformComponent>().Scale = { 1.2f, 2.4f, 1.2f };
+		tallBox.GetComponent<TransformComponent>().Rotation = { 0.0f, 0.25f, 0.0f };
+
+		// 矮盒子 (靠前，靠右，轻微旋转，代替球体以展示更多硬边遮蔽)
+		auto shortBox = m_ActiveScene->CreateEntity("Short Box");
+		shortBox.AddComponent<MeshComponent>(Mesh::CreateBox(1.0f));
+		shortBox.AddComponent<MaterialComponent>(matWhite);
+		shortBox.GetComponent<TransformComponent>().Translation = { 0.6f, 0.6f, 0.4f };
+		shortBox.GetComponent<TransformComponent>().Scale = { 1.2f, 1.2f, 1.2f };
+		shortBox.GetComponent<TransformComponent>().Rotation = { 0.0f, -0.25f, 0.0f };
+
+		// 4. 设置顶部主光源
+		auto pointLight = m_ActiveScene->CreateEntity("Main Light");
+		auto& pl = pointLight.AddComponent<PointLightComponent>();
+		pl.Color = { 1.0f, 0.98f, 0.95f }; 
+		// 在 4x4 的小空间里，适当的强度能照亮地面并弹射
+		pl.Intensity = 5.0f; 
+		// 紧贴天花板中心
+		pointLight.GetComponent<TransformComponent>().Translation = { 0.0f, 3.8f, 0.0f };
 #endif
 
 		// 5. 将场景上下文传递给 UI 面板

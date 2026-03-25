@@ -123,6 +123,8 @@ namespace AF {
 
 		static const std::vector<RenderGraphNode>& GetRenderNodes() { return s_Data.RenderNodes; }
 
+      static bool &GetEnableSSGIRef() { return s_Data.EnableSSGI; }
+
 	private:
 		// ===================================================================================
 		// --- 渲染图驱动逻辑 (Internal Graph Engine) ---
@@ -199,6 +201,7 @@ namespace AF {
 			Ref<Scene> ActiveScene;              ///< 当前渲染的目标场景
 			Ref<Texture2D> EnvMap;               ///< IBL/天空盒纹理
 			float Exposure = 1.0f;               ///< HDR 曝光值
+			bool EnableSSGI = true;             ///< 是否启用 SSGI
 
 			// --- 渲染图状态 ---
 			std::vector<RenderGraphNode> RenderNodes;

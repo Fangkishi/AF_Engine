@@ -261,6 +261,23 @@ namespace AF {
 		PointLightComponent(const PointLightComponent&) = default;
 	};
 
+	// 光照探针组件
+	struct LightProbeComponent
+	{
+		// 3阶球谐函数系数，每个颜色通道(RGB)需要9个系数，共27个float
+		// 存储顺序为：L00, L1-1, L10, L11, L2-2, L2-1, L20, L21, L22
+		// 这里我们使用 9 个 vec3 来同时存储 RGB 三个通道的系数
+		glm::vec3 SHCoefficients[9] = { glm::vec3(0.0f) };
+		
+		// 探针的影响半径或边界，可用于局部混合或剔除
+		float Radius = 5.0f;
+		
+		bool IsBaked = false;
+
+		LightProbeComponent() = default;
+		LightProbeComponent(const LightProbeComponent&) = default;
+	};
+
 	template <typename... Component>
 	struct ComponentGroup
 	{
@@ -270,6 +287,6 @@ namespace AF {
 		ComponentGroup<TransformComponent, SpriteRendererComponent, CircleRendererComponent, 
 		CameraComponent, ScriptComponent, NativeScriptComponent, Rigidbody2DComponent,
 		BoxCollider2DComponent, CircleCollider2DComponent, MeshComponent, MaterialComponent, 
-		ParentChildComponent, DirectionalLightComponent, PointLightComponent>;
+		ParentChildComponent, DirectionalLightComponent, PointLightComponent, LightProbeComponent>;
 
 }

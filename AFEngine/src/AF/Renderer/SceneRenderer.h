@@ -124,6 +124,7 @@ namespace AF {
 		static const std::vector<RenderGraphNode>& GetRenderNodes() { return s_Data.RenderNodes; }
 
       static bool &GetEnableSSGIRef() { return s_Data.EnableSSGI; }
+      static bool &GetEnableProbeGIRef() { return s_Data.EnableProbeGI; }
 
 	private:
 		// ===================================================================================
@@ -202,6 +203,11 @@ namespace AF {
 			Ref<Texture2D> EnvMap;               ///< IBL/天空盒纹理
 			float Exposure = 1.0f;               ///< HDR 曝光值
 			bool EnableSSGI = true;             ///< 是否启用 SSGI
+			bool EnableProbeGI = true; ///< 是否开启光照探针GI补偿
+
+			// --- 光照探针数据 ---
+			Ref<ShaderStorageBuffer> LightProbeUniformBuffer;
+			uint32_t LightProbeCount = 0;
 
 			// --- 渲染图状态 ---
 			std::vector<RenderGraphNode> RenderNodes;

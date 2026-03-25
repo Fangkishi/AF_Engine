@@ -13,6 +13,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "AF/Renderer/LightProbeManager.h"
 #include "ImGuizmo.h"
 
 namespace AF {
@@ -113,12 +114,23 @@ namespace AF {
 		auto& pl = pointLight.AddComponent<PointLightComponent>();
 		pl.Color = { 1.0f, 0.98f, 0.95f }; 
 		// 在 4x4 的小空间里，适当的强度能照亮地面并弹射
-		pl.Intensity = 5.0f; 
+		pl.Intensity = 1.0f; 
 		// 紧贴天花板中心
 		pointLight.GetComponent<TransformComponent>().Translation = { 0.0f, 3.8f, 0.0f };
+
+		// 5. 生成光照探针网格
+		LightProbeGrid probeGrid;
+		probeGrid.MinBounds = { -3.0f, 0.0f, -3.0f };
+		probeGrid.MaxBounds = {  3.0f, 4.0f,  3.0f };
+		probeGrid.Counts = { 3, 3, 3 }; // 生成 3x3x3 = 27 个探针
+		probeGrid.ProbeRadius = 4.0f; // 影响半径覆盖整个房间
+		
+		LightProbeManager::GenerateProbes(m_ActiveScene, probeGrid);
+		LightProbeManager::BakeProbes(m_ActiveScene);
+
 #endif
 
-		// 5. 将场景上下文传递给 UI 面板
+		// 6. 将场景上下文传递给 UI 面板
 		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
 		m_ContentBrowserPanel = CreateScope<ContentBrowserPanel>();
 

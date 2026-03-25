@@ -476,4 +476,9 @@ namespace AF {
 	{
 	}
 
+	template<>
+	void Scene::OnComponentAdded<LightProbeComponent>(Entity entity, LightProbeComponent& component)
+	{
+	}
+
 }

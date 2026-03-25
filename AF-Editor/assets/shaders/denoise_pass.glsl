@@ -42,7 +42,7 @@ void main()
     // 空域双边滤波 (Bilateral Blur)
     // ---------------------------------------------------------
     float aoSum = 0.0;
-    vec3 ssgiSum = vec3(0.0);
+    vec4 ssgiSum = vec4(0.0); // 修改为 vec4 以同时累加 rgb(颜色) 和 a(置信度)
     float weightSum = 0.0;
     
     // 扩大滤波核，增加采样跨度，使降噪更平滑
@@ -78,19 +78,39 @@ void main()
             
             // 累加
             aoSum += texture(SSAOResult, sampleUV).r * w;
-            ssgiSum += texture(SSGIResult, sampleUV).rgb * w;
+            ssgiSum += texture(SSGIResult, sampleUV) * w; // 累加 vec4 (包含置信度)
             weightSum += w;
         }
     }
     
     float finalAO = weightSum > 0.0 ? aoSum / weightSum : texture(SSAOResult, v_TexCoord).r;
-    vec3 finalSSGI = weightSum > 0.0 ? ssgiSum / weightSum : texture(SSGIResult, v_TexCoord).rgb;
+    vec4 finalSSGI = weightSum > 0.0 ? ssgiSum / weightSum : texture(SSGIResult, v_TexCoord); // 获取降噪后的 vec4
     
     // Pass denoised results as a single texture
     // RGB: SSGI indirect lighting
-    // A: SSAO visibility factor
-    vec4 denoisedOutput = vec4(finalSSGI, finalAO);
+    // A: SSGI Confidence 
+    // TODO: 目前只用了两个附件输出，这里 DenoisedResult 暂存 SSGI 的 RGB 和 置信度
+    // 但我们需要传递 AO。假设目前合并到了两张图或者通过某些机制。
+    // 在您原本代码中，DenoisedResult 是 vec4(finalSSGI, finalAO)。
+    // 为了支持探针补偿，我们需要改变数据打包方式，或者在 hdr.glsl 里直接读未降噪的 AO。
+    // 权衡之下：我们将 SSGI 的 RGB 和置信度 Confidence 存在 o_DenoisedResult 中。
+    // 将 AO 存入一个新的输出，或者将置信度乘以 AO 后再传。
+    // 这里为了最少修改拓扑：我们将 o_DenoisedResult 维持 vec4(finalSSGI.rgb, finalAO)，
+    // 但我们用 SSGI 的亮度或通过混合逻辑。
+    // 实际上，为了完美支持 4.2.3，我们需要在 Denoise 节点输出两个 Target，或者在 HDR pass 里计算 Probe GI。
     
+    // 我们暂时这样打包：RGB 是 SSGI，A 是 AO * Confidence (一个 Hack 做法) 
+    // 或者我们直接在 DenoisedOutput 里返回 vec4(finalSSGI.rgb, finalSSGI.a)
+    // 并在 C++ 端给 HDR Pass 再绑定一个 DenoisedAO ?
+    
+    // 最佳实践：DenoisedResult (RGBA16F) 存 SSGI(RGB) + Confidence(A)
+    vec4 denoisedOutput = vec4(finalSSGI.rgb, finalSSGI.a);
+    
+    // 并且我们需要把 AO 也传出去。由于目前的拓扑限制，我们暂时将 AO 乘以 SSGI 来应用，
+    // 这在物理上也是合理的（AO 用于遮蔽间接光）。
+    // 所以：RGB = SSGI * AO，A = Confidence
+    denoisedOutput.rgb *= finalAO;
+
     vec4 envHack = texture(u_EnvMap, vec2(0.0)) * 0.000001;
     o_DenoisedResult = denoisedOutput + envHack;
 }

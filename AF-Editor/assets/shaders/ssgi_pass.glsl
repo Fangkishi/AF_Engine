@@ -91,6 +91,7 @@ void main()
     float thickness = 0.5;// 增加厚度容差，防止光线穿透太薄的物体
     
     vec3 indirectLight = vec3(0.0);
+    int validHits = 0; // 记录有效命中次数，用于计算置信度
     
     // 基础随机数种子
     float seed = rand(v_TexCoord);
@@ -146,9 +147,10 @@ void main()
         }
         
         if (hit) {
+            validHits++;
             vec3 hitColor = texture(LightingResult, hitUV).rgb;
             // 降低颜色溢出强度乘数，避免色彩过于饱和突兀
-            float colorBleedIntensity = 1.5; 
+            float colorBleedIntensity = 1.0; 
             
             // 距离衰减：反弹的光应该随着距离衰减，这样墙角的缝隙就不会突兀地亮起一大块
             float distance = length(rayPos - viewPos);
@@ -159,10 +161,29 @@ void main()
         }
     }
     
-    indirectLight /= float(rays);
+    // 屏幕边缘衰减因子计算
+    // 越靠近屏幕边缘，SSGI越容易获取不到屏幕外信息，因此主动降低置信度
+    // 扩大边缘衰减范围，让过渡更平滑、更早发生
+    vec2 ndc = v_TexCoord * 2.0 - 1.0;
+    float edgeDist = min(1.0 - abs(ndc.x), 1.0 - abs(ndc.y));
+    float edgeFactor = smoothstep(0.0, 0.4, edgeDist); // 在边缘 40% 区域内平滑衰减
+    
+    // 如果有命中，计算平均反弹光照 (纯 SSGI 能量)
+    if (validHits > 0) {
+        indirectLight /= float(validHits);
+    }
+    
+    // 计算综合置信度 (命中率 * 屏幕边缘衰减)
+    // 深度值异常（飞出屏幕/击中背景）导致 validHits 降低，也会自动降低置信度
+    // 强化命中率的影响：命中率低于一定阈值时置信度急剧下降
+    float hitRatio = float(validHits) / float(rays);
+    hitRatio = smoothstep(0.2, 0.8, hitRatio); 
+    
+    float confidence = hitRatio * edgeFactor;
     
     vec4 envHack = texture(u_EnvMap, vec2(0.0)) * 0.000001;
     vec4 mpHack = texture(GBufferMP, vec2(0.0)) * 0.000001;
     vec4 aoHack = texture(SSAOResult, vec2(0.0)) * 0.000001;
-    o_SSGIResult = vec4(indirectLight, 1.0) + envHack + mpHack + aoHack;
+    // 将置信度存储在 Alpha 通道中，供后续的降噪和混合阶段使用
+    o_SSGIResult = vec4(indirectLight, confidence) + envHack + mpHack + aoHack;
 }

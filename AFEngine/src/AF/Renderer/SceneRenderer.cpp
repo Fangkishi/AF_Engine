@@ -3,6 +3,7 @@
 #include "AF/Renderer/Renderer.h"
 #include "AF/Renderer/Renderer2D.h"
 #include "AF/Renderer/RenderPass.h"
+#include "AF/Renderer/LightProbeManager.h"
 
 #include <queue>
 #include <glad/glad.h>
@@ -33,6 +34,10 @@ namespace AF {
 		s_Data.PointLightBuffer.reserve(16);
 		s_Data.DirLightUniformBuffer = ShaderStorageBuffer::Create(sizeof(DirLight) * s_Data.DirLightBuffer.capacity(), 0);
 		s_Data.PointLightUniformBuffer = ShaderStorageBuffer::Create(sizeof(PointLight) * s_Data.PointLightBuffer.capacity(), 1);
+
+		// 初始化探针 SSBO (预留 100 个探针)
+		// 10 个 vec4 = 40 个 float = 160 bytes
+		s_Data.LightProbeUniformBuffer = ShaderStorageBuffer::Create(160 * 100, 2);
 
 		// 3. 初始化阴影贴图资产
 		TextureSpecification dirShadowMapSpec;
@@ -101,6 +106,13 @@ namespace AF {
 
 		// 提取光源数据
 		CollectSceneLights();
+
+		// 同步探针数据
+		auto probeData = LightProbeManager::GetProbesDataForGPU(s_Data.ActiveScene);
+		if (!probeData.empty()) {
+			s_Data.LightProbeUniformBuffer->SetData(probeData.data(), (uint32_t)(probeData.size() * sizeof(float)));
+		}
+		s_Data.LightProbeCount = (uint32_t)(probeData.size() / 40); // 每个探针 10 个 vec4
 	}
 
 	/**
@@ -382,9 +394,10 @@ namespace AF {
 
 			AddRenderNode("Composite", pass, [pass]() { 
 				pass->GetSpecification().m_Shader->SetInt("u_EnableSSGI", s_Data.EnableSSGI ? 1 : 0);
+				pass->GetSpecification().m_Shader->SetInt("u_EnableProbeGI", s_Data.EnableProbeGI ? 1 : 0);
 				Renderer::SubmitFullscreenQuad(); 
 			},
-						{"LightingResult", "DenoisedResult"}, {"FinalColor"});
+						{"LightingResult", "DenoisedResult", "GBufferNormal", "GBufferDepth", "GBufferAlbedo"}, {"FinalColor"});
 		}
 	}
 
@@ -480,6 +493,9 @@ namespace AF {
 			if (s_Data.PointLightBuffer.empty()) s_Data.PointLightUniformBuffer->SetData(nullptr, 0);
 			else s_Data.PointLightUniformBuffer->SetData(s_Data.PointLightBuffer.data(), (uint32_t)(sizeof(PointLight) * s_Data.PointLightBuffer.size()));
 			s_Data.PointLightUniformBuffer->Bind();
+
+			// 绑定探针 SSBO (binding = 2)
+			s_Data.LightProbeUniformBuffer->Bind();
 
 			// --- 执行节点渲染逻辑 ---
 			node.executeFunction();

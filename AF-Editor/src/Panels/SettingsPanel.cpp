@@ -19,6 +19,7 @@ namespace AF {
 		ImGui::Separator();
 		ImGui::Text("Render Settings");
 		ImGui::Checkbox("Enable SSGI & SSAO", &SceneRenderer::GetEnableSSGIRef());
+		ImGui::Checkbox("Enable Light Probe GI", &SceneRenderer::GetEnableProbeGIRef());
     
 		ImGui::Separator();
 		ImGui::Text("Render Graph Debug");

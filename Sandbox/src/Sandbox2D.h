@@ -2,7 +2,7 @@
 
 #include <AF.h>
 #include "AF/Core/Layer.h"
-#include "AF/Renderer/Texture.h"
+#include "AF/Renderer/API/Texture.h"
 #include "AF/Core/Timestep.h"
 
 #include "AF/Scene/Scene.h"

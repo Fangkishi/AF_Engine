@@ -25,9 +25,9 @@
 #include "AF/Renderer/RenderCommand.h"
 #include "AF/Renderer/SceneRenderer.h"
 
-#include "AF/Renderer/Shader.h"
-#include "AF/Renderer/Texture.h"
-#include "AF/Renderer/Framebuffer.h"
-#include "AF/Renderer/VertexArray.h"
-#include "AF/Renderer/Buffer.h"
+#include "AF/Renderer/API/Shader.h"
+#include "AF/Renderer/API/Texture.h"
+#include "AF/Renderer/API/Framebuffer.h"
+#include "AF/Renderer/API/VertexArray.h"
+#include "AF/Renderer/API/Buffer.h"
 //--------

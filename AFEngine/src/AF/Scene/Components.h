@@ -1,9 +1,9 @@
 #pragma once
 
 #include "AF/Core/UUID.h"
-#include "AF/Renderer/Texture.h"
+#include "AF/Renderer/API/Texture.h"
 #include "AF/Scene/SceneCamera.h"
-#include "AF/Renderer/Shader.h"
+#include "AF/Renderer/API/Shader.h"
 #include "AF/Renderer/Mesh.h"
 #include "AF/Renderer/Material.h"
 

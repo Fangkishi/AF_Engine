@@ -1,6 +1,6 @@
 #pragma once
 
-#include "AF/Renderer/Texture.h"
+#include "AF/Renderer/API/Texture.h"
 
 #include <string>
 #include <glad/glad.h>

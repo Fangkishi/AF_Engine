@@ -1,7 +1,7 @@
 ﻿#pragma once
  
-#include "AF/Renderer/Buffer.h"
-#include "AF/Renderer/VertexArray.h"
+#include "AF/Renderer/API/Buffer.h"
+#include "AF/Renderer/API/VertexArray.h"
 #include "AF/Renderer/Material.h"
 #include "AF/Renderer/UniformContainer.h"
 

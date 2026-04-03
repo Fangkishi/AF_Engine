@@ -1,6 +1,6 @@
 #pragma once
 #include "AF/Core/Base.h"
-#include "AF/Renderer/Texture.h"
+#include "AF/Renderer/API/Texture.h"
 #include "AF/Scene/Entity.h"
 
 #include <assimp/Importer.hpp>

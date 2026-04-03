@@ -1,6 +1,6 @@
 #pragma once
 
-#include "AF/Renderer/API/Framebuffer.h"
+#include "AF/Renderer/Framebuffer.h"
 
 namespace AF {
 

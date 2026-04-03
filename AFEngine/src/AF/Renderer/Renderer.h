@@ -9,8 +9,8 @@
 
 #include "AF/Renderer/Mesh.h"
 #include "AF/Renderer/Material.h"
-#include "AF/Renderer/API/UniformBuffer.h"
-#include "AF/Renderer/API/Shader.h"
+#include "AF/Renderer/UniformBuffer.h"
+#include "Shader.h"
 
 namespace AF {
 

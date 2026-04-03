@@ -1,6 +1,6 @@
 #pragma once
 
-#include "AF/Renderer/API/Shader.h"
+#include "AF/Renderer/Shader.h"
 #include "AF/Core/Assert.h"
 #include <unordered_map>
 #include <string>

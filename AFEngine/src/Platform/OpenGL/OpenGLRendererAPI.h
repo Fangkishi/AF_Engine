@@ -1,6 +1,6 @@
 #pragma once
 
-#include "AF/Renderer/API/RendererAPI.h"
+#include "AF/Renderer/RendererAPI.h"
 
 namespace AF {
 	class OpenGLRendererAPI : public RendererAPI

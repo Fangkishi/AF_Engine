@@ -4,7 +4,7 @@
 
 #include "AF/Math/Math.h"
 #include "AF/Renderer/SceneRenderer.h"
-#include "AF/Renderer/API/Texture.h"
+#include "AF/Renderer/Texture.h"
 #include "AF/Core/Input.h"
 #include "AF/Core/KeyCodes.h"
 #include "AF/Scene/Components.h"

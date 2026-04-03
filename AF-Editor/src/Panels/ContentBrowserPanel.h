@@ -1,6 +1,6 @@
 #pragma once
 
-#include "AF/Renderer/API/Texture.h"
+#include "AF/Renderer/Texture.h"
 
 #include <filesystem>
 #include <map>

@@ -2,7 +2,7 @@
 
 #include "AF/Core/Base.h"
 #include "AF/Scene/Scene.h"
-#include "AF/Renderer/API/Texture.h"
+#include "AF/Renderer/Texture.h"
 
 #include <glm/glm.hpp>
 #include <vector>

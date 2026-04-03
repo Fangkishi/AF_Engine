@@ -1,6 +1,6 @@
 #pragma once
 
-#include "AF/Renderer/API/VertexArray.h"
+#include "AF/Renderer/VertexArray.h"
 
 namespace AF {
 

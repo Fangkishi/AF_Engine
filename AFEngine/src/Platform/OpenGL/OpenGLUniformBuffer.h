@@ -1,6 +1,6 @@
 #pragma once
 
-#include "AF/Renderer/API/UniformBuffer.h"
+#include "AF/Renderer/UniformBuffer.h"
 
 namespace AF {
 

@@ -1,9 +1,9 @@
 #include "afpch.h"
 #include "AF/Renderer/Renderer2D.h"
 
-#include "AF/Renderer/API/VertexArray.h"
-#include "AF/Renderer/API/UniformBuffer.h"
-#include "AF/Renderer/API/Shader.h"
+#include "AF/Renderer/VertexArray.h"
+#include "AF/Renderer/UniformBuffer.h"
+#include "AF/Renderer/Shader.h"
 #include "AF/Renderer/RenderCommand.h"
 
 namespace AF {

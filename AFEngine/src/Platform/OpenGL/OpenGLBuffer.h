@@ -1,6 +1,6 @@
 #pragma once
 
-#include "AF/Renderer/Buffer.h"
+#include "AF/Renderer/API/Buffer.h"
 
 namespace AF {
 	class OpenGLVertexBuffer : public VertexBuffer

@@ -40,11 +40,11 @@ target_compile_definitions(AFEngine PUBLIC
 # 链接库
 find_package(OpenGL REQUIRED)
 target_link_libraries(AFEngine PUBLIC 
-    GLFW
+    glfw
     Glad
     ImGui
     yaml-cpp
-    Box2D
+    box2d
     OpenGL::GL
 )
 

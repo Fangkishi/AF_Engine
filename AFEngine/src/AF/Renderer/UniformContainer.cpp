@@ -1,7 +1,7 @@
 #include "afpch.h"
 #include "AF/Renderer/UniformContainer.h"
-#include "AF/Renderer/Texture.h"
-#include "AF/Renderer/UniformBuffer.h"
+#include "AF/Renderer/API/Texture.h"
+#include "AF/Renderer/API/UniformBuffer.h"
 #include <variant>
 
 namespace AF {

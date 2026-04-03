@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "AF/Renderer/Framebuffer.h"
+#include "AF/Renderer/API/Framebuffer.h"
 #include "AF/Renderer/UniformContainer.h"
 
 namespace AF {

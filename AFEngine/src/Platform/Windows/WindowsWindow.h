@@ -1,7 +1,7 @@
 #pragma once
 
 #include "AF/Core/Window.h"
-#include "AF/Renderer/GraphicsContext.h"
+#include "AF/Renderer/API/GraphicsContext.h"
 
 #include <string>
 #include <GLFW/glfw3.h>

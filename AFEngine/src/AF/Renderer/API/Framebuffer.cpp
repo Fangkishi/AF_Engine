@@ -1,14 +1,14 @@
 #include "afpch.h"
 #include "AF/Renderer/API/Framebuffer.h"
 
-#include "AF/Renderer/Renderer.h"
+#include "AF/Renderer/RendererBackend.h"
 
 #include "Platform/OpenGL/OpenGLFramebuffer.h"
 
 namespace AF {
 	Ref<Framebuffer> Framebuffer::Create(const FramebufferSpecification& spec)
 	{
-		switch (Renderer::GetAPI())
+		switch (RendererBackend::GetAPI())
 		{
 		case RendererAPI::API::None: AF_CORE_ASSERT(false, "RendererAPI::None is currently not supported!");
 			return nullptr;

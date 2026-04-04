@@ -1,13 +1,13 @@
 #include "afpch.h"
 #include "AF/Renderer/API/GraphicsContext.h"
 
-#include "AF/Renderer/Renderer.h"
+#include "AF/Renderer/RendererBackend.h"
 #include "Platform/OpenGL/OpenGLContext.h"
 
 namespace AF {
 	Scope<GraphicsContext> GraphicsContext::Create(void* window)
 	{
-		switch (Renderer::GetAPI())
+		switch (RendererBackend::GetAPI())
 		{
 		case RendererAPI::API::None: AF_CORE_ASSERT(false, "RendererAPI::None is currently not supported!");
 			return nullptr;

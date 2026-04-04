@@ -1,13 +1,13 @@
 #include "afpch.h"
 #include "AF/Renderer/API/Texture.h"
 
-#include "AF/Renderer/Renderer.h"
+#include "AF/Renderer/RendererBackend.h"
 #include "Platform/OpenGL/OpenGLTexture.h"
 
 namespace AF {
 	Ref<Texture2D> Texture2D::Create(const TextureSpecification& specification)
 	{
-		switch (Renderer::GetAPI())
+		switch (RendererBackend::GetAPI())
 		{
 		case RendererAPI::API::None: AF_CORE_ASSERT(false, "RendererAPI::None is currently not supported!");
 			return nullptr;
@@ -20,7 +20,7 @@ namespace AF {
 
 	Ref<Texture2D> Texture2D::Create(const std::string& path, const bool isSRGB)
 	{
-		switch (Renderer::GetAPI())
+		switch (RendererBackend::GetAPI())
 		{
 		case RendererAPI::API::None: AF_CORE_ASSERT(false, "RendererAPI::None is currently not supported!");
 			return nullptr;
@@ -33,7 +33,7 @@ namespace AF {
 
 	Ref<Texture2D> Texture2D::Create(uint32_t rendererID, uint32_t width, uint32_t height)
 	{
-		switch (Renderer::GetAPI())
+		switch (RendererBackend::GetAPI())
 		{
 		case RendererAPI::API::None: AF_CORE_ASSERT(false, "RendererAPI::None is currently not supported!");
 			return nullptr;
@@ -46,7 +46,7 @@ namespace AF {
 
 	Ref<TextureCube> TextureCube::Create(const TextureSpecification& specification)
 	{
-		switch (Renderer::GetAPI())
+		switch (RendererBackend::GetAPI())
 		{
 		case RendererAPI::API::None:
 			AF_CORE_ASSERT(false, "RendererAPI::None is currently not supported!");
@@ -61,7 +61,7 @@ namespace AF {
 
 	Ref<TextureCube> TextureCube::Create(const std::string& path, const bool isSRGB)
 	{
-		switch (Renderer::GetAPI())
+		switch (RendererBackend::GetAPI())
 		{
 		case RendererAPI::API::None:
 			AF_CORE_ASSERT(false, "RendererAPI::None is currently not supported!");
@@ -76,7 +76,7 @@ namespace AF {
 
 	Ref<TextureCube> TextureCube::Create(uint32_t rendererID, uint32_t width, uint32_t height)
 	{
-		switch (Renderer::GetAPI())
+		switch (RendererBackend::GetAPI())
 		{
 		case RendererAPI::API::None:
 			AF_CORE_ASSERT(false, "RendererAPI::None is currently not supported!");

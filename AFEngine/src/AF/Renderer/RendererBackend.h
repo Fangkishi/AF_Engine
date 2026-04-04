@@ -15,7 +15,7 @@
 namespace AF {
 
 	/**
-	 * @class Renderer
+	 * @class RendererBackend
 	 * @brief 核心渲染器类，提供底层的渲染指令提交、材质应用以及渲染状态管理。
 	 * 
 	 * 该类作为引擎渲染系统的底层入口（Low-level API Wrapper），主要职责包括：
@@ -24,7 +24,7 @@ namespace AF {
 	 * 3. **绘制提交 (Draw Submission)**：封装各种几何体（网格、全屏四边形等）的底层 Draw Call 派发。
 	 * 4. **生命周期管理**：协调 Renderer2D, SceneRenderer 等子系统的初始化与关闭。
 	 */
-	class Renderer
+	class RendererBackend
 	{
 	public:
 		// ===================================================================================

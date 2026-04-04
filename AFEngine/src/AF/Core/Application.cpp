@@ -2,7 +2,7 @@
 #include "AF/Core/Application.h"
 
 #include "AF/Core/Input.h"
-#include "AF/Renderer/Renderer.h"
+#include "AF/Renderer/RendererBackend.h"
 #include "AF/Utils/PlatformUtils.h"
 
 namespace AF {
@@ -19,7 +19,7 @@ namespace AF {
 		m_Window = Window::Create(WindowProps(m_Specification.Name));
 		m_Window->SetEventCallback(AF_BIND_EVENT_FN(Application::OnEvent));
 
-		Renderer::Init();
+		RendererBackend::Init();
 
 		m_ImGuiLayer = new ImGuiLayer();
 		PushOverlay(m_ImGuiLayer);
@@ -119,7 +119,7 @@ namespace AF {
 		}
 
 		m_Minimized = false;
-		Renderer::OnWindowResize(e.GetWidth(), e.GetHeight());
+		RendererBackend::OnWindowResize(e.GetWidth(), e.GetHeight());
 
 		return false;
 	}

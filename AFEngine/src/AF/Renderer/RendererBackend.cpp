@@ -1,5 +1,5 @@
 #include "afpch.h"
-#include "Renderer.h"
+#include "RendererBackend.h"
 #include "AF/Renderer/Renderer2D.h"
 #include "AF/Renderer/SceneRenderer.h"
 #include "AF/Renderer/RenderCommand.h"
@@ -43,7 +43,7 @@ namespace AF {
 	 * 2. 构建引擎默认材质，预设 Albedo, Metallic, Roughness 等 PBR 参数。
 	 * 3. 预构建 NDC 空间的全屏四边形顶点数据，供延迟渲染和后处理使用。
 	 */
-	void Renderer::Init()
+	void RendererBackend::Init()
 	{
 		AF_PROFILE_FUNCTION();
 
@@ -81,12 +81,12 @@ namespace AF {
 		s_Data.m_FullscreenQuadVertexArray->AddVertexBuffer(vertexBuffer);
 	}
 
-	void Renderer::Shutdown()
+	void RendererBackend::Shutdown()
 	{
 		// 清理逻辑待扩展
 	}
 
-	void Renderer::OnWindowResize(uint32_t width, uint32_t height)
+	void RendererBackend::OnWindowResize(uint32_t width, uint32_t height)
 	{
 		RenderCommand::SetViewport(0, 0, width, height);
 	}
@@ -103,7 +103,7 @@ namespace AF {
 	 * 3. 重置纹理槽位和状态追踪缓存，确保当前 Pass 的状态独立。
 	 * 4. 应用属于整个 Pass 的全局参数（如投影矩阵、环境光）。
 	 */
-	void Renderer::BeginRenderPass(const Ref<RenderPass> renderPass)
+	void RendererBackend::BeginRenderPass(const Ref<RenderPass> renderPass)
 	{
 		s_Data.m_ActiveRenderPass = renderPass;
 
@@ -122,11 +122,11 @@ namespace AF {
 		s_Data.m_ActiveMesh = nullptr;
 		s_Data.m_ActiveMaterial = nullptr;
 
-		// 4. 应用全局 Pass Uniform (isGlobal=true)
+		// 4. 应用 Pass Uniform (isGlobal=true)
 		renderPass->Apply(shader, true, s_Data.pipelineUnit, s_Data.materialUnit, s_Data.textureUnitCache);
 	}
 
-	void Renderer::EndRenderPass()
+	void RendererBackend::EndRenderPass()
 	{
 		// 解绑当前渲染目标
 		s_Data.m_ActiveRenderPass->GetSpecification().TargetFramebuffer->Unbind();
@@ -146,7 +146,7 @@ namespace AF {
 	 * - 如果连续绘制使用相同材质的物体，跳过材质级 Uniform 的重新绑定。
 	 * - 如果连续绘制相同网格，跳过网格级 Uniform 的重新绑定。
 	 */
-	void Renderer::SubmitMesh(const Ref<Mesh>& mesh, const Ref<Material>& overridematerial, const UniformContainer& instanceUniforms)
+	void RendererBackend::SubmitMesh(const Ref<Mesh>& mesh, const Ref<Material>& overridematerial, const UniformContainer& instanceUniforms)
 	{
 		auto& material = overridematerial ? overridematerial : s_Data.DefaultMaterial;
 		
@@ -160,17 +160,11 @@ namespace AF {
 			s_Data.m_ActiveMaterial = material;
 		}
 
-		// 2. 应用网格参数 (仅在网格资源切换时执行)
-		if (s_Data.m_ActiveMesh != mesh) {
-			mesh->Apply(shader, false, s_Data.pipelineUnit, s_Data.materialUnit, s_Data.textureUnitCache);
-			s_Data.m_ActiveMesh = mesh;
-		}
-
 		// 3. 应用实例私有参数 (如变换矩阵，必须每次更新)
 		instanceUniforms.Apply(shader, false, s_Data.pipelineUnit, s_Data.materialUnit, s_Data.textureUnitCache);
 
 		// 4. 派发 Draw Call
-		Renderer::Submit([=]()
+		RendererBackend::Submit([=]()
 			{
 				RenderCommand::DrawIndexed(mesh->m_VertexArray, mesh->m_IndexCount);
 			});
@@ -180,30 +174,24 @@ namespace AF {
 	 * @brief 提交阴影绘制 (精简版 SubmitMesh)
 	 * 仅处理网格几何信息和位置变换，忽略光照、颜色等材质参数，极大减少阴影渲染阶段的 CPU/GPU 开销。
 	 */
-	void Renderer::SubmitShadow(const Ref<Mesh>& mesh, const UniformContainer& instanceUniforms)
+	void RendererBackend::SubmitShadow(const Ref<Mesh>& mesh, const UniformContainer& instanceUniforms)
 	{
 		Ref<Shader> shader = s_Data.m_ActiveRenderPass->GetSpecification().m_Shader;
 		if (!shader) shader = s_Data.DefaultShader;
 
 		s_Data.materialUnit = 0;
-		
-		// 1. 网格切换检查
-		if (s_Data.m_ActiveMesh != mesh) {
-			mesh->Apply(shader, false, s_Data.pipelineUnit, s_Data.materialUnit, s_Data.textureUnitCache);
-			s_Data.m_ActiveMesh = mesh;
-		}
 
 		// 2. 应用变换矩阵
 		instanceUniforms.Apply(shader, false, s_Data.pipelineUnit, s_Data.materialUnit, s_Data.textureUnitCache);
 
 		// 3. 索引绘制
-		Renderer::Submit([=]()
+		RendererBackend::Submit([=]()
 			{
 				RenderCommand::DrawIndexed(mesh->m_VertexArray, mesh->m_IndexCount);
 			});
 	}
 
-	void Renderer::SubmitFullscreenQuad()
+	void RendererBackend::SubmitFullscreenQuad()
 	{
 		// 绘制预构建的全屏四边形，通常在延迟渲染光照阶段调用
 		RenderCommand::DrawTriangles(s_Data.m_FullscreenQuadVertexArray, 6);
@@ -213,7 +201,7 @@ namespace AF {
 	 * @brief 指令执行中枢
 	 * 负责将渲染请求派发到具体的渲染命令（当前为直接执行，未来可支持命令排序与多线程提交）。
 	 */
-	void Renderer::Submit(const std::function<void()>& renderFunc)
+	void RendererBackend::Submit(const std::function<void()>& renderFunc)
 	{
 		renderFunc();
 	}

@@ -1,14 +1,14 @@
 #include "afpch.h"
 #include "AF/Renderer/API/Buffer.h"
 
-#include "AF/Renderer/Renderer.h"
+#include "AF/Renderer/RendererBackend.h"
 
 #include "Platform/OpenGL/OpenGLBuffer.h"
 
 namespace AF {
 	Ref<VertexBuffer> VertexBuffer::Create(uint32_t size)
 	{
-		switch (Renderer::GetAPI())
+		switch (RendererBackend::GetAPI())
 		{
 		case RendererAPI::API::None: AF_CORE_ASSERT(false, "RendererAPI::None is currently not supported!");
 			return nullptr;
@@ -21,7 +21,7 @@ namespace AF {
 
 	Ref<VertexBuffer> VertexBuffer::Create(float* vertices, uint32_t size)
 	{
-		switch (Renderer::GetAPI())
+		switch (RendererBackend::GetAPI())
 		{
 		case RendererAPI::API::None: AF_CORE_ASSERT(false, "RendererAPI::None is currently not supported!")
 			return nullptr;
@@ -34,7 +34,7 @@ namespace AF {
 
 	Ref<IndexBuffer> IndexBuffer::Create(uint32_t* indices, uint32_t count)
 	{
-		switch (Renderer::GetAPI())
+		switch (RendererBackend::GetAPI())
 		{
 		case RendererAPI::API::None: AF_CORE_ASSERT(false, "RendererAPI::None is currently not supported!")
 			return nullptr;

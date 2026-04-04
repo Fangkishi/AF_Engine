@@ -1,6 +1,6 @@
 #include "afpch.h"
 #include "SceneRenderer.h"
-#include "AF/Renderer/Renderer.h"
+#include "AF/Renderer/RendererBackend.h"
 #include "AF/Renderer/Renderer2D.h"
 #include "AF/Renderer/RenderPass.h"
 #include "AF/Renderer/LightProbeManager.h"
@@ -242,7 +242,7 @@ namespace AF {
 					for (auto entity : entities) {
 						auto [transform, mesh, material] = view.get<TransformComponent, MeshComponent, MaterialComponent>(entity);
 						transform.UpdateTransform();
-						Renderer::SubmitMesh(mesh.mesh, material.material, mesh.instanceUniforms);
+						RendererBackend::SubmitMesh(mesh.mesh, material.material, mesh.instanceUniforms);
 					}
 				}
 			}, {}, { "GBufferAlbedo", "GBufferEntityID", "GBufferNormal", "GBufferMP", "GBufferDepth" });
@@ -289,7 +289,7 @@ namespace AF {
 						for (auto entity : entities) {
 							auto [transform, mesh] = view.get<TransformComponent, MeshComponent>(entity);
 							transform.UpdateTransform();
-							Renderer::SubmitShadow(mesh.mesh, mesh.instanceUniforms);
+							RendererBackend::SubmitShadow(mesh.mesh, mesh.instanceUniforms);
 						}
 					}
 				}
@@ -312,7 +312,7 @@ namespace AF {
 						for (auto entity : entities) {
 							auto [transform, mesh] = view.get<TransformComponent, MeshComponent>(entity);
 							transform.UpdateTransform();
-							Renderer::SubmitShadow(mesh.mesh, mesh.instanceUniforms);
+							RendererBackend::SubmitShadow(mesh.mesh, mesh.instanceUniforms);
 						}
 					}
 				}
@@ -329,7 +329,7 @@ namespace AF {
 			pass->SetUniform("u_EnvMap", s_Data.EnvMap);
 
 			AddRenderNode("DeferredLighting", pass, []() {
-				Renderer::SubmitFullscreenQuad();
+				RendererBackend::SubmitFullscreenQuad();
 			}, { "GBufferAlbedo", "GBufferNormal", "GBufferMP", "GBufferDepth", "DirShadowMap", "PointShadowMap" }, { "LightingResult" });
 		}
 
@@ -345,7 +345,7 @@ namespace AF {
 			pass->SetUniform("u_EnvMap", s_Data.EnvMap);
 
 			AddRenderNode(
-				"SSAO", pass, []() { Renderer::SubmitFullscreenQuad(); },
+				"SSAO", pass, []() { RendererBackend::SubmitFullscreenQuad(); },
 				{"GBufferAlbedo", "GBufferNormal", "GBufferMP", "GBufferDepth"},
 				{"SSAOResult"});
 		}
@@ -361,7 +361,7 @@ namespace AF {
 									Shader::Create("assets/shaders/ssgi_pass.glsl")});
 			pass->SetUniform("u_EnvMap", s_Data.EnvMap);
 
-			AddRenderNode("SSGI", pass, []() { Renderer::SubmitFullscreenQuad(); },
+			AddRenderNode("SSGI", pass, []() { RendererBackend::SubmitFullscreenQuad(); },
 						{"GBufferAlbedo", "GBufferNormal", "GBufferMP",
 						"GBufferDepth", "SSAOResult", "LightingResult"},
 						{"SSGIResult"});
@@ -378,7 +378,7 @@ namespace AF {
 				Shader::Create("assets/shaders/denoise_pass.glsl")});
 			pass->SetUniform("u_EnvMap", s_Data.EnvMap);
 
-			AddRenderNode("Denoise", pass, []() { Renderer::SubmitFullscreenQuad(); },
+			AddRenderNode("Denoise", pass, []() { RendererBackend::SubmitFullscreenQuad(); },
 						{"SSAOResult", "SSGIResult", "GBufferNormal", "GBufferDepth"},
 						{"DenoisedResult"});
 		}
@@ -395,7 +395,7 @@ namespace AF {
 			AddRenderNode("Composite", pass, [pass]() { 
 				pass->GetSpecification().m_Shader->SetInt("u_EnableSSGI", s_Data.EnableSSGI ? 1 : 0);
 				pass->GetSpecification().m_Shader->SetInt("u_EnableProbeGI", s_Data.EnableProbeGI ? 1 : 0);
-				Renderer::SubmitFullscreenQuad(); 
+				RendererBackend::SubmitFullscreenQuad(); 
 			},
 						{"LightingResult", "DenoisedResult", "GBufferNormal", "GBufferDepth", "GBufferAlbedo"}, {"FinalColor"});
 		}
@@ -474,7 +474,7 @@ namespace AF {
 
 			// --- 执行前准备 ---
 			BindNodeInputs(node);              
-			Renderer::BeginRenderPass(node.pass); 
+			RendererBackend::BeginRenderPass(node.pass); 
 
 			if (node.clearOnExecute) {
 				RenderCommand::SetClearColor(node.pass->GetSpecification().TargetFramebuffer->GetSpecification().ClearColor);
@@ -501,7 +501,7 @@ namespace AF {
 			node.executeFunction();
 
 			// --- 结束当前阶段 ---
-			Renderer::EndRenderPass();
+			RendererBackend::EndRenderPass();
 			UpdateNodeOutputs(node);
 		}
 	}

@@ -11,7 +11,7 @@ namespace AF {
 	 * @class Mesh
 	 * @brief 网格类，包含顶点数据、索引数据以及网格级的 Uniform 变量。
 	 */
-	class Mesh : public UniformContainer
+	class Mesh
 	{
 	public:
 		Mesh();

@@ -14,6 +14,8 @@
 #include <utility>
 #include <algorithm>
 #include <functional>
+#include <cmath>
+#include <cstdint>
 
 #include <string>
 #include <sstream>

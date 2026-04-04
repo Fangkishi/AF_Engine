@@ -1,14 +1,14 @@
 #include "afpch.h"
 #include "AF/Renderer/API/Shader.h"
 
-#include "AF/Renderer/Renderer.h"
+#include "AF/Renderer/RendererBackend.h"
 
 #include "Platform/OpenGL/OpenGLShader.h"
 
 namespace AF {
 	Ref<Shader> Shader::Create(const std::string& filepath)
 	{
-		switch (Renderer::GetAPI())
+		switch (RendererBackend::GetAPI())
 		{
 		case RendererAPI::API::None: AF_CORE_ASSERT(false, "RendererAPI::None is currently not supported!");
 			return nullptr;
@@ -21,7 +21,7 @@ namespace AF {
 
 	Ref<Shader> Shader::Create(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc)
 	{
-		switch (Renderer::GetAPI())
+		switch (RendererBackend::GetAPI())
 		{
 		case RendererAPI::API::None: AF_CORE_ASSERT(false, "RendererAPI::None is currently not supported!");
 			return nullptr;

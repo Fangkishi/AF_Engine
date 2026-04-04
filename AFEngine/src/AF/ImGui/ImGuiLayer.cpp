@@ -4,7 +4,9 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 
+#ifndef IMGUI_IMPL_API
 #define IMGUI_IMPL_API
+#endif
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
 

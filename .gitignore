@@ -18,6 +18,7 @@ _deps/
 
 # [Visual Studio]
 .vs/
+.vscode/
 *.sln
 *.vcxproj
 *.vcxproj.filters
@@ -70,3 +71,6 @@ Thumbs.db
 
 # [Specific Files]
 /AFEngine/src/AF.h
+
+.trae/
+.specify/

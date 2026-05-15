@@ -1,80 +1,44 @@
-# [Build Outputs]
-out/
-bin/
-bin-int/
+# [Build]
 build/
-Generated/
 
-# [CMake]
-CMakeCache.txt
-CMakeFiles/
-CMakeScripts/
-Testing/
-cmake_install.cmake
-install_manifest.txt
+# [Vendor Build Artifacts]
+AFEngine/vendor/**/bin/
+AFEngine/vendor/**/bin-int/
+AFEngine/vendor/**/lib/
+
+# [Root Generated Files]
 compile_commands.json
-CTestTestfile.cmake
-_deps/
+.clangd.bak
 
-# [Visual Studio]
+# [Cache]
+.cache/
+
+# [IDE / Editor]
 .vs/
-.vscode/
-*.sln
-*.vcxproj
-*.vcxproj.filters
-*.vcxproj.user
-*.suo
-*.opensdf
-*.sdf
-*.cache
-*.ilk
-*.log
-*.pdb
-*.idb
-*.iobj
-*.ipdb
-*.tlog
-
-# [VS Code]
 .vscode/
 !.vscode/c_cpp_properties.json
 !.vscode/launch.json
 !.vscode/tasks.json
 !.vscode/settings.json
-
-# [JetBrains]
 .idea/
-
-# [Compiled Binaries/Libraries]
-*.exe
-*.dll
-*.lib
-*.a
-*.o
-*.obj
-*.so
-*.dylib
-*.pch
-*.gch
-
-# [Project Specific Assets]
-/AF-Editor/assets/**/*
-!/AF-Editor/assets/**/
-!/AF-Editor/assets/shaders/**
-
-# [Temporary/OS Files]
-*.tmp
-*.bak
-*.swp
-Thumbs.db
-.DS_Store
-
-# [Specific Files]
-/AFEngine/src/AF.h
-
 .trae/
 .specify/
 .opencode/
+
+# [OS Files]
+Thumbs.db
+.DS_Store
+
+# [Temp Files]
+*.swp
+*.tmp
+
+# [Project Specific]
+/AFEngine/src/AF.h
 oldsrc/
 old/
-.vscode
+
+# [Editor Assets]
+/AF-Editor/assets/**/*
+!/AF-Editor/assets/**/
+!/AF-Editor/assets/shaders/**

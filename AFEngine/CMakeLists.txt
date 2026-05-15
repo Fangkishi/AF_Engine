@@ -26,6 +26,7 @@ target_include_directories(AFEngine PUBLIC
     "vendor/ImGuizmo"
     "vendor/Box2D/include"
     "vendor/Assimp/include"
+    "vendor/nlohmann"
 )
 
 target_compile_definitions(AFEngine PUBLIC 

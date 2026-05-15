@@ -12,10 +12,18 @@ cmake --build build/vs --target AFEngine --config Debug
 
 # 仅构建 Sandbox
 cmake --build build/vs --target Sandbox --config Debug
+
+# 生成干净的分发目录 (仅含 exe + assets + Resources)
+cmake --install build/vs --config Debug --prefix build/install/Debug --component Runtime
+
+# Release 分发
+cmake --build build/vs --config Release
+cmake --install build/vs --config Release --prefix build/install/Release --component Runtime
 ```
 
 - CMake 使用 `GLOB_RECURSE` 收集 `src/*.cpp`，新增文件后必须 reconfigure。
-- Sandbox 和 AF-Editor 均构建。三个可执行文件：`Sandbox.exe`、`AF-Editor.exe`。
+- Sandbox 和 AF-Editor 均构建。两个可执行文件：`Sandbox.exe`、`AF-Editor.exe`。
+- **分发目录** `build/install/<Config>/` 是可直接运行的干净输出，不含 CMake 中间文件。
 
 ## 架构
 
@@ -50,7 +58,12 @@ AFEngine/src/
 ├── Renderer/               ← RenderSystem, Camera, Mesh, Material, RenderPipeline
 ├── Renderer/Deferred/      ← DeferredRenderPipeline (内置延迟渲染管线)
 ├── Renderer/RenderPacket.h ← EntitySnapshot + LightData
-├── UI/                     ← ImGuiSystem (可选 UI 层)
+├── UI/                     ← ImGuiSystem, Theme 系统, ThemeManager
+│   ├── ImGuiSystem.h/.cpp  ← ImGui 上下文、字体、渲染循环
+│   ├── Theme.h/.cpp        ← 主题数据结构 + AbstractThemeApplier 虚接口
+│   ├── ThemeSerializer.*   ← JSON ↔ Theme 序列化（nlohmann/json）
+│   ├── ThemeManager.h/.cpp ← 单例，扫描 Resources/Themes/，切换主题
+│   └── ImGuiThemeApplier.* ← 生产实现，直接写 ImGuiStyle
 ├── oldsrc/                 ← 旧代码，禁止修改或引用
 
 AF-Editor/src/              ← 编辑器（已构建，System-based）
@@ -71,6 +84,24 @@ AF-Editor/src/              ← 编辑器（已构建，System-based）
 | **EntryPoint** | `main()` 定义在 `Core/EntryPoint.h`。每个可执行文件只能有一个 `.cpp` include `<AF.h>`（因其包含 EntryPoint.h）。其他 `.cpp` 各自 include 所需头文件 |
 | **事件流** | GLFW callback → `AF::Event` → `Window::EventCallbackFn` → `Engine::OnEvent` → `System::OnEvent` |
 | **Input** | Engine 构造时调 `Input::SetNativeWindow()`，之后任意处可 `Input::IsKeyPressed()` |
+| **字体加载顺序** | `ImGuiThemeApplier::LoadFont()` 必须在 `ImGui_ImplOpenGL3_Init()` 之前调用（字体纹理需在 backend init 前构建）。当前 Init 流程: `CreateContext → ConfigFlags → ThemeManager → LoadFont → GLFW/OpenGL Init` |
+| **JSON 库** | `nlohmann/json` 3.12 单头文件，位于 `vendor/nlohmann/nlohmann/json.hpp`，include path 为 `vendor/nlohmann` |
+
+## Theme 系统
+
+```
+ImGuiSystem::OnInitialize()
+  → ThemeManager::Initialize("Resources/Themes/", ImGuiThemeApplier)
+  → ThemeManager::ApplyTheme("Dark")        // 从 dark.json 加载
+  → ImGuiThemeApplier::ApplyColors/Style    // 写 ImGuiStyle
+  → ImGuiThemeApplier::LoadFont             // OpenSans Regular + Bold
+```
+
+- 主题配置文件: `AF-Editor/Resources/Themes/dark.json`
+- 字体: `AF-Editor/Resources/Fonts/opensans/OpenSans-{Regular,Bold}.ttf`
+- 文件缺失时自动降级到内置默认主题和 ImGui 默认字体
+- `AbstractThemeApplier` 虚接口支持 Mock 测试
+- `ThemeSerializer::s_ColorMap` 将 JSON 键名映射到 `ImGuiCol_` 枚举索引
 
 ## 核心约定
 

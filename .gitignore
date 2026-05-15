@@ -37,6 +37,7 @@ Thumbs.db
 /AFEngine/src/AF.h
 oldsrc/
 old/
+doc/
 
 # [Editor Assets]
 /AF-Editor/assets/**/*

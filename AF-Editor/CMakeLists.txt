@@ -41,6 +41,18 @@ add_custom_target(AF-Editor-Resources ALL
 # 让 AF-Editor 依赖于资源同步目标
 add_dependencies(AF-Editor AF-Editor-Resources)
 
+# 将 assets 和 Resources 复制到 exe 输出目录，确保运行时相对路径可靠
+add_custom_command(TARGET AF-Editor POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    "${CMAKE_CURRENT_SOURCE_DIR}/assets"
+    "$<TARGET_FILE_DIR:AF-Editor>/assets"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    "${CMAKE_CURRENT_SOURCE_DIR}/Resources"
+    "$<TARGET_FILE_DIR:AF-Editor>/Resources"
+    COMMENT "Deploying assets and Resources to output directory..."
+    VERBATIM
+)
+
 # 宏定义
 target_compile_definitions(AF-Editor PRIVATE 
     YAML_CPP_STATIC_DEFINE
@@ -50,3 +62,8 @@ if(WIN32)
     # 设置为控制台程序 (对应 premake 的 kind "ConsoleApp")
     set_target_properties(AF-Editor PROPERTIES LINK_FLAGS "/SUBSYSTEM:CONSOLE")
 endif()
+
+# Install — 生成干净的分发目录
+install(TARGETS AF-Editor RUNTIME DESTINATION . COMPONENT Runtime)
+install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/assets/"   DESTINATION assets   COMPONENT Runtime)
+install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/Resources/" DESTINATION Resources COMPONENT Runtime)

@@ -55,3 +55,7 @@ if(WIN32)
     # 设置为控制台程序
     set_target_properties(Sandbox PROPERTIES LINK_FLAGS "/SUBSYSTEM:CONSOLE")
 endif()
+
+# Install — 生成干净的分发目录
+install(TARGETS Sandbox RUNTIME DESTINATION . COMPONENT Runtime)
+install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/assets/" DESTINATION assets COMPONENT Runtime)

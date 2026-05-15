@@ -1,4 +1,6 @@
 ﻿#include "UI/ImGuiSystem.h"
+#include "UI/ImGuiThemeApplier.h"
+#include "UI/ThemeManager.h"
 
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
@@ -25,11 +27,22 @@ void ImGuiSystem::OnInitialize(Engine& engine)
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
     {
         std::filesystem::path iniPath = std::filesystem::current_path() / "imgui.ini";
         static std::string s_IniPath = iniPath.string();
         io.IniFilename = s_IniPath.c_str();
+    }
+
+    auto& tm = ThemeManager::Get();
+    tm.Initialize("Resources/Themes/", std::make_unique<ImGuiThemeApplier>());
+
+    if (!tm.ApplyTheme("Dark"))
+    {
+        Theme builtin = Theme::CreateDefaultDark();
+        builtin.Name = "Built-in Dark";
+        tm.ApplyTheme(builtin);
     }
 
     auto* window = static_cast<GLFWwindow*>(engine.GetWindow().GetNativeHandle());
@@ -54,6 +67,15 @@ void ImGuiSystem::OnUpdate(float dt)
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+    ImGuiIO& io = ImGui::GetIO();
+    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+    {
+        GLFWwindow* backup = glfwGetCurrentContext();
+        ImGui::UpdatePlatformWindows();
+        ImGui::RenderPlatformWindowsDefault();
+        glfwMakeContextCurrent(backup);
+    }
 }
 
 void ImGuiSystem::OnEvent(Event& event)
@@ -90,6 +112,7 @@ void ImGuiSystem::OnEvent(Event& event)
 void ImGuiSystem::OnShutdown()
 {
     AF_LOG_INFO("ImGuiSystem: shutting down...");
+    ThemeManager::Get().Shutdown();
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();

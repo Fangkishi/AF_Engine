@@ -1,129 +1,94 @@
 ﻿#include <AF.h>
-#include <AF/Core/EntryPoint.h>
+#include <imgui.h>
 
-#include "Sandbox2D.h"
-
-class ExampleLayer : public AF::Layer
-{
-public:
-	ExampleLayer()
-		: Layer("Example")
-	{
-		//m_Camera = AF::CreateRef<AF::PerspectiveCamera>(45.0f, 1.6f / 0.9f, 0.1f, 100.0f);
-		//m_CameraController = AF::CreateRef<AF::GameCameraController>(std::static_pointer_cast<AF::PerspectiveCamera>(m_Camera));
-
-		//m_Camera = AF::CreateRef<AF::OrthographicCamera>(-1.6f, 1.6f, -0.9f, 0.9f);
-		//m_CameraController = AF::CreateRef<AF::OrthographicCameraController>(std::static_pointer_cast<AF::OrthographicCamera>(m_Camera), true);
-
-		//Vertex Array
-		m_VertexArray = AF::VertexArray::Create();
-
-		//Vertex Buffer
-		float vertices[] = {
-			-0.5f, 0.5f, 0.0f, 0.0f, 1.0f,
-			-0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
-			0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
-			0.5f, 0.5f, 0.0f, 1.0f, 1.0f,
-			-0.5f, 0.5f, -1.0f, 0.0f, 1.0f,
-			-0.5f, -0.5f, -1.0f, 0.0f, 0.0f,
-			0.5f, -0.5f, -1.0f, 1.0f, 0.0f,
-			0.5f, 0.5f, -1.0f, 1.0f, 1.0f,
-		};
-		AF::Ref<AF::VertexBuffer> VertexBuffer;
-		VertexBuffer = AF::VertexBuffer::Create(vertices, sizeof(vertices));
-
-		AF::BufferLayout layout = {
-			{AF::ShaderDataType::Float3, "a_Position"},
-			{AF::ShaderDataType::Float2, "a_Uv"},
-		};
-
-		VertexBuffer->SetLayout(layout);
-		m_VertexArray->AddVertexBuffer(VertexBuffer);
-
-		//Index Buffer
-		//unsigned int indices[] = { 0, 1, 2, 0, 2, 3 };
-		unsigned int indices[] = {
-			// Front face (first quad)
-			0, 1, 2, // First triangle
-			0, 2, 3, // Second triangle
-
-			// Back face (second quad)  
-			4, 5, 6, // First triangle
-			4, 6, 7, // Second triangle
-		};
-		AF::Ref<AF::IndexBuffer> IndexBuffer;
-		IndexBuffer = AF::IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t));
-
-		m_VertexArray->SetIndexBuffer(IndexBuffer);
-
-		auto shader = m_ShaderLibrary.Load("assets/shaders/Texture.glsl");
-
-		//m_Shader = AF::Shader::Create("assets/shaders/Test.glsl");
-
-		m_Texture = AF::Texture2D::Create("assets/textures/defaultTexture.jpg");
-	}
-
-	void OnUpdate(AF::Timestep ts) override
-	{
-		AF::RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
-		AF::RenderCommand::Clear();
-
-		//m_CameraController->OnUpdate(ts);
-
-		//AF::Renderer::BeginScene(m_Camera);
-
-		//auto shader = m_ShaderLibrary.Get("Texture");
-
-		//m_Texture->Bind();
-
-		//AF::Renderer::Submit(shader, m_VertexArray);
-
-		//AF::Renderer::EndScene();
-	}
-
-	virtual void OnImGuiRender() override
-	{
-
-	}
-
-	void OnEvent(AF::Event& event) override
-	{
-		//m_CameraController->OnEvent(event);
-	}
-
-private:
-	AF::ShaderLibrary m_ShaderLibrary;
-	//AF::Ref<AF::Shader> m_Shader;
-	AF::Ref<AF::VertexArray> m_VertexArray;
-
-	AF::Ref<AF::Texture2D> m_Texture;
-
-	//AF::Ref<AF::CameraBase> m_Camera = nullptr;
-	//AF::Ref<AF::CameraController> m_CameraController = nullptr;
-};
 
 class Sandbox : public AF::Application
 {
 public:
-	Sandbox(const AF::ApplicationSpecification& specification)
-		: AF::Application(specification)
-	{
-		//PushLayer(new ExampleLayer());
-		PushLayer(new Sandbox2D());
-	}
+    Sandbox()
+        : Application("Sandbox")
+    {
+    }
 
-	~Sandbox()
-	{
+    void OnSetup(AF::Engine& engine) override
+    {
+        AF_LOG_INFO("Sandbox OnSetup");
 
-	}
+        auto& world = engine.GetWorld();
+
+        auto left = world.CreateEntity("Left Triangle");
+        left.AddComponent<AF::MeshComponent>(AF::Mesh::CreateTriangle());
+        left.GetComponent<AF::TransformComponent>().Position.x = -1.5f;
+
+        auto mid = world.CreateEntity("Mid Triangle");
+        mid.AddComponent<AF::MeshComponent>(AF::Mesh::CreateTriangle());
+        auto& midT = mid.GetComponent<AF::TransformComponent>();
+        midT.Rotation = glm::angleAxis(0.5f, glm::vec3(0, 0, 1));
+        midT.Scale = glm::vec3(0.7f);
+
+        auto right = world.CreateEntity("Right Triangle");
+        right.AddComponent<AF::MeshComponent>(AF::Mesh::CreateTriangle());
+        auto& rightT = right.GetComponent<AF::TransformComponent>();
+        rightT.Position.x = 1.5f;
+        rightT.Scale = glm::vec3(1.5f, 0.6f, 1.0f);
+
+        auto camera = world.CreateEntity("Main Camera");
+        camera.GetComponent<AF::TransformComponent>().Position = { 0.0f, 0.0f, 5.0f };
+        auto cam = std::make_shared<AF::Camera>();
+        cam->SetPerspective(60.0f, 16.0f / 9.0f, 0.1f, 100.0f);
+        cam->SetPosition({ 0.0f, 0.0f, 5.0f });
+        AF::CameraComponent cc;
+        cc.Source  = cam;
+        cc.Primary = true;
+        camera.AddComponent<AF::CameraComponent>(cc);
+
+        auto light = world.CreateEntity("Directional Light");
+        light.GetComponent<AF::TransformComponent>().Position = glm::vec3(0.0f, 3.0f, 5.0f);
+        light.GetComponent<AF::TransformComponent>().Rotation = glm::quat(glm::vec3(glm::radians(30.0f), glm::radians(-45.0f), 0.0f));
+        AF::LightComponent lc;
+        lc.Color     = { 1.0f, 0.95f, 0.8f };
+        lc.Intensity = 2.0f;
+        lc.Type      = 0;
+        light.AddComponent<AF::LightComponent>(lc);
+
+        engine.AddSystem<AF::RenderSystem>();
+        engine.AddSystem<AF::DeferredRenderPipeline>();
+
+        auto& ui = engine.AddSystem<AF::ImGuiSystem>();
+        ui.SetOnImGui([]() {
+            ImGui::Begin("AFEngine");
+            ImGui::Text("Deferred Rendering Pipeline");
+            ImGui::Separator();
+
+            auto& io = ImGui::GetIO();
+            ImGui::Text("FPS: %.1f (%.2f ms)", io.Framerate, io.DeltaTime * 1000.0f);
+
+            if (ImGui::CollapsingHeader("Camera"))
+            {
+                ImGui::Text("Mode: Perspective (FOV 60)");
+                ImGui::Text("Position: (0, 0, 5)");
+            }
+
+            if (ImGui::CollapsingHeader("Scene"))
+            {
+                ImGui::Text("Entities: 5 (3 triangles + camera + light)");
+                ImGui::Text("Directional Light: intensity=2.0");
+            }
+
+            if (ImGui::CollapsingHeader("GBuffer"))
+            {
+                ImGui::Text("RT0: gAlbedo    (RGBA8)");
+                ImGui::Text("RT1: gNormal    (RGBA16F)");
+                ImGui::Text("RT2: gMaterial  (RGBA8)");
+                ImGui::Text("DS:  gDepth     (Depth32)");
+            }
+
+            ImGui::End();
+        });
+    }
 };
 
-AF::Application* AF::CreateApplication(AF::ApplicationCommandLineArgs args)
+AF::Application* CreateApplication()
 {
-	AF::ApplicationSpecification spec;
-	spec.Name = "Sandbox";
-	spec.WorkingDirectory = "../Sandbox";
-	spec.CommandLineArgs = args;
-
-	return new Sandbox(spec);
+    return new Sandbox();
 }

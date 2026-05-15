@@ -39,5 +39,5 @@ add_subdirectory(AFEngine)
 # AF-Editor 应用程序
 add_subdirectory(AF-Editor)
 
-# Sandbox 应用程序
+# Sandbox 应用程序（编译验证入口）
 add_subdirectory(Sandbox)

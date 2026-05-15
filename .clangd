@@ -1,39 +1,25 @@
-CompileFlags:
-  # 监听根目录的编译数据库（由 CMake Tools 实时同步）
+﻿CompileFlags:
   CompilationDatabase: .
+  QueryDriver: "E:/VS/2022/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe"
 
   Add:
-    # 核心架构与编译器目标
     - "--target=x86_64-pc-windows-msvc"
-    - "-fms-compatibility-version=19.41"
+    - "-fms-compatibility-version=19.44"
     - "-fms-extensions"
     - "-fdelayed-template-parsing"
     - "-fms-compatibility"
-    - "-fms-volatile"
-    
-    # C++标准
     - "-std=c++17"
     - "-D_MSVC_LANG=201703L"
-    
-    # 项目全局宏定义
     - "-D_DEBUG"
     - "-DUNICODE"
     - "-D_UNICODE"
     - "-DAF_PLATFORM_WINDOWS"
     - "-DAF_DEBUG"
     - "-D_CRT_SECURE_NO_WARNINGS"
-    - "-D_SCL_SECURE_NO_WARNINGS"
-    
-    # 字符集
-    - "/utf-8"
-    - "-finput-charset=UTF-8"
-    - "-fexec-charset=UTF-8"
-    
-    # 包含路径 - 核心项目路径
+
     - "-ID:/Test/AFEngine/AFEngine/src"
-    - "-ID:/Test/AFEngine/AF-Editor/src"
-    
-    # 第三方库路径 (使用 -isystem 减少干扰)
+    - "-ID:/Test/AFEngine/Sandbox/src"
+
     - "-isystemD:/Test/AFEngine/AFEngine/vendor/spdlog/include"
     - "-isystemD:/Test/AFEngine/AFEngine/vendor/GLFW/include"
     - "-isystemD:/Test/AFEngine/AFEngine/vendor/Glad/include"
@@ -45,22 +31,8 @@ CompileFlags:
     - "-isystemD:/Test/AFEngine/AFEngine/vendor/Assimp/include"
     - "-isystemD:/Test/AFEngine/AFEngine/vendor/stb_image"
     - "-isystemD:/Test/AFEngine/AFEngine/vendor/ImGuizmo"
-    
-    # MSVC 系统包含路径 (根据您的环境 14.41.34120 修正)
-    - "-isystemE:/VS/2022/Community/VC/Tools/MSVC/14.41.34120/include"
-    - "-isystemC:/Windows Kits/10/Include/10.0.22621.0/um"
-    - "-isystemC:/Windows Kits/10/Include/10.0.22621.0/shared"
-    - "-isystemC:/Windows Kits/10/Include/10.0.22621.0/winrt"
-    - "-isystemC:/Windows Kits/10/Include/10.0.22621.0/ucrt"
-    
-    # 其他必要标志
-    - "-fexceptions"
-    - "-fcxx-exceptions"
-    - "-EHsc"
-    - "/Zc:__cplusplus"
 
   Remove:
-    # 移除可能引起 clangd 混淆的 MSVC 特有标志
     - "/Fo.*"
     - "/Fd.*"
     - "/Yu.*"
@@ -73,27 +45,12 @@ CompileFlags:
     - "/Zi"
     - "/Gm-"
     - "/diagnostics:.*"
+    - "/utf-8"
 
 Index:
-  # 启用背景索引以支持“转到定义”
   Background: Build
 
 Diagnostics:
   UnusedIncludes: None
-  # 抑制不必要的警告
   Suppress:
-    - drv_out_file_argument_with_multiple_sources
     - unknown-pragmas
-    - microsoft-cast
-    - msvc-include
-
----
-# 针对不同文件类型的特定处理
-If:
-  PathMatch: .*\.(cpp|cxx|cc|c)$
-CompileFlags:
-  Add: 
-    - "-D_MT"
-    - "-D_DLL"
-    - "-D_WIN32"
-    - "-D_WINDOWS"

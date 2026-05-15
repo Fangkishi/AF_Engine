@@ -9,6 +9,7 @@ add_executable(AF-Editor ${EDITOR_SOURCES})
 
 # 包含路径
 target_include_directories(AF-Editor PRIVATE 
+    "${CMAKE_CURRENT_SOURCE_DIR}/src"
     "${CMAKE_CURRENT_SOURCE_DIR}/../AFEngine/vendor/spdlog/include"
     "${CMAKE_CURRENT_SOURCE_DIR}/../AFEngine/src"
     "${CMAKE_CURRENT_SOURCE_DIR}/../AFEngine/vendor"
@@ -33,10 +34,7 @@ add_custom_target(AF-Editor-Resources ALL
     COMMAND ${CMAKE_COMMAND} -E copy_directory
     "${CMAKE_CURRENT_SOURCE_DIR}/Resources"
     "${CMAKE_CURRENT_BINARY_DIR}/Resources"
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    "${CMAKE_CURRENT_SOURCE_DIR}/imgui.ini"
-    "${CMAKE_CURRENT_BINARY_DIR}/imgui.ini"
-    COMMENT "Syncing assets, Resources and imgui.ini to build directory..."
+    COMMENT "Syncing assets and Resources to build directory..."
     VERBATIM
 )
 

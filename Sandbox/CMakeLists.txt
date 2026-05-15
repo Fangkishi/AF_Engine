@@ -30,15 +30,21 @@ add_custom_target(Sandbox-Resources ALL
     COMMAND ${CMAKE_COMMAND} -E copy_directory
     "${CMAKE_CURRENT_SOURCE_DIR}/assets"
     "${CMAKE_CURRENT_BINARY_DIR}/assets"
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    "${CMAKE_CURRENT_SOURCE_DIR}/imgui.ini"
-    "${CMAKE_CURRENT_BINARY_DIR}/imgui.ini"
-    COMMENT "Syncing assets and imgui.ini to build directory..."
+    COMMENT "Syncing assets to build directory..."
     VERBATIM
 )
 
 # 让 Sandbox 依赖于资源同步目标
 add_dependencies(Sandbox Sandbox-Resources)
+
+# 将 assets 复制到 exe 输出目录，确保运行时相对路径可靠
+add_custom_command(TARGET Sandbox POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    "${CMAKE_CURRENT_SOURCE_DIR}/assets"
+    "$<TARGET_FILE_DIR:Sandbox>/assets"
+    COMMENT "Deploying assets to output directory..."
+    VERBATIM
+)
 
 # 宏定义
 target_compile_definitions(Sandbox PRIVATE 

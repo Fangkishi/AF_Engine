@@ -10,10 +10,11 @@ glm::vec3 EditorCamera::GetForward() const
 {
     float yawRad   = glm::radians(m_Yaw);
     float pitchRad = glm::radians(m_Pitch);
+    float theta    = yawRad + glm::pi<float>() / 2.0f;
     return glm::vec3(
-        cosf(yawRad) * cosf(pitchRad),
+        -sinf(theta) * cosf(pitchRad),
         sinf(pitchRad),
-        sinf(yawRad) * cosf(pitchRad)
+        -cosf(theta) * cosf(pitchRad)
     );
 }
 
@@ -21,9 +22,14 @@ glm::quat EditorCamera::GetRotation() const
 {
     float yawRad   = glm::radians(m_Yaw);
     float pitchRad = glm::radians(m_Pitch);
-    glm::quat qYaw   = glm::angleAxis(-(yawRad + glm::pi<float>() / 2.0f), glm::vec3(0, 1, 0));
+    glm::quat qYaw   = glm::angleAxis(yawRad + glm::pi<float>() / 2.0f, glm::vec3(0, 1, 0));
     glm::quat qPitch = glm::angleAxis(pitchRad, glm::vec3(1, 0, 0));
     return qYaw * qPitch;
+}
+
+glm::mat4 EditorCamera::GetView() const
+{
+    return glm::lookAt(m_Position, m_Position + GetForward(), glm::vec3(0.0f, 1.0f, 0.0f));
 }
 
 void EditorCamera::OnUpdate(float dt, Engine& engine)
@@ -48,7 +54,7 @@ void EditorCamera::OnUpdate(float dt, Engine& engine)
         m_LastMouseX = mx;
         m_LastMouseY = my;
 
-        m_Yaw   += dx * m_RotateSpeed;
+        m_Yaw   -= dx * m_RotateSpeed;
         m_Pitch -= dy * m_RotateSpeed;
         m_Pitch  = glm::clamp(m_Pitch, -89.0f, 89.0f);
     }
@@ -67,6 +73,15 @@ void EditorCamera::OnUpdate(float dt, Engine& engine)
     if (Input::IsKeyPressed(Key::D)) m_Position += right * speed;
     if (Input::IsKeyPressed(Key::Q)) m_Position.y -= speed;
     if (Input::IsKeyPressed(Key::E)) m_Position.y += speed;
+
+    UpdateView();
+}
+
+void EditorCamera::UpdateView()
+{
+    m_Camera.SetPerspective(60.0f, 16.0f / 9.0f, 0.1f, 100.0f);
+    m_Camera.SetPosition(m_Position);
+    m_Camera.SetRotation(GetRotation());
 }
 
 } // namespace AF

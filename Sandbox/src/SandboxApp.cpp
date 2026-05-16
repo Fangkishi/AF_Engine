@@ -17,17 +17,17 @@ public:
         auto& world = engine.GetWorld();
 
         auto left = world.CreateEntity("Left Triangle");
-        left.AddComponent<AF::MeshComponent>(AF::Mesh::CreateTriangle());
+        left.AddComponent<AF::MeshComponent>(AF::MeshFactory::CreateTriangle());
         left.GetComponent<AF::TransformComponent>().Position.x = -1.5f;
 
         auto mid = world.CreateEntity("Mid Triangle");
-        mid.AddComponent<AF::MeshComponent>(AF::Mesh::CreateTriangle());
+        mid.AddComponent<AF::MeshComponent>(AF::MeshFactory::CreateTriangle());
         auto& midT = mid.GetComponent<AF::TransformComponent>();
         midT.Rotation = glm::angleAxis(0.5f, glm::vec3(0, 0, 1));
         midT.Scale = glm::vec3(0.7f);
 
         auto right = world.CreateEntity("Right Triangle");
-        right.AddComponent<AF::MeshComponent>(AF::Mesh::CreateTriangle());
+        right.AddComponent<AF::MeshComponent>(AF::MeshFactory::CreateTriangle());
         auto& rightT = right.GetComponent<AF::TransformComponent>();
         rightT.Position.x = 1.5f;
         rightT.Scale = glm::vec3(1.5f, 0.6f, 1.0f);

@@ -30,6 +30,7 @@ void GLDevice::SetClearColor(const glm::vec4& color)
 
 void GLDevice::Clear()
 {
+    glClearDepth(1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 

@@ -16,6 +16,7 @@ public:
     void OnEvent(Event& event) override;
 
     void SetViewport(uint32_t width, uint32_t height);
+    void SetCameraView(const RenderView& view);
 
     const RenderView&   GetView()   const { return m_View;   }
     const RenderPacket& GetPacket() const { return m_Packet; }
@@ -25,6 +26,7 @@ private:
     RenderPacket m_Packet;
     uint32_t m_ViewportWidth  = 1920;
     uint32_t m_ViewportHeight = 1080;
+    bool m_CameraOverride = false;
 };
 
 } // namespace AF

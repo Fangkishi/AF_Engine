@@ -15,6 +15,7 @@ namespace AF {
 struct IDComponent
 {
     UUID ID;
+    uint32_t CreationOrder = 0;
 
     IDComponent() = default;
 };

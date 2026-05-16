@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "Core/Types.h"
+#include "RHI/RHITypes.h"
 #include "RHI/RHIShader.h"
 #include "RHI/RHITexture.h"
 #include "RHI/RHIVertexArray.h"
@@ -38,6 +39,13 @@ struct CmdSetBufferData      { RHIUniformBuffer* Buffer = nullptr; uint32_t Offs
 struct CmdBindStorageBuffer  { RHIStorageBuffer* Buffer = nullptr; uint32_t Binding = 0; };
 struct CmdSetStorageBufferData { RHIStorageBuffer* Buffer = nullptr; uint32_t Offset = 0; std::vector<uint8_t> Data; };
 
+struct CmdSetDepthStencilState { DepthCompareFunc DepthFunc = DepthCompareFunc::Less; bool DepthTest = false; bool DepthWrite = true; };
+struct CmdSetRasterizerState   { CullMode Cull = CullMode::Back; FrontFace Winding = FrontFace::CCW; FillMode Fill = FillMode::Solid; };
+struct CmdSetBlendState        { uint32_t Attachment = 0; bool Enable = false;
+    BlendFactor SrcColor = BlendFactor::One; BlendFactor DstColor = BlendFactor::Zero; BlendOp ColorOp = BlendOp::Add;
+    BlendFactor SrcAlpha = BlendFactor::One; BlendFactor DstAlpha = BlendFactor::Zero; BlendOp AlphaOp = BlendOp::Add;
+    ColorWriteMask WriteMask = ColorWriteMask::All; };
+
 using RHICommand = std::variant<
     CmdSetViewport,
     CmdSetClearColor,
@@ -55,7 +63,10 @@ using RHICommand = std::variant<
     CmdBindUniformBuffer,
     CmdSetBufferData,
     CmdBindStorageBuffer,
-    CmdSetStorageBufferData
+    CmdSetStorageBufferData,
+    CmdSetDepthStencilState,
+    CmdSetRasterizerState,
+    CmdSetBlendState
 >;
 
 class RHICommandBuffer : public NonCopyable
@@ -88,6 +99,10 @@ public:
     void SetBufferData(RHIUniformBuffer* buffer, const void* data, uint32_t size, uint32_t offset = 0);
     void BindStorageBuffer(RHIStorageBuffer* buffer, uint32_t binding);
     void SetStorageBufferData(RHIStorageBuffer* buffer, const void* data, uint32_t size, uint32_t offset = 0);
+
+    void SetDepthStencilState(bool depthTest, bool depthWrite, DepthCompareFunc depthFunc = DepthCompareFunc::Less);
+    void SetRasterizerState(CullMode cull, FrontFace winding = FrontFace::CCW, FillMode fill = FillMode::Solid);
+    void SetBlendState(uint32_t attachment, bool enable);
 
     void Execute(RHIDevice& device);
 

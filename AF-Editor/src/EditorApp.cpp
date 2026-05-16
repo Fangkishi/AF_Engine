@@ -18,7 +18,7 @@ public:
         auto& world = engine.GetWorld();
 
         auto left = world.CreateEntity("Triangle");
-        left.AddComponent<AF::MeshComponent>(AF::Mesh::CreateTriangle());
+        left.AddComponent<AF::MeshComponent>(AF::MeshFactory::CreateTriangle());
 
         auto light = world.CreateEntity("Directional Light");
         light.GetComponent<AF::TransformComponent>().Position = glm::vec3(0.0f, 3.0f, 5.0f);

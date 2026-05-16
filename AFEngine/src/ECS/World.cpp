@@ -39,6 +39,8 @@ Entity World::CreateEntity(const std::string& name)
     UUID uuid;
 
     m_Registry.emplace<IDComponent>(handle, uuid);
+    auto& idComp = m_Registry.get<IDComponent>(handle);
+    idComp.CreationOrder = m_NextCreationOrder++;
     m_Registry.emplace<TagComponent>(handle, name);
     m_Registry.emplace<TransformComponent>(handle);
 

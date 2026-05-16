@@ -19,9 +19,6 @@ public:
     const Ref<RHI::RHIVertexArray>& GetVertexArray() const { return m_VertexArray; }
     uint32_t GetIndexCount() const { return m_IndexCount; }
 
-    static Ref<Mesh> CreateTriangle();
-    static Ref<Mesh> CreateQuad(float size = 1.0f);
-
 private:
     Ref<RHI::RHIVertexArray> m_VertexArray;
     uint32_t m_IndexCount = 0;

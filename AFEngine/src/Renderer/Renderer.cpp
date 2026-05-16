@@ -2,6 +2,7 @@
 
 #include "Core/Engine.h"
 #include "Core/Log.h"
+#include "Core/Log.h"
 #include "ECS/World.h"
 #include "ECS/Entity.h"
 #include "Renderer/Camera.h"
@@ -33,45 +34,55 @@ void RenderSystem::SetViewport(uint32_t width, uint32_t height)
     }
 }
 
+void RenderSystem::SetCameraView(const RenderView& view)
+{
+    m_View = view;
+    m_CameraOverride = true;
+}
+
 void RenderSystem::OnUpdate(float dt)
 {
     (void)dt;
 
     auto& world = GetEngine()->GetWorld();
 
-    glm::mat4 proj = glm::mat4(1.0f);
-    glm::mat4 view = glm::mat4(1.0f);
-    glm::vec3 camPos = { 0.0f, 0.0f, 5.0f };
-    glm::vec3 camForward = { 0.0f, 0.0f, -1.0f };
-
-    auto camView = world.View<TransformComponent, CameraComponent>();
-    for (auto [enttHandle, transform, camComp] : camView.each())
+    if (!m_CameraOverride)
     {
-        if (!camComp.Primary || !camComp.Source) continue;
+        glm::mat4 proj = glm::mat4(1.0f);
+        glm::mat4 view = glm::mat4(1.0f);
+        glm::vec3 camPos = { 0.0f, 0.0f, 5.0f };
+        glm::vec3 camForward = { 0.0f, 0.0f, -1.0f };
 
-        auto& cam = *camComp.Source;
-        cam.SetPosition(transform.Position);
-        cam.SetRotation(transform.Rotation);
+        auto camView = world.View<TransformComponent, CameraComponent>();
+        for (auto [enttHandle, transform, camComp] : camView.each())
+        {
+            if (!camComp.Primary || !camComp.Source) continue;
 
-        proj       = cam.GetProjection();
-        view       = cam.GetView();
-        camPos     = cam.GetPosition();
-        camForward = cam.GetForward();
-        break;
+            auto& cam = *camComp.Source;
+            cam.SetPosition(transform.Position);
+            cam.SetRotation(transform.Rotation);
+
+            proj       = cam.GetProjection();
+            view       = cam.GetView();
+            camPos     = cam.GetPosition();
+            camForward = cam.GetForward();
+            break;
+        }
+
+        m_View.ViewProjection = proj * view;
+        m_View.Projection     = proj;
+        m_View.View           = view;
+        m_View.Position       = camPos;
+        m_View.Forward        = camForward;
+        m_View.Width          = m_ViewportWidth;
+        m_View.Height         = m_ViewportHeight;
     }
-
-    m_View.ViewProjection = proj * view;
-    m_View.Projection     = proj;
-    m_View.View           = view;
-    m_View.Position       = camPos;
-    m_View.Forward        = camForward;
-    m_View.Width          = m_ViewportWidth;
-    m_View.Height         = m_ViewportHeight;
 
     m_Packet.Entities.clear();
     m_Packet.Lights.clear();
 
     auto view2 = world.View<TransformComponent, MeshComponent>();
+
     for (auto [enttHandle, transform, meshComp] : view2.each())
     {
         if (!meshComp.Source) continue;

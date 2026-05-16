@@ -32,6 +32,34 @@ void Camera::SetAspectRatio(float aspect)
     RecalculateProjection();
 }
 
+void Camera::SetFOV(float fovDeg)
+{
+    if (m_FOV == fovDeg) return;
+    m_FOV = fovDeg;
+    RecalculateProjection();
+}
+
+void Camera::SetNearPlane(float nearPlane)
+{
+    if (m_NearPlane == nearPlane) return;
+    m_NearPlane = nearPlane;
+    RecalculateProjection();
+}
+
+void Camera::SetFarPlane(float farPlane)
+{
+    if (m_FarPlane == farPlane) return;
+    m_FarPlane = farPlane;
+    RecalculateProjection();
+}
+
+void Camera::SetMode(Mode mode)
+{
+    if (m_Mode == mode) return;
+    m_Mode = mode;
+    RecalculateProjection();
+}
+
 void Camera::SetRotation(const glm::quat& rot)
 {
     m_Rotation = rot;
@@ -57,7 +85,8 @@ void Camera::RecalculateView()
 {
     glm::mat4 rot = glm::toMat4(m_Rotation);
     m_Front = glm::vec3(rot * glm::vec4(0, 0, -1, 1));
-    m_View = glm::lookAt(m_Position, m_Position + m_Front, glm::vec3(0, 1, 0));
+    glm::vec3 up = m_Rotation * glm::vec3(0, 1, 0);
+    m_View = glm::lookAt(m_Position, m_Position + m_Front, up);
     m_ViewProjection = m_Projection * m_View;
 }
 

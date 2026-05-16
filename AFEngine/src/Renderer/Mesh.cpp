@@ -20,43 +20,4 @@ Mesh::Mesh(const std::vector<float>& vertices, const std::vector<uint32_t>& indi
     m_VertexArray->SetIndexBuffer(ib);
 }
 
-Ref<Mesh> Mesh::CreateTriangle()
-{
-    std::vector<float> vertices = {
-        -0.5f, -0.5f, 0.0f,   1.0f, 0.0f, 0.0f,
-         0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,
-         0.0f,  0.5f, 0.0f,   0.0f, 0.0f, 1.0f,
-    };
-
-    std::vector<uint32_t> indices = { 0, 1, 2 };
-
-    RHI::BufferLayout layout = {
-        { RHI::ShaderDataType::Float3, "a_Position" },
-        { RHI::ShaderDataType::Float3, "a_Color"    },
-    };
-
-    return std::make_shared<Mesh>(vertices, indices, layout);
-}
-
-Ref<Mesh> Mesh::CreateQuad(float size)
-{
-    float h = size * 0.5f;
-
-    std::vector<float> vertices = {
-        -h, -h, 0.0f,   0.0f, 0.0f,
-         h, -h, 0.0f,   1.0f, 0.0f,
-         h,  h, 0.0f,   1.0f, 1.0f,
-        -h,  h, 0.0f,   0.0f, 1.0f,
-    };
-
-    std::vector<uint32_t> indices = { 0, 1, 2, 0, 2, 3 };
-
-    RHI::BufferLayout layout = {
-        { RHI::ShaderDataType::Float3, "a_Position" },
-        { RHI::ShaderDataType::Float2, "a_TexCoord" },
-    };
-
-    return std::make_shared<Mesh>(vertices, indices, layout);
-}
-
 } // namespace AF

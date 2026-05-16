@@ -20,6 +20,11 @@ public:
 
     void SetAspectRatio(float aspect);
 
+    void SetFOV(float fovDeg);
+    void SetNearPlane(float nearPlane);
+    void SetFarPlane(float farPlane);
+    void SetMode(Mode mode);
+
     const glm::vec3& GetPosition() const { return m_Position; }
     const glm::vec3& GetForward()  const { return m_Front;  }
 

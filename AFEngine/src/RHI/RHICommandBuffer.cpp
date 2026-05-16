@@ -1,6 +1,8 @@
 ﻿#include "RHI/RHICommandBuffer.h"
 #include "RHI/RHIDevice.h"
 
+#include <glad/glad.h>
+
 namespace AF {
 namespace RHI {
 
@@ -10,8 +12,47 @@ struct Overloaded : Ts...
     using Ts::operator()...;
 };
 
-template<class... Ts>
+    template<class... Ts>
 Overloaded(Ts...) -> Overloaded<Ts...>;
+
+static GLenum ToGLDepthFunc(DepthCompareFunc func)
+{
+    switch (func)
+    {
+        case DepthCompareFunc::Never:          return GL_NEVER;
+        case DepthCompareFunc::Less:           return GL_LESS;
+        case DepthCompareFunc::Equal:          return GL_EQUAL;
+        case DepthCompareFunc::LessEqual:      return GL_LEQUAL;
+        case DepthCompareFunc::Greater:        return GL_GREATER;
+        case DepthCompareFunc::NotEqual:       return GL_NOTEQUAL;
+        case DepthCompareFunc::GreaterEqual:   return GL_GEQUAL;
+        case DepthCompareFunc::Always:         return GL_ALWAYS;
+    }
+    return GL_LESS;
+}
+
+static GLenum ToGLCullFace(CullMode cull)
+{
+    switch (cull)
+    {
+        case CullMode::None:         return GL_NONE;
+        case CullMode::Front:        return GL_FRONT;
+        case CullMode::Back:         return GL_BACK;
+        case CullMode::FrontAndBack: return GL_FRONT_AND_BACK;
+    }
+    return GL_BACK;
+}
+
+static GLenum ToGLFillMode(FillMode fill)
+{
+    switch (fill)
+    {
+        case FillMode::Solid:      return GL_FILL;
+        case FillMode::Wireframe:  return GL_LINE;
+        case FillMode::Point:      return GL_POINT;
+    }
+    return GL_FILL;
+}
 
 void RHICommandBuffer::Begin()
 {
@@ -116,6 +157,21 @@ void RHICommandBuffer::SetStorageBufferData(RHIStorageBuffer* buffer, const void
     m_Commands.push_back(CmdSetStorageBufferData{ buffer, offset, std::vector<uint8_t>(bytes, bytes + size) });
 }
 
+void RHICommandBuffer::SetDepthStencilState(bool depthTest, bool depthWrite, DepthCompareFunc depthFunc)
+{
+    m_Commands.push_back(CmdSetDepthStencilState{ depthFunc, depthTest, depthWrite });
+}
+
+void RHICommandBuffer::SetRasterizerState(CullMode cull, FrontFace winding, FillMode fill)
+{
+    m_Commands.push_back(CmdSetRasterizerState{ cull, winding, fill });
+}
+
+void RHICommandBuffer::SetBlendState(uint32_t attachment, bool enable)
+{
+    m_Commands.push_back(CmdSetBlendState{ attachment, enable });
+}
+
 void RHICommandBuffer::Execute(RHIDevice& device)
 {
     Ref<RHIShader> currentShader;
@@ -191,6 +247,41 @@ void RHICommandBuffer::Execute(RHIDevice& device)
             [&](const CmdSetStorageBufferData& c)
             {
                 c.Buffer->SetData(c.Data.data(), static_cast<uint32_t>(c.Data.size()), c.Offset);
+            },
+            [&](const CmdSetDepthStencilState& c)
+            {
+                if (c.DepthTest) glEnable(GL_DEPTH_TEST);
+                else             glDisable(GL_DEPTH_TEST);
+                glDepthMask(c.DepthWrite ? GL_TRUE : GL_FALSE);
+                glDepthFunc(ToGLDepthFunc(c.DepthFunc));
+            },
+            [&](const CmdSetRasterizerState& c)
+            {
+                if (c.Cull == CullMode::None)
+                    glDisable(GL_CULL_FACE);
+                else
+                {
+                    glEnable(GL_CULL_FACE);
+                    glCullFace(ToGLCullFace(c.Cull));
+                }
+                glFrontFace(c.Winding == FrontFace::CW ? GL_CW : GL_CCW);
+                glPolygonMode(GL_FRONT_AND_BACK, ToGLFillMode(c.Fill));
+            },
+            [&](const CmdSetBlendState& c)
+            {
+                if (c.Enable)
+                {
+                    glEnablei(GL_BLEND, c.Attachment);
+                    glBlendFuncSeparatei(c.Attachment,
+                        c.SrcColor == BlendFactor::One ? GL_ONE : GL_SRC_ALPHA,
+                        c.DstColor == BlendFactor::Zero ? GL_ZERO : GL_ONE_MINUS_SRC_ALPHA,
+                        c.SrcAlpha == BlendFactor::One ? GL_ONE : GL_ONE,
+                        c.DstAlpha == BlendFactor::Zero ? GL_ZERO : GL_ONE_MINUS_SRC_ALPHA);
+                }
+                else
+                {
+                    glDisablei(GL_BLEND, c.Attachment);
+                }
             },
         }, cmd);
     }

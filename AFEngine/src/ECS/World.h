@@ -40,6 +40,7 @@ public:
 private:
     entt::registry m_Registry;
     std::unordered_map<UUID, entt::entity> m_EntityMap;
+    uint32_t m_NextCreationOrder = 0;
 };
 
 } // namespace AF

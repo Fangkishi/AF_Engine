@@ -113,5 +113,49 @@ private:
     uint32_t m_Stride = 0;
 };
 
+// ── PSO Enums ──
+
+enum class DepthCompareFunc : uint8_t
+{
+    Never, Less, Equal, LessEqual, Greater, NotEqual, GreaterEqual, Always
+};
+
+enum class CullMode : uint8_t
+{
+    None, Front, Back, FrontAndBack
+};
+
+enum class FrontFace : uint8_t
+{
+    CW, CCW
+};
+
+enum class FillMode : uint8_t
+{
+    Solid, Wireframe, Point
+};
+
+enum class BlendFactor : uint8_t
+{
+    Zero, One, SrcColor, OneMinusSrcColor, DstColor, OneMinusDstColor,
+    SrcAlpha, OneMinusSrcAlpha, DstAlpha, OneMinusDstAlpha,
+    ConstantColor, OneMinusConstantColor, ConstantAlpha, OneMinusConstantAlpha
+};
+
+enum class BlendOp : uint8_t
+{
+    Add, Subtract, ReverseSubtract, Min, Max
+};
+
+enum class ColorWriteMask : uint8_t
+{
+    None = 0, Red = 1, Green = 2, Blue = 4, Alpha = 8, All = 15
+};
+
+enum class StencilOp : uint8_t
+{
+    Keep, Zero, Replace, IncrClamp, DecrClamp, Invert, IncrWrap, DecrWrap
+};
+
 } // namespace RHI
 } // namespace AF

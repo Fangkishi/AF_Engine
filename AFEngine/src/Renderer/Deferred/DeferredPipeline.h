@@ -32,19 +32,14 @@ private:
     void SetupGBufferPass(uint32_t width, uint32_t height,
         RenderResource gAlbedo, RenderResource gNormal,
         RenderResource gMaterial, RenderResource gDepth);
-    void SetupLightingPass(uint32_t width, uint32_t height,
-        RenderResource gAlbedo, RenderResource gNormal,
-        RenderResource gMaterial, RenderResource gDepth, RenderResource lightAccum);
     void SetupCompositePass(uint32_t width, uint32_t height,
-        RenderResource lightAccum, RenderResource outputTarget);
+        RenderResource sourceTexture, RenderResource outputTarget);
 
     Ref<RHI::RHIShader> m_GBufferShader;
-    Ref<RHI::RHIShader> m_LightingShader;
     Ref<RHI::RHIShader> m_CompositeShader;
     Ref<Mesh> m_FullscreenQuad;
 
     Ref<RHI::RHIUniformBuffer> m_CameraUBO;
-    bool m_HadLightLastFrame = true;
 };
 
 } // namespace AF

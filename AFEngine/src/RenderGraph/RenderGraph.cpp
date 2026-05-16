@@ -219,6 +219,16 @@ void RenderGraph::Execute(const RenderView& view, const RenderPacket& packet, RH
 
     for (auto* node : m_ExecutionOrder)
     {
+        const auto& desc = node->GetDesc();
+
+        cmdBuf.SetViewport(0, 0, desc.Width, desc.Height);
+
+        if (desc.Shader)
+            cmdBuf.BindShader(desc.Shader);
+
+        cmdBuf.SetDepthStencilState(desc.DepthStencil.DepthTest, desc.DepthStencil.DepthWrite, desc.DepthStencil.DepthFunc);
+        cmdBuf.SetRasterizerState(desc.Rasterizer.Cull, desc.Rasterizer.Winding, desc.Rasterizer.Fill);
+
         if (node->HasOutput())
             cmdBuf.BindFramebuffer(node->GetFramebufferPtr());
 

@@ -42,6 +42,9 @@
 #include "Renderer/RenderPipeline.h"
 #include "Renderer/Deferred/DeferredPipeline.h"
 
+#include "Factory/MeshFactory.h"
+#include "Factory/MaterialFactory.h"
+
 #include "RenderGraph/RenderGraph.h"
 
 #include "UI/ImGuiSystem.h"

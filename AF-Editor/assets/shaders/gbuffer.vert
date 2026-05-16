@@ -1,8 +1,14 @@
 #version 450 core
 layout(location = 0) in vec3 a_Position;
-layout(location = 1) in vec3 a_Color;
-out vec3 v_Color;
+layout(location = 1) in vec3 a_Normal;
+layout(location = 2) in vec4 a_Tangent;
+layout(location = 3) in vec2 a_TexCoord;
+layout(location = 4) in vec4 a_Color;
+
+out vec4 v_FragColor;
 out vec3 v_WorldPos;
+out vec3 v_WorldNormal;
+
 layout(std140, binding = 0) uniform FrameData {
     mat4 ViewProjection;
     mat4 InverseViewProjection;
@@ -11,10 +17,12 @@ layout(std140, binding = 0) uniform FrameData {
     vec2 ScreenSize;
 };
 uniform mat4 u_Model;
+
 void main()
 {
     vec4 worldPos = u_Model * vec4(a_Position, 1.0);
     v_WorldPos = worldPos.xyz;
-    v_Color = a_Color;
+    v_WorldNormal = normalize(mat3(u_Model) * a_Normal);
+    v_FragColor = a_Color;
     gl_Position = ViewProjection * worldPos;
 }

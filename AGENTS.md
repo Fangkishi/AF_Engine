@@ -114,6 +114,10 @@ ImGuiSystem::OnInitialize()
 - **命令队列**：`RenderPipeline::OnUpdate` 创建 `RHICommandBuffer`，`OnRender` 录 UBO，`Execute` 录绘制，帧末统一回放
 - **视口尺寸**：由 EditorSystem 检测 ViewportPanel 尺寸变化 → `RenderSystem::SetViewport(w,h)` → pipeline.Invalidate
 - **纹理获取**：`pipeline.GetOutput("finalComposite")` → `m_Graph.GetResourceTexture(name)` → `Ref<RHITexture2D>`
+- **层级面板**：`HierarchyPanel` 显示所有实体。场景相机作为实体可见。编辑器相机不再是实体（由 `EditorCamera` 直接持有 `Camera` 对象），因此不会出现在层级中
+- **相机切换**：`ViewportPanel` 顶部下拉框选择活动相机。`EditorSystem` 管理 `m_ActiveCameraUUID`（null=编辑相机）。每帧 `OnUpdate` 构建 `RenderView` 推送至 `RenderSystem::SetCameraView()`
+- **RenderSystem 双路径**：`m_CameraOverride` 为 true 时跳过世界相机遍历（编辑器模式），为 false 时回退原有逻辑（Sandbox 兼容）
+- **右键菜单互斥**：实体右键菜单打开后通过 `anyEntityMenu` 标志阻止空白区弹窗同时弹出
 - `Ref<T>` = `std::shared_ptr<T>`, `Unique<T>` = `std::unique_ptr<T>`
 
 ## clangd

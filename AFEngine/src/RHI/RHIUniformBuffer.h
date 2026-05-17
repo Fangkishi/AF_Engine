@@ -1,5 +1,10 @@
 ﻿#pragma once
 
+// RHIUniformBuffer —— Uniform Buffer Object 抽象接口
+//
+// 用于在 CPU 和 GPU Shader 之间传输每帧变化的参数（如相机矩阵）。
+// 对应 OpenGL 的 UBO 绑定到统一块。
+
 #include "Core/Types.h"
 
 #include <cstdint>

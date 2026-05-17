@@ -1,10 +1,13 @@
 ﻿#pragma once
 
+// 鼠标事件 —— MouseMoved / MouseScrolled / MouseButton( Pressed / Released )
+
 #include "Events/Event.h"
 #include "Events/MouseCodes.h"
 
 namespace AF {
 
+/// 鼠标移动事件（屏幕坐标）
 class MouseMovedEvent : public Event
 {
 public:
@@ -30,6 +33,7 @@ private:
     float m_MouseX, m_MouseY;
 };
 
+/// 鼠标滚轮滚动事件（偏移量单位为 ticks）
 class MouseScrolledEvent : public Event
 {
 public:
@@ -71,6 +75,7 @@ protected:
     MouseCode m_Button;
 };
 
+/// 鼠标按键按下事件
 class MouseButtonPressedEvent : public MouseButtonEvent
 {
 public:
@@ -89,6 +94,7 @@ public:
     EVENT_CLASS_TYPE(MouseButtonPressed)
 };
 
+/// 鼠标按键释放事件
 class MouseButtonReleasedEvent : public MouseButtonEvent
 {
 public:

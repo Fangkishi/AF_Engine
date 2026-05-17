@@ -6,6 +6,7 @@ Mesh::Mesh(const std::vector<float>& vertices, const std::vector<uint32_t>& indi
 {
     m_IndexCount = static_cast<uint32_t>(indices.size());
 
+    // 创建顶点缓冲区并设置布局
     auto vb = RHI::RHIVertexBuffer::Create(
         const_cast<float*>(vertices.data()),
         static_cast<uint32_t>(vertices.size() * sizeof(float)));

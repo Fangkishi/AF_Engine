@@ -1,4 +1,4 @@
-#include "UI/ThemeManager.h"
+﻿#include "UI/ThemeManager.h"
 #include "UI/ThemeSerializer.h"
 
 #include "Core/Log.h"

@@ -1,6 +1,13 @@
 ﻿#include <AF.h>
 #include <imgui.h>
 
+#include "Renderer/Camera.h"
+#include "Renderer/Renderer.h"
+#include "Renderer/Deferred/DeferredPipeline.h"
+#include "Renderer/ForwardRenderPipeline.h"
+#include "Factory/MeshFactory.h"
+#include "UI/ImGuiSystem.h"
+
 
 class Sandbox : public AF::Application
 {
@@ -53,6 +60,7 @@ public:
 
         engine.AddSystem<AF::RenderSystem>();
         engine.AddSystem<AF::DeferredRenderPipeline>();
+        engine.AddSystem<AF::ForwardRenderPipeline>();
 
         auto& ui = engine.AddSystem<AF::ImGuiSystem>();
         ui.SetOnImGui([]() {

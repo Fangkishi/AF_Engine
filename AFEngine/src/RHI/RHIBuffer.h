@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+// RHIBuffer —— 顶点和索引缓冲区抽象接口
+
 #include "Core/Types.h"
 #include "RHI/RHITypes.h"
 

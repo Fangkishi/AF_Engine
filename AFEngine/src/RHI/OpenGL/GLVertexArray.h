@@ -1,5 +1,10 @@
 ﻿#pragma once
 
+// GLVertexArray —— OpenGL 顶点数组对象实现
+//
+// 管理多组顶点缓冲区 + 索引缓冲区，自动配置顶点属性指针。
+// 支持 float 和 int 类型的顶点属性。
+
 #include "RHI/RHIVertexArray.h"
 
 namespace AF {

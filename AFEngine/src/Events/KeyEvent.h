@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+// 键盘事件 —— KeyPressed / KeyReleased / KeyTyped
+
 #include "Events/Event.h"
 #include "Events/KeyCodes.h"
 
@@ -21,6 +23,7 @@ protected:
     KeyCode m_KeyCode;
 };
 
+/// 按键按下事件（含 repeat 标志以区分首次按下与长按重复）
 class KeyPressedEvent : public KeyEvent
 {
 public:
@@ -44,6 +47,7 @@ private:
     bool m_IsRepeat;
 };
 
+/// 按键释放事件
 class KeyReleasedEvent : public KeyEvent
 {
 public:
@@ -62,6 +66,7 @@ public:
     EVENT_CLASS_TYPE(KeyReleased)
 };
 
+/// 字符输入事件（已处理 Shift 等修饰符，适用于文本输入）
 class KeyTypedEvent : public KeyEvent
 {
 public:

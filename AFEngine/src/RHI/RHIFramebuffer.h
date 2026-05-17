@@ -1,5 +1,10 @@
 ﻿#pragma once
 
+// RHIFramebuffer —— 帧缓冲抽象接口
+//
+// 用于将渲染结果输出到纹理附件（而非默认窗口帧缓冲）。
+// 支持多个颜色附件 + 深度模板附件。
+
 #include "Core/Types.h"
 #include "RHI/RHITexture.h"
 

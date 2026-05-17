@@ -1,5 +1,10 @@
 ﻿#pragma once
 
+// GLUniformBuffer —— OpenGL Uniform Buffer 实现
+//
+// 使用 DSA glCreateBuffers / glNamedBufferStorage 创建不可变存储，
+// glNamedBufferSubData 更新数据，glBindBufferBase 绑定到统一块。
+
 #include "RHI/RHIUniformBuffer.h"
 
 namespace AF {

@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+// 窗口抽象接口 —— 隐藏平台窗口实现细节
+
 #include "Core/Types.h"
 
 #include <cstdint>
@@ -13,8 +15,10 @@ class Event;
 class Window : public NonCopyable
 {
 public:
+    /// 事件回调类型（由 Engine 注入，事件从 GLFW → Event → Engine → System）
     using EventCallbackFn = std::function<void(Event&)>;
 
+    /// 窗口创建参数
     struct Desc
     {
         std::string Title = "AFEngine";
@@ -36,6 +40,7 @@ public:
     virtual void SetVSync(bool enabled) = 0;
     virtual bool IsVSync() const = 0;
 
+    /// 工厂：根据平台宏返回对应后端实例
     static Unique<Window> Create(const Desc& desc);
 };
 

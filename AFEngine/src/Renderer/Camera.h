@@ -1,5 +1,11 @@
 ﻿#pragma once
 
+// Camera —— 相机类
+//
+// 支持透视和正交两种投影模式。旋转使用 glm::quat（弧度制），
+// SetRotation 触发 RecalculateView，从四元数提取 front/up 方向。
+// 自动维护 ViewProjection = Projection * View。
+
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 

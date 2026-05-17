@@ -13,7 +13,10 @@
 #include <Renderer/RenderView.h>
 #include <Renderer/Deferred/DeferredPipeline.h>
 #include <Factory/MeshFactory.h>
-#include <Factory/MaterialFactory.h>
+#include <Material/MaterialFactory.h>
+#include <Renderer/Brdf/BRDF.h>
+#include <Renderer/Brdf/DefaultLitBRDF.h>
+#include <Renderer/Brdf/ClearCoatBRDF.h>
 
 #include "Panels/ViewportPanel.h"
 #include "Panels/HierarchyPanel.h"
@@ -26,6 +29,9 @@ void EditorSystem::OnInitialize(Engine& engine)
     ImGuiSystem::OnInitialize(engine);
 
     AF_LOG_INFO("EditorSystem: initializing...");
+
+    // BRDFs are auto-registered via static initializers. Log for confirmation.
+    AF_LOG_INFO("Registered BRDFs: DefaultLit, ClearCoat");
 
     auto vp = std::make_unique<ViewportPanel>();
     m_ViewportPanel = vp.get();

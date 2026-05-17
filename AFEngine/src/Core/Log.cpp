@@ -9,6 +9,7 @@ std::shared_ptr<spdlog::logger> Log::s_Logger;
 void Log::Init()
 {
 #ifdef AF_PLATFORM_WINDOWS
+    // 确保 Windows 控制台输出 UTF-8
     SetConsoleOutputCP(65001);
 #endif
 

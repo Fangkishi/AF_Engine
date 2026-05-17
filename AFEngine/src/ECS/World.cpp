@@ -35,6 +35,7 @@ World::~World()
 
 Entity World::CreateEntity(const std::string& name)
 {
+    // 创建 enTT 实体，附加 ID/Tag/Transform 组件
     entt::entity handle = m_Registry.create();
     UUID uuid;
 

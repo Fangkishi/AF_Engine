@@ -1,11 +1,18 @@
 ﻿#pragma once
 
+// 事件系统 —— 引擎内部事件类型基类与分发器
+//
+// Event 是基类，各具体事件（键盘/鼠标/窗口）继承它。
+// EventDispatcher 根据事件类型静态分发到对应的处理函数。
+// 宏 EVENT_CLASS_TYPE / EVENT_CLASS_CATEGORY 为派生类简化样板代码。
+
 #include <functional>
 #include <string>
 #include <sstream>
 
 namespace AF {
 
+/// 事件类型枚举
 enum class EventType : uint8_t
 {
     None = 0,
@@ -14,6 +21,7 @@ enum class EventType : uint8_t
     MouseButtonPressed, MouseButtonReleased, MouseMoved, MouseScrolled
 };
 
+/// 事件分类位掩码，用于快速筛选
 enum EventCategory : uint8_t
 {
     EventCategoryNone        = 0,
@@ -50,6 +58,7 @@ public:
     }
 };
 
+/// 事件分发器 —— 通过 EventType 匹配自动转型并调用处理函数
 class EventDispatcher
 {
 public:
@@ -58,6 +67,7 @@ public:
     {
     }
 
+    /// 若事件类型匹配 T，则调用 func(T& event)，返回 true
     template <typename T, typename F>
     bool Dispatch(const F& func)
     {

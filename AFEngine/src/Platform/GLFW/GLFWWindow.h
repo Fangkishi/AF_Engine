@@ -1,5 +1,12 @@
 ﻿#pragma once
 
+// GLFWWindow —— GLFW 后端窗口实现
+//
+// 实现 Window 抽象接口，封装 GLFW 窗口生命周期：
+// - 构造：初始化 GLFW → 创建窗口 + OpenGL context → 设置回调
+// - 析构：销毁窗口 → 引用计数归零时 glfwTerminate
+// - 回调链：GLFW callback → Event 封装 → EventCallbackFn
+
 #include "Core/Window.h"
 
 struct GLFWwindow;

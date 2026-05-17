@@ -1,5 +1,10 @@
 ﻿#pragma once
 
+// GLDevice —— OpenGL 渲染设备实现
+//
+// 封装最底层 GL 调用：视口设置、清屏、索引绘制。
+// 作为 RHIDevice 的工厂返回实例。
+
 #include "RHI/RHIDevice.h"
 
 namespace AF {

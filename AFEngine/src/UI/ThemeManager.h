@@ -1,4 +1,10 @@
-#pragma once
+﻿#pragma once
+
+// ThemeManager —— 主题管理器（单例）
+//
+// 扫描 Resources/Themes/ 目录下的 JSON 主题文件，
+// 通过 AbstractThemeApplier 将主题应用到 ImGui 样式和字体。
+// 支持按名称切换和内置降级默认主题。
 
 #include "UI/Theme.h"
 #include <string>

@@ -1,0 +1,38 @@
+#version 450 core
+in vec4 v_FragColor;
+in vec3 v_WorldPos;
+in vec3 v_WorldNormal;
+in vec2 v_TexCoord;
+
+layout(location = 0) out vec4 o_Color;
+
+layout(std140, binding = 0) uniform FrameData {
+    mat4 ViewProjection;
+    mat4 InverseViewProjection;
+    mat4 Projection;
+    vec3 CameraPosition;
+    vec2 ScreenSize;
+    vec3 ViewDirection;
+    float Time;
+    float DeltaTime;
+} frameData;
+
+@MATERIAL_PARAMS_STRUCT@
+
+// @COMPILER_BINDING_MATERIAL_PARAMS@
+@MATERIAL_TEXTURE_DECLARATIONS@
+
+@MATERIAL_SNIPPET@
+
+void main()
+{
+    MaterialParams materialParams = MaterialParams_FromUniforms();
+
+    vec3 baseColor   = Material_GetBaseColor(materialParams);
+    float roughness  = Material_GetRoughness(materialParams);
+    float metallic   = Material_GetMetallic(materialParams);
+    float ao         = Material_GetAO(materialParams);
+    float opacity    = Material_GetOpacity(materialParams);
+
+    o_Color = vec4(baseColor, opacity);
+}

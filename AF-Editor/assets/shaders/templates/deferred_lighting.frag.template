@@ -1,0 +1,41 @@
+#version 450 core
+in vec2 v_TexCoord;
+layout(location = 0) out vec4 o_SceneColor;
+
+layout(std140, binding = 0) uniform FrameData {
+    mat4 ViewProjection;
+    mat4 InverseViewProjection;
+    mat4 Projection;
+    vec3 CameraPosition;
+    vec2 ScreenSize;
+    vec3 ViewDirection;
+    float Time;
+    float DeltaTime;
+} frameData;
+
+@PASS_INPUT_TEXTURES@
+
+@BRDF_FUNCTION@
+
+void main()
+{
+    vec3 albedo = texture(gAlbedo, v_TexCoord).rgb;
+    vec3 normal = texture(gNormal, v_TexCoord).rgb * 2.0 - 1.0;
+    vec3 material = texture(gMaterial, v_TexCoord).rgb;
+    float roughness = material.r;
+    float metallic = material.g;
+    float ao = material.b;
+
+    vec3 N = normalize(normal);
+    vec3 V = normalize(frameData.CameraPosition - vec3(0.0));
+
+    SurfaceParams surface;
+    surface.BaseColor = albedo;
+    surface.Roughness = roughness;
+    surface.Metallic = metallic;
+    surface.AO = ao;
+
+    vec3 result = evaluateDirectLight(N, V, surface);
+
+    o_SceneColor = vec4(result, 1.0);
+}

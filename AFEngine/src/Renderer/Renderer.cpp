@@ -2,21 +2,26 @@
 
 #include "Core/Engine.h"
 #include "Core/Log.h"
-#include "Core/Log.h"
 #include "ECS/World.h"
 #include "ECS/Entity.h"
 #include "Renderer/Camera.h"
 #include "Renderer/Mesh.h"
+#include "Material/MaterialDefines.h"
+#include "Material/MaterialFactory.h"
 #include "RHI/RHIDevice.h"
 
 namespace AF {
 
+RenderSystem* RenderSystem::Instance = nullptr;
+
 void RenderSystem::OnInitialize(Engine& engine)
 {
+    Instance = this;
     (void)engine;
     AF_LOG_INFO("RenderSystem initialized");
 }
 
+/// 设置视口尺寸，同时重新计算主相机宽高比
 void RenderSystem::SetViewport(uint32_t width, uint32_t height)
 {
     m_ViewportWidth  = width;
@@ -40,12 +45,14 @@ void RenderSystem::SetCameraView(const RenderView& view)
     m_CameraOverride = true;
 }
 
+/// 每帧收集可见实体和光源数据，按透明度分桶
 void RenderSystem::OnUpdate(float dt)
 {
     (void)dt;
 
     auto& world = GetEngine()->GetWorld();
 
+    // 1. 相机数据
     if (!m_CameraOverride)
     {
         glm::mat4 proj = glm::mat4(1.0f);
@@ -78,7 +85,9 @@ void RenderSystem::OnUpdate(float dt)
         m_View.Height         = m_ViewportHeight;
     }
 
-    m_Packet.Entities.clear();
+    // 2. 收集 Mesh 实体
+    m_Packet.Opaque.clear();
+    m_Packet.Translucent.clear();
     m_Packet.Lights.clear();
 
     auto view2 = world.View<TransformComponent, MeshComponent>();
@@ -93,11 +102,32 @@ void RenderSystem::OnUpdate(float dt)
 
         Entity entity(enttHandle, &world);
         if (entity.HasComponent<MaterialComponent>())
+        {
             snap.MaterialSource = entity.GetComponent<MaterialComponent>().Source;
+            snap.MaterialVariant = entity.GetComponent<MaterialComponent>().ActiveVariant;
+        }
+        else
+        {
+            static auto fallback = MaterialFactory::CreateError();
+            snap.MaterialSource = fallback;
+        }
 
-        m_Packet.Entities.push_back(snap);
+        // 按材质混合模式直接填入对应分组
+        if (!snap.MaterialSource || !snap.MaterialSource->Parent)
+        {
+            m_Packet.Opaque.push_back(snap);
+        }
+        else
+        {
+            MaterialBlendMode blend = snap.MaterialSource->Parent->GetBlendMode();
+            if (blend == MaterialBlendMode::Opaque || blend == MaterialBlendMode::Masked)
+                m_Packet.Opaque.push_back(snap);
+            else if (blend == MaterialBlendMode::Translucent)
+                m_Packet.Translucent.push_back(snap);
+        }
     }
 
+    // 3. 收集光源
     auto lightView = world.View<TransformComponent, LightComponent>();
     for (auto [enttHandle, transform, lightComp] : lightView.each())
     {

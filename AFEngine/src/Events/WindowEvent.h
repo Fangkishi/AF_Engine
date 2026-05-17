@@ -1,9 +1,12 @@
 ﻿#pragma once
 
+// 窗口事件 —— WindowClose / WindowResize
+
 #include "Events/Event.h"
 
 namespace AF {
 
+/// 窗口关闭请求事件
 class WindowCloseEvent : public Event
 {
 public:
@@ -13,6 +16,7 @@ public:
     EVENT_CLASS_CATEGORY(EventCategoryApplication)
 };
 
+/// 窗口大小改变事件
 class WindowResizeEvent : public Event
 {
 public:

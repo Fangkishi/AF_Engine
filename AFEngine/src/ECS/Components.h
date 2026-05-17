@@ -1,7 +1,13 @@
 ﻿#pragma once
 
+// 组件定义 —— 引擎内建 ECS 组件
+//
+// 每个 Component 是纯数据结构（POD），附着在 Entity 上。
+// TransformComponent.Rotation 使用 glm::quat（弧度制），非 vec3 Euler。
+
 #include "Core/UUID.h"
 #include "Core/Types.h"
+#include "Material/MaterialInstance.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -12,6 +18,7 @@
 
 namespace AF {
 
+/// 唯一 ID 组件（每个 Entity 创建时自动添加）
 struct IDComponent
 {
     UUID ID;
@@ -20,6 +27,7 @@ struct IDComponent
     IDComponent() = default;
 };
 
+/// 标签组件（实体名称）
 struct TagComponent
 {
     std::string Tag;
@@ -28,6 +36,9 @@ struct TagComponent
     TagComponent(const std::string& tag) : Tag(tag) {}
 };
 
+/// 变换组件（位置/旋转/缩放）
+///
+/// 获取世界矩阵用 GetTransform()，旋转始终为四元数。
 struct TransformComponent
 {
     glm::vec3 Position = { 0.0f, 0.0f, 0.0f };
@@ -44,6 +55,7 @@ struct TransformComponent
     }
 };
 
+/// 网格组件（引用 Mesh 资源）
 struct MeshComponent
 {
     Ref<class Mesh> Source;
@@ -52,14 +64,17 @@ struct MeshComponent
     MeshComponent(const Ref<Mesh>& mesh) : Source(mesh) {}
 };
 
+/// 材质组件（引用 MaterialInstance）
 struct MaterialComponent
 {
-    Ref<class Material> Source;
+    Ref<class MaterialInstance> Source;
+    uint64_t ActiveVariant = 0;
 
     MaterialComponent() = default;
-    MaterialComponent(const Ref<Material>& mat) : Source(mat) {}
+    MaterialComponent(const Ref<MaterialInstance>& matInst) : Source(matInst) {}
 };
 
+/// 光源组件
 struct LightComponent
 {
     glm::vec3 Color     = { 1.0f, 1.0f, 1.0f };
@@ -67,10 +82,11 @@ struct LightComponent
     uint32_t Type       = 0;  // 0=Directional, 1=Point
 };
 
+/// 相机组件
 struct CameraComponent
 {
     Ref<class Camera> Source;
-    bool Primary = true;
+    bool Primary = true;  // 标记为主相机，渲染管线优先使用
 };
 
 } // namespace AF

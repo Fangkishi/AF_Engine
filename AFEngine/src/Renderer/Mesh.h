@@ -1,5 +1,9 @@
 ﻿#pragma once
 
+// Mesh —— 网格资源（顶点 + 索引缓冲区封装）
+//
+// 构造时直接创建 RHI 顶点/索引缓冲区并组装到 VertexArray。
+
 #include "Core/Types.h"
 #include "RHI/RHIVertexArray.h"
 #include "RHI/RHIBuffer.h"

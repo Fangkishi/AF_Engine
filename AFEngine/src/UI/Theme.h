@@ -1,10 +1,16 @@
-#pragma once
+﻿#pragma once
+
+// Theme —— 主题数据结构与 AbstractThemeApplier 虚接口
+//
+// Theme 包含名称、字体路径、颜色表和风格参数。
+// AbstractThemeApplier 为生产（ImGuiThemeApplier）和测试（Mock）提供统一接口。
 
 #include <string>
 #include <imgui.h>
 
 namespace AF {
 
+/// 可序列化的 ImGui 风格参数
 struct ThemeStyle
 {
     float WindowRounding      = 3.0f;
@@ -37,10 +43,13 @@ struct Theme
     ImVec4      Colors[ImGuiCol_COUNT];
     ThemeStyle  Style;
 
+    /// 创建内置深色主题
     static Theme CreateDefaultDark();
+    /// 创建内置浅色主题（当前为深色主题副本）
     static Theme CreateDefaultLight();
 };
 
+/// 主题应用器抽象接口 —— 支持生产实现和 Mock 测试
 class AbstractThemeApplier
 {
 public:

@@ -6,14 +6,7 @@
 namespace AF {
 namespace RHI {
 
-template<class... Ts>
-struct Overloaded : Ts...
-{
-    using Ts::operator()...;
-};
-
-    template<class... Ts>
-Overloaded(Ts...) -> Overloaded<Ts...>;
+// ── OpenGL 枚举转换工具函数 ──
 
 static GLenum ToGLDepthFunc(DepthCompareFunc func)
 {
@@ -53,6 +46,8 @@ static GLenum ToGLFillMode(FillMode fill)
     }
     return GL_FILL;
 }
+
+// ── 命令录制 ──
 
 void RHICommandBuffer::Begin()
 {
@@ -110,6 +105,11 @@ void RHICommandBuffer::SetFloat(const std::string& name, float value)
     m_Commands.push_back(CmdSetFloat{ name, value });
 }
 
+void RHICommandBuffer::SetFloat2(const std::string& name, const glm::vec2& value)
+{
+    m_Commands.push_back(CmdSetFloat2{ name, value });
+}
+
 void RHICommandBuffer::SetInt(const std::string& name, int value)
 {
     m_Commands.push_back(CmdSetInt{ name, value });
@@ -118,6 +118,11 @@ void RHICommandBuffer::SetInt(const std::string& name, int value)
 void RHICommandBuffer::BindTexture(uint32_t slot, const Ref<RHITexture2D>& texture)
 {
     m_Commands.push_back(CmdBindTexture{ slot, texture });
+}
+
+void RHICommandBuffer::BindTextureCube(uint32_t slot, const Ref<RHITextureCube>& texture)
+{
+    m_Commands.push_back(CmdBindTextureCube{ slot, texture });
 }
 
 void RHICommandBuffer::DrawIndexed(const Ref<RHIVertexArray>& vao, uint32_t indexCount)
@@ -172,6 +177,18 @@ void RHICommandBuffer::SetBlendState(uint32_t attachment, bool enable)
     m_Commands.push_back(CmdSetBlendState{ attachment, enable });
 }
 
+void RHICommandBuffer::PushDepthMask()
+{
+    m_Commands.push_back(CmdPushDepthMask{});
+}
+
+void RHICommandBuffer::PopDepthMask()
+{
+    m_Commands.push_back(CmdPopDepthMask{});
+}
+
+// ── 命令回放 ──
+
 void RHICommandBuffer::Execute(RHIDevice& device)
 {
     Ref<RHIShader> currentShader;
@@ -212,11 +229,19 @@ void RHICommandBuffer::Execute(RHIDevice& device)
             {
                 if (currentShader) currentShader->SetFloat(c.Name, c.Value);
             },
+            [&](const CmdSetFloat2& c)
+            {
+                if (currentShader) currentShader->SetFloat2(c.Name, c.Value);
+            },
             [&](const CmdSetInt& c)
             {
                 if (currentShader) currentShader->SetInt(c.Name, c.Value);
             },
             [&](const CmdBindTexture& c)
+            {
+                c.Texture->Bind(c.Slot);
+            },
+            [&](const CmdBindTextureCube& c)
             {
                 c.Texture->Bind(c.Slot);
             },
@@ -282,6 +307,17 @@ void RHICommandBuffer::Execute(RHIDevice& device)
                 {
                     glDisablei(GL_BLEND, c.Attachment);
                 }
+            },
+            [&](const CmdPushDepthMask&)
+            {
+                GLboolean saved;
+                glGetBooleanv(GL_DEPTH_WRITEMASK, &saved);
+                m_SavedDepthMask = saved;
+                glDepthMask(GL_TRUE);
+            },
+            [&](const CmdPopDepthMask&)
+            {
+                glDepthMask(m_SavedDepthMask);
             },
         }, cmd);
     }

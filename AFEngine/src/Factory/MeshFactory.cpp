@@ -1,4 +1,4 @@
-#include "Factory/MeshFactory.h"
+﻿#include "Factory/MeshFactory.h"
 
 #include "RHI/RHITypes.h"
 
@@ -9,6 +9,8 @@
 
 namespace AF {
 
+// 创建标准顶点布局：位置(vec3) + 法线(vec3) + 切线(vec4) + UV(vec2) + 颜色(vec4)
+// 每顶点共 16 个 float，步长 64 字节
 static RHI::BufferLayout MakePrimitiveLayout()
 {
     return {
@@ -20,14 +22,16 @@ static RHI::BufferLayout MakePrimitiveLayout()
     };
 }
 
+// 将法线方向编码为颜色（法线可视化辅助）
+// 公式：(normal + 1.0) * 0.5，将 [-1,1] 映射到 [0,1]
 static glm::vec4 NormalToColor(const glm::vec3& n)
 {
     glm::vec3 c = (n + 1.0f) * 0.5f;
     return glm::vec4(c, 1.0f);
 }
 
-// Push 11 floats: pos(3) + normal(3) + tangent(4) + uv(2) + color(4) = 16? 
-// Wait: 3+3+4+2+4 = 16? No: 3+3+4+2+4 = 16 components, stride = 64 bytes
+// 向顶点缓冲区压入一个完整的顶点数据
+// 顺序：pos(3) + normal(3) + tangent(4) + uv(2) + color(4) = 16 floats
 static void PushVertex(std::vector<float>& v, const glm::vec3& pos, const glm::vec3& normal,
                         const glm::vec4& tangent, const glm::vec2& uv, const glm::vec4& color)
 {
@@ -35,13 +39,17 @@ static void PushVertex(std::vector<float>& v, const glm::vec3& pos, const glm::v
         tangent.x, tangent.y, tangent.z, tangent.w, uv.x, uv.y, color.x, color.y, color.z, color.w });
 }
 
-// ── Cube ──
+// ============================================================================
+// 立方体 — 6 个面，每面 4 个顶点，共 24 顶点
+// 使用面法线和正切基向量构建
+// ============================================================================
 
 Ref<Mesh> MeshFactory::CreateCube(float size)
 {
     float h = size * 0.5f;
 
     struct Face { glm::vec3 n; glm::vec3 u; glm::vec3 v; };
+    // 6 个面的法线、U 轴、V 轴定义
     Face faces[6] = {
         {{ 1, 0, 0}, {0, 0,-1}, {0,-1, 0}},
         {{-1, 0, 0}, {0, 0, 1}, {0,-1, 0}},
@@ -60,6 +68,7 @@ Ref<Mesh> MeshFactory::CreateCube(float size)
         glm::vec4 tangent(glm::normalize(face.u), 1.0f);
         glm::vec4 color = NormalToColor(face.n);
 
+        // 计算面的 4 个角点：半立方体中心 ± U ± V
         glm::vec3 p0 = (face.n - face.u - face.v) * h;
         glm::vec3 p1 = (face.n - face.u + face.v) * h;
         glm::vec3 p2 = (face.n + face.u + face.v) * h;
@@ -76,7 +85,9 @@ Ref<Mesh> MeshFactory::CreateCube(float size)
     return std::make_shared<Mesh>(verts, indices, MakePrimitiveLayout());
 }
 
-// ── Plane ──
+// ============================================================================
+// 平面 — 4 个顶点的四边形（Y 轴向上）
+// ============================================================================
 
 Ref<Mesh> MeshFactory::CreatePlane(float size)
 {
@@ -95,7 +106,10 @@ Ref<Mesh> MeshFactory::CreatePlane(float size)
     return std::make_shared<Mesh>(verts, indices, MakePrimitiveLayout());
 }
 
-// ── Sphere ──
+// ============================================================================
+// 球体 — 经纬度网格（stacks × slices）
+// 自动计算法线、切线、UV
+// ============================================================================
 
 Ref<Mesh> MeshFactory::CreateSphere(float radius, uint32_t segments)
 {
@@ -105,6 +119,7 @@ Ref<Mesh> MeshFactory::CreateSphere(float radius, uint32_t segments)
     std::vector<float> verts;
     std::vector<uint32_t> indices;
 
+    // 生成所有顶点
     for (uint32_t i = 0; i <= stacks; ++i)
     {
         float theta = static_cast<float>(i) * glm::pi<float>() / static_cast<float>(stacks);
@@ -118,8 +133,9 @@ Ref<Mesh> MeshFactory::CreateSphere(float radius, uint32_t segments)
             float cosP = std::cos(phi);
 
             glm::vec3 pos(sinT * cosP * radius, cosT * radius, sinT * sinP * radius);
-            glm::vec3 normal = glm::normalize(pos);
+            glm::vec3 normal = glm::normalize(pos);  // 球体法线 = 归一化位置
 
+            // 计算切线：对 phi 求偏导 dPdu
             glm::vec3 dPdu(-sinT * sinP, 0.0f, sinT * cosP);
             glm::vec3 tangentVec;
             float w = 1.0f;
@@ -127,6 +143,7 @@ Ref<Mesh> MeshFactory::CreateSphere(float radius, uint32_t segments)
             {
                 tangentVec = glm::normalize(dPdu);
                 glm::vec3 bitangent(cosT * cosP, -sinT, cosT * sinP);
+                // 计算切线 handedness（w 分量）
                 w = (glm::dot(glm::cross(normal, tangentVec), bitangent) >= 0.0f) ? 1.0f : -1.0f;
             }
             else
@@ -143,6 +160,7 @@ Ref<Mesh> MeshFactory::CreateSphere(float radius, uint32_t segments)
         }
     }
 
+    // 生成三角形索引（两个三角形组成一个四边形网格单元）
     for (uint32_t i = 0; i < stacks; ++i)
     {
         for (uint32_t j = 0; j < slices; ++j)
@@ -156,7 +174,9 @@ Ref<Mesh> MeshFactory::CreateSphere(float radius, uint32_t segments)
     return std::make_shared<Mesh>(verts, indices, MakePrimitiveLayout());
 }
 
-// ── Cylinder ──
+// ============================================================================
+// 圆柱体 — 侧面 + 顶盖 + 底盖
+// ============================================================================
 
 Ref<Mesh> MeshFactory::CreateCylinder(float radius, float height, uint32_t segments)
 {
@@ -165,7 +185,7 @@ Ref<Mesh> MeshFactory::CreateCylinder(float radius, float height, uint32_t segme
 
     float halfH = height * 0.5f;
 
-    // Side wall
+    // 侧面：沿圆周生成两圈顶点（顶边和底边）
     for (uint32_t j = 0; j <= segments; ++j)
     {
         float phi = static_cast<float>(j) * 2.0f * glm::pi<float>() / static_cast<float>(segments);
@@ -181,13 +201,14 @@ Ref<Mesh> MeshFactory::CreateCylinder(float radius, float height, uint32_t segme
         PushVertex(verts, {x * radius, -halfH, z * radius}, normal, tangent, {uv.x, 0.0f}, color);
     }
 
+    // 侧面三角形索引
     for (uint32_t j = 0; j < segments; ++j)
     {
         uint32_t t0 = j * 2, b0 = j * 2 + 1, t1 = (j + 1) * 2, b1 = (j + 1) * 2 + 1;
         indices.insert(indices.end(), { t0, t1, b0, t1, b1, b0 });
     }
 
-    // Top cap
+    // 顶盖：扇形网格
     glm::vec3 topN(0.0f, 1.0f, 0.0f);
     glm::vec4 topT(1.0f, 0.0f, 0.0f, 1.0f);
     glm::vec4 topColor = NormalToColor(topN);
@@ -205,7 +226,7 @@ Ref<Mesh> MeshFactory::CreateCylinder(float radius, float height, uint32_t segme
     for (uint32_t j = 0; j < segments; ++j)
         indices.insert(indices.end(), { topBase, topBase + 2 + j, topBase + 1 + j });
 
-    // Bottom cap
+    // 底盖：扇形网格（法线朝下）
     glm::vec3 botN(0.0f, -1.0f, 0.0f);
     glm::vec4 botT(1.0f, 0.0f, 0.0f, -1.0f);
     glm::vec4 botColor = NormalToColor(botN);
@@ -226,7 +247,10 @@ Ref<Mesh> MeshFactory::CreateCylinder(float radius, float height, uint32_t segme
     return std::make_shared<Mesh>(verts, indices, MakePrimitiveLayout());
 }
 
-// ── Capsule ──
+// ============================================================================
+// 胶囊体 — 半球顶 + 圆柱段 + 半球底
+// 使用球体的经纬网格但在 Y 轴做分割偏移
+// ============================================================================
 
 Ref<Mesh> MeshFactory::CreateCapsule(float radius, float height, uint32_t segments)
 {
@@ -237,6 +261,7 @@ Ref<Mesh> MeshFactory::CreateCapsule(float radius, float height, uint32_t segmen
     std::vector<float> verts;
     std::vector<uint32_t> indices;
 
+    // 生成全部顶点（半球 + 圆柱段 + 半球）
     for (uint32_t i = 0; i <= stacks; ++i)
     {
         float theta = static_cast<float>(i) * glm::pi<float>() / static_cast<float>(stacks);
@@ -252,6 +277,7 @@ Ref<Mesh> MeshFactory::CreateCapsule(float radius, float height, uint32_t segmen
             glm::vec3 pos(sinT * cosP * radius, cosT * radius, sinT * sinP * radius);
             glm::vec3 normal = glm::normalize(pos);
 
+            // 将球体 Y 方向拉伸：上半球上移 halfH，下半球下移 halfH
             if (pos.y >= 0.0f) pos.y += halfH;
             else               pos.y -= halfH;
 
@@ -278,6 +304,7 @@ Ref<Mesh> MeshFactory::CreateCapsule(float radius, float height, uint32_t segmen
         }
     }
 
+    // 三角网格化（与球体相同）
     for (uint32_t i = 0; i < stacks; ++i)
     {
         for (uint32_t j = 0; j < slices; ++j)
@@ -291,7 +318,9 @@ Ref<Mesh> MeshFactory::CreateCapsule(float radius, float height, uint32_t segmen
     return std::make_shared<Mesh>(verts, indices, MakePrimitiveLayout());
 }
 
-// ── Triangle (full attributes) ──
+// ============================================================================
+// 三角形 — 3 个顶点，带完整属性
+// ============================================================================
 
 Ref<Mesh> MeshFactory::CreateTriangle()
 {
@@ -307,7 +336,9 @@ Ref<Mesh> MeshFactory::CreateTriangle()
     return std::make_shared<Mesh>(verts, indices, MakePrimitiveLayout());
 }
 
-// ── Quad (full attributes, fullscreen) ──
+// ============================================================================
+// 四边形 — 4 个顶点，2 个三角形（全屏或 UI 使用）
+// ============================================================================
 
 Ref<Mesh> MeshFactory::CreateQuad(float size)
 {

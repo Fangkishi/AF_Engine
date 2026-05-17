@@ -30,9 +30,11 @@ void GLVertexArray::AddVertexBuffer(const Ref<RHIVertexBuffer>& vertexBuffer)
 {
     glBindVertexArray(m_RendererID);
 
+    // 绑定顶点数据缓冲区
     auto* glVB = static_cast<GLVertexBuffer*>(vertexBuffer.get());
     glBindBuffer(GL_ARRAY_BUFFER, glVB->GetRendererID());
 
+    // 配置每个顶点属性
     const auto& layout = vertexBuffer->GetLayout();
     for (const auto& element : layout)
     {
@@ -56,6 +58,7 @@ void GLVertexArray::AddVertexBuffer(const Ref<RHIVertexBuffer>& vertexBuffer)
         glEnableVertexAttribArray(m_VertexBufferIndex);
         if (glType == GL_INT || glType == GL_BOOL)
         {
+            // 整型属性使用专用设置函数
             glVertexAttribIPointer(m_VertexBufferIndex, element.GetComponentCount(), glType,
                                    layout.GetStride(), reinterpret_cast<const void*>(static_cast<uintptr_t>(element.Offset)));
         }
@@ -79,7 +82,7 @@ void GLVertexArray::SetIndexBuffer(const Ref<RHIIndexBuffer>& indexBuffer)
     m_IndexBuffer = indexBuffer;
 }
 
-// Factory
+// 工厂
 Ref<RHIVertexArray> RHIVertexArray::Create()
 {
     return std::make_shared<GLVertexArray>();

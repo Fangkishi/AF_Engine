@@ -1,51 +1,17 @@
 ﻿#pragma once
 
-#include "Core/Types.h"
-#include "Core/EntryPoint.h"
+// AF.h —— 公开头文件集合
+//
+// 包含引擎各层公开接口，供可执行文件 include。
+// 注意：此文件包含 EntryPoint.h（含 main()），
+// 因此每个可执行程序最多只有一个 .cpp 文件可以 include 此头文件。
+
 #include "Core/Application.h"
 #include "Core/Engine.h"
-#include "Core/System.h"
-#include "Core/Window.h"
+#include "Core/EntryPoint.h"
 #include "Core/Input.h"
 #include "Core/Log.h"
+#include "Core/System.h"
 #include "Core/Timer.h"
+#include "Core/Types.h"
 #include "Core/UUID.h"
-
-#include "Events/Event.h"
-#include "Events/KeyEvent.h"
-#include "Events/KeyCodes.h"
-#include "Events/MouseEvent.h"
-#include "Events/MouseCodes.h"
-#include "Events/WindowEvent.h"
-
-#include "ECS/World.h"
-#include "ECS/Entity.h"
-#include "ECS/Components.h"
-
-#include "RHI/RHIDevice.h"
-#include "RHI/RHIBuffer.h"
-#include "RHI/RHIShader.h"
-#include "RHI/RHIVertexArray.h"
-#include "RHI/RHITypes.h"
-#include "RHI/RHITexture.h"
-#include "RHI/RHIFramebuffer.h"
-#include "RHI/RHICommandBuffer.h"
-#include "RHI/RHIUniformBuffer.h"
-#include "RHI/RHIStorageBuffer.h"
-
-#include "Renderer/Camera.h"
-#include "Renderer/Mesh.h"
-#include "Renderer/Material.h"
-#include "Renderer/Renderer.h"
-#include "Renderer/RenderView.h"
-#include "Renderer/RenderPacket.h"
-#include "Renderer/RenderPipeline.h"
-#include "Renderer/Deferred/DeferredPipeline.h"
-
-#include "Factory/MeshFactory.h"
-#include "Factory/MaterialFactory.h"
-
-#include "RenderGraph/RenderGraph.h"
-
-#include "UI/ImGuiSystem.h"
-#include "UI/ThemeManager.h"

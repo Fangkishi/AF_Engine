@@ -1,0 +1,8 @@
+#version 450 core
+in vec2 v_TexCoord;
+out vec4 o_Color;
+@PASS_INPUT_TEXTURES@
+void main()
+{
+    o_Color = texture(gAlbedo, v_TexCoord);
+}

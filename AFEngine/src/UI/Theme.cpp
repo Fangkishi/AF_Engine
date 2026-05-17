@@ -1,7 +1,8 @@
-#include "UI/Theme.h"
+﻿#include "UI/Theme.h"
 
 namespace AF {
 
+/// 创建内置深色主题 —— 工业风格的暗色 ImGui 配色方案
 Theme Theme::CreateDefaultDark()
 {
     Theme t;

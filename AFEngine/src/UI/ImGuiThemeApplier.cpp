@@ -1,4 +1,4 @@
-#include "UI/ImGuiThemeApplier.h"
+﻿#include "UI/ImGuiThemeApplier.h"
 
 #include "Core/Log.h"
 
@@ -43,6 +43,7 @@ bool ImGuiThemeApplier::LoadFont(const std::string& regularPath,
     ImGuiIO& io = ImGui::GetIO();
     std::error_code ec;
 
+    // 尝试加载粗体字体
     if (!boldPath.empty() && std::filesystem::exists(boldPath, ec))
     {
         ImFont* boldFont = io.Fonts->AddFontFromFileTTF(boldPath.c_str(), size);
@@ -54,6 +55,7 @@ bool ImGuiThemeApplier::LoadFont(const std::string& regularPath,
         AF_LOG_WARN("ImGuiThemeApplier: bold font file not found '{}'", boldPath);
     }
 
+    // 加载常规字体（必需）
     if (!regularPath.empty() && std::filesystem::exists(regularPath, ec))
     {
         ImFont* regularFont = io.Fonts->AddFontFromFileTTF(regularPath.c_str(), size);

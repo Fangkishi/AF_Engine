@@ -1,5 +1,9 @@
 ﻿#pragma once
 
+// RHIVertexArray —— 顶点数组对象抽象接口
+//
+// 封装多组顶点缓冲区 + 索引缓冲区 + 顶点属性布局。
+
 #include "Core/Types.h"
 #include "RHI/RHIBuffer.h"
 

@@ -12,6 +12,7 @@ void RenderPipeline::OnInitialize(Engine& engine)
     OnSetup(engine);
 }
 
+/// 每帧流程：获取 RenderSystem 的数据 → 子类 OnRender 录命令 → Graph.Execute
 void RenderPipeline::OnUpdate(float dt)
 {
     (void)dt;
@@ -29,6 +30,17 @@ void RenderPipeline::OnUpdate(float dt)
 
     cmdBuf.End();
     cmdBuf.Execute(device);
+}
+
+void RenderPipeline::RegisterTemplate(const std::string& name, const std::string& filepath)
+{
+    m_Templates[name] = std::make_unique<ShaderTemplate>(filepath);
+}
+
+ShaderTemplate* RenderPipeline::GetTemplate(const std::string& name)
+{
+    auto it = m_Templates.find(name);
+    return (it != m_Templates.end()) ? it->second.get() : nullptr;
 }
 
 } // namespace AF

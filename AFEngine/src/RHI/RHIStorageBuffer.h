@@ -1,5 +1,10 @@
 ﻿#pragma once
 
+// RHIStorageBuffer —— Storage Buffer Object 抽象接口
+//
+// 比 UBO 更大（可到 128MB），用于传递大量数据（如光源列表）。
+// 对应 OpenGL 的 Shader Storage Buffer Object（SSBO）。
+
 #include "Core/Types.h"
 
 #include <cstdint>

@@ -20,7 +20,8 @@ GLDevice::~GLDevice()
 
 void GLDevice::SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
 {
-    glViewport(x, y, width, height);
+    glViewport(static_cast<GLint>(x), static_cast<GLint>(y),
+               static_cast<GLsizei>(width), static_cast<GLsizei>(height));
 }
 
 void GLDevice::SetClearColor(const glm::vec4& color)
@@ -30,6 +31,7 @@ void GLDevice::SetClearColor(const glm::vec4& color)
 
 void GLDevice::Clear()
 {
+    // 默认清除颜色缓冲 + 深度缓冲
     glClearDepth(1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
@@ -42,7 +44,7 @@ void GLDevice::DrawIndexed(const Ref<RHIVertexArray>& vertexArray, uint32_t inde
     glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
 }
 
-// Factory
+// 平台工厂
 Unique<RHIDevice> RHIDevice::Create()
 {
     return std::make_unique<GLDevice>();

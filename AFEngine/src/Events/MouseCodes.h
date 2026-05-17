@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+// 鼠标按键码 —— 对照 GLFW mouse button 常量
+
 #include <cstdint>
 
 namespace AF {

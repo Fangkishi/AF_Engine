@@ -1,5 +1,10 @@
 ﻿#pragma once
 
+// GLFramebuffer —— OpenGL 帧缓冲实现
+//
+// 使用 DSA（glCreateFramebuffers / glNamedFramebufferTexture）管理 FBO。
+// Bind() 时自动设置视口和颜色附着绘制缓冲区。
+
 #include "RHI/RHIFramebuffer.h"
 
 #include <vector>

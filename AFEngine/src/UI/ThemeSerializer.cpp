@@ -1,4 +1,4 @@
-#include "UI/ThemeSerializer.h"
+﻿#include "UI/ThemeSerializer.h"
 
 #include "Core/Log.h"
 

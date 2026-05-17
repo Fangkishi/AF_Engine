@@ -25,6 +25,7 @@ GLFWWindow::GLFWWindow(const Desc& desc)
 
     AF_LOG_INFO("Creating window: {} ({}x{})", desc.Title, desc.Width, desc.Height);
 
+    // 首次创建窗口时全局初始化 GLFW
     if (s_GLFWWindowCount == 0)
     {
         int success = glfwInit();
@@ -32,6 +33,7 @@ GLFWWindow::GLFWWindow(const Desc& desc)
         glfwSetErrorCallback(GLFWErrorCallback);
     }
 
+    // OpenGL 4.5 Core Profile 上下文
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -57,8 +59,10 @@ GLFWWindow::GLFWWindow(const Desc& desc)
     AF_LOG_INFO("  Renderer: {}", reinterpret_cast<const char*>(glGetString(GL_RENDERER)));
     AF_LOG_INFO("  Version: {}", reinterpret_cast<const char*>(glGetString(GL_VERSION)));
 
+    // GLFW 回调注册 —— 通过窗口 user pointer 路由至 GLFWWindow 实例
     glfwSetWindowUserPointer(m_Handle, this);
 
+    // 窗口关闭
     glfwSetWindowCloseCallback(m_Handle, [](GLFWwindow* window)
     {
         auto* self = static_cast<GLFWWindow*>(glfwGetWindowUserPointer(window));
@@ -69,6 +73,7 @@ GLFWWindow::GLFWWindow(const Desc& desc)
         }
     });
 
+    // 窗口尺寸变化
     glfwSetWindowSizeCallback(m_Handle, [](GLFWwindow* window, int width, int height)
     {
         auto* self = static_cast<GLFWWindow*>(glfwGetWindowUserPointer(window));
@@ -81,6 +86,7 @@ GLFWWindow::GLFWWindow(const Desc& desc)
         }
     });
 
+    // 键盘事件
     glfwSetKeyCallback(m_Handle, [](GLFWwindow* window, int key, int scancode, int action, int mods)
     {
         (void)scancode;
@@ -111,6 +117,7 @@ GLFWWindow::GLFWWindow(const Desc& desc)
         }
     });
 
+    // 鼠标按键事件
     glfwSetMouseButtonCallback(m_Handle, [](GLFWwindow* window, int button, int action, int mods)
     {
         (void)mods;
@@ -134,6 +141,7 @@ GLFWWindow::GLFWWindow(const Desc& desc)
         }
     });
 
+    // 滚轮事件
     glfwSetScrollCallback(m_Handle, [](GLFWwindow* window, double xOffset, double yOffset)
     {
         auto* self = static_cast<GLFWWindow*>(glfwGetWindowUserPointer(window));
@@ -143,6 +151,7 @@ GLFWWindow::GLFWWindow(const Desc& desc)
         self->m_EventCallback(event);
     });
 
+    // 鼠标移动事件
     glfwSetCursorPosCallback(m_Handle, [](GLFWwindow* window, double xPos, double yPos)
     {
         auto* self = static_cast<GLFWWindow*>(glfwGetWindowUserPointer(window));
@@ -182,7 +191,7 @@ void GLFWWindow::SwapBuffers()
 
 void* GLFWWindow::GetNativeHandle() const
 {
-    return m_Handle;
+    return static_cast<void*>(m_Handle);
 }
 
 void GLFWWindow::SetVSync(bool enabled)

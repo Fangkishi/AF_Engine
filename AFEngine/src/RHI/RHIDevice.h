@@ -1,5 +1,10 @@
 ﻿#pragma once
 
+// RHIDevice —— 渲染设备抽象接口
+//
+// 提供最底层的 GPU 操作：视口设置、清屏、索引绘制。
+// 工厂 Create 根据平台宏返回对应后端实例（当前仅 GLDevice）。
+
 #include "Core/Types.h"
 #include "RHI/RHIVertexArray.h"
 

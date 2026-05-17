@@ -1,5 +1,10 @@
 ﻿#pragma once
 
+// RenderView —— 每帧相机渲染视图数据
+//
+// 由 RenderSystem 每帧构建，传递给 RenderPipeline 和 RenderGraph。
+// 包含投影/视图矩阵、相机位置和方向、视口尺寸。
+
 #include <glm/glm.hpp>
 #include <cstdint>
 

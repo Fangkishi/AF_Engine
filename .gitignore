@@ -43,3 +43,7 @@ doc/
 /AF-Editor/assets/**/*
 !/AF-Editor/assets/**/
 !/AF-Editor/assets/shaders/**
+
+# [Material Binaries]
+*.matbin
+*.matinstbin

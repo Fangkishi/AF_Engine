@@ -1,5 +1,11 @@
 ﻿#pragma once
 
+// Entity —— 游戏实体包装类
+//
+// 对 entt::entity 和 entt::registry 指针的轻量级封装。
+// 提供类型安全的 AddComponent / GetComponent / HasComponent / RemoveComponent。
+// Entity 通过 enTT ECS 管理，id 为 uint32_t。
+
 #include "ECS/Components.h"
 #include "Core/Assert.h"
 
@@ -17,6 +23,7 @@ public:
     Entity(entt::entity handle, World* world);
     Entity(const Entity& other) = default;
 
+    /// 添加组件（断言确保不重复）
     template <typename T, typename... Args>
     T& AddComponent(Args&&... args)
     {
@@ -24,12 +31,14 @@ public:
         return m_Registry->emplace<T>(m_Handle, std::forward<Args>(args)...);
     }
 
+    /// 添加或替换组件（若已存在则替换）
     template <typename T, typename... Args>
     T& AddOrReplaceComponent(Args&&... args)
     {
         return m_Registry->emplace_or_replace<T>(m_Handle, std::forward<Args>(args)...);
     }
 
+    /// 获取组件（断言确保存在）
     template <typename T>
     T& GetComponent()
     {
@@ -44,12 +53,14 @@ public:
         return m_Registry->get<T>(m_Handle);
     }
 
+    /// 检查是否拥有某组件
     template <typename T>
     bool HasComponent() const
     {
         return m_Registry->all_of<T>(m_Handle);
     }
 
+    /// 移除组件
     template <typename T>
     void RemoveComponent()
     {

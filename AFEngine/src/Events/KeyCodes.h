@@ -1,5 +1,9 @@
 ﻿#pragma once
 
+// 键盘按键码 —— 对照 GLFW scancode 的 KeyCode 枚举
+//
+// 值对应 GLFW key 常量，可直接从 GLFW callback 传入的 key 参数截获。
+
 #include <cstdint>
 
 namespace AF {

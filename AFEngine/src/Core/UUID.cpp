@@ -9,7 +9,7 @@ static std::mt19937_64 s_Engine(s_RandomDevice());
 static std::uniform_int_distribution<uint64_t> s_Distribution;
 
 UUID::UUID()
-    : m_ID(s_Distribution(s_Engine))
+    : m_ID(s_Distribution(s_Engine))  // 随机 64 位
 {
 }
 

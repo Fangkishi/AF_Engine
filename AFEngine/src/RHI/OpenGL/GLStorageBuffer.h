@@ -1,5 +1,11 @@
 ﻿#pragma once
 
+// GLStorageBuffer —— OpenGL Shader Storage Buffer 实现
+//
+// 使用 DSA glCreateBuffers / glNamedBufferStorage 创建，
+// 通过 glBindBufferBase(GL_SHADER_STORAGE_BUFFER) 绑定。
+// 比 UBO 容量更大，适合传递光源列表等动态数据。
+
 #include "RHI/RHIStorageBuffer.h"
 
 namespace AF {

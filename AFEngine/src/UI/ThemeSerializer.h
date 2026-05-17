@@ -1,4 +1,9 @@
-#pragma once
+﻿#pragma once
+
+// ThemeSerializer —— 主题 JSON 序列化/反序列化
+//
+// 基于 nlohmann/json 实现 Theme ↔ JSON 双向转换。
+// s_ColorMap 将 ImGuiCol_ 枚举名（如 "Text"）映射到 ImGuiCol_ 索引。
 
 #include "UI/Theme.h"
 #include <nlohmann/json.hpp>

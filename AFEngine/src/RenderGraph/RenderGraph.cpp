@@ -6,8 +6,11 @@
 #include "RHI/RHIFramebuffer.h"
 
 #include <queue>
+#include <unordered_set>
 
 namespace AF {
+
+// ── RenderNode ──
 
 RenderNode::RenderNode(const std::string& name, const RenderPassDesc& desc)
     : m_Name(name)
@@ -15,6 +18,37 @@ RenderNode::RenderNode(const std::string& name, const RenderPassDesc& desc)
 {
 }
 
+void RenderNode::Import(const std::string& name, Ref<RHI::RHITexture2D> texture)
+{
+    for (auto& imp : m_Imports)
+        if (imp.Name == name) return;
+    m_Imports.push_back({ name, std::move(texture) });
+}
+
+void RenderNode::WriteTo(const std::string& name)
+{
+    for (auto& w : m_Writes)
+        if (w.Name == name) return;
+    m_Writes.push_back({ name, NullResource, static_cast<uint32_t>(m_Writes.size()) });
+}
+
+void RenderNode::ReadFrom(const std::string& name)
+{
+    for (auto& r : m_Reads)
+        if (r.Name == name) return;
+    m_Reads.push_back({ name, "", NullResource, 0 });
+}
+
+void RenderNode::ReadFrom(const std::string& name, const std::string& samplerName)
+{
+    for (auto& r : m_Reads)
+        if (r.Name == name) return;
+    m_Reads.push_back({ name, samplerName, NullResource, 0 });
+}
+
+// ── 资源管理 ──
+
+/// 注册一个外部导入的纹理（不被 ClearResources 销毁）
 RenderResource RenderGraph::ImportTexture(const std::string& name, Ref<RHI::RHITexture2D> texture)
 {
     auto it = m_NameCache.find(name);
@@ -28,6 +62,7 @@ RenderResource RenderGraph::ImportTexture(const std::string& name, Ref<RHI::RHIT
     return id;
 }
 
+/// 声明一个瞬态纹理（在 Compile 时由 RenderGraph 自动创建）
 RenderResource RenderGraph::CreateTexture(const std::string& name)
 {
     auto it = m_NameCache.find(name);
@@ -41,16 +76,14 @@ RenderResource RenderGraph::CreateTexture(const std::string& name)
     return id;
 }
 
+// ── 节点管理 ──
+
 RenderNode& RenderGraph::AddNode(const std::string& name, const RenderPassDesc& desc)
 {
     for (auto& n : m_Nodes)
     {
         if (n->GetName() == name)
         {
-            n->m_Reads.clear();
-            n->m_Writes.clear();
-            n->m_Dependents.clear();
-            n->m_RefCount = 0;
             n->m_Desc = desc;
             return *n;
         }
@@ -78,12 +111,16 @@ RenderResource RenderGraph::GetResource(const std::string& name) const
     return (it != m_NameCache.end()) ? it->second : NullResource;
 }
 
+// ── 依赖图构建 ──
+
 bool RenderGraph::HasDependency(const RenderNode& from, const RenderNode& to) const
 {
+    // 写-读依赖：from 写出的资源被 to 读取
     for (auto& w : from.GetWrites())
-        for (auto r : to.GetReads())
-            if (w.Id == r) return true;
+        for (auto& r : to.GetReads())
+            if (w.Id == r.Id) return true;
 
+    // 写-写依赖：from 和 to 写入同一资源
     for (auto& w1 : from.GetWrites())
         for (auto& w2 : to.GetWrites())
             if (w1.Id == w2.Id) return true;
@@ -113,6 +150,8 @@ void RenderGraph::BuildAdjacency()
     }
 }
 
+// ── 拓扑排序（Kahn 算法）──
+
 void RenderGraph::TopologicalSort()
 {
     m_ExecutionOrder.clear();
@@ -134,6 +173,8 @@ void RenderGraph::TopologicalSort()
     }
 }
 
+// ── 资源清理 ──
+
 void RenderGraph::ClearResources()
 {
     for (auto& node : m_Nodes)
@@ -142,6 +183,8 @@ void RenderGraph::ClearResources()
         if (!res.IsImported)
             res.Texture.reset();
 }
+
+// ── 编译 ──
 
 void RenderGraph::Compile()
 {
@@ -153,8 +196,55 @@ void RenderGraph::Compile()
 
     AF_LOG_INFO("RenderGraph: compiling {} nodes...", m_Nodes.size());
 
+    // 0. 处理所有 Import 声明 — 将外部纹理注册到图
+    for (auto& node : m_Nodes)
+    {
+        for (auto& imp : node->m_Imports)
+        {
+            ImportTexture(imp.Name, imp.Texture);
+        }
+    }
+
+    // 1. 清空旧资源和 FBO
     ClearResources();
 
+    // 2. 名称解析 — WriteTo → CreateTexture
+    for (auto& node : m_Nodes)
+    {
+        for (auto& w : node->m_Writes)
+        {
+            w.Id = CreateTexture(w.Name);
+        }
+    }
+
+    // 3. 名称解析 — ReadFrom → GetResource（先查 Import，再查 WriteTo 创建的，都不到则 assert）
+    //    同时去重（ReadFrom 幂等在声明时防止同一帧重复，此处消除跨帧残留）
+    for (auto& node : m_Nodes)
+    {
+        std::unordered_set<std::string> seen;
+        std::vector<RenderNode::ReadEntry> unique;
+        for (auto& r : node->m_Reads)
+        {
+            if (!seen.insert(r.Name).second) continue;
+            unique.push_back(r);
+        }
+        node->m_Reads = std::move(unique);
+
+        for (auto& r : node->m_Reads)
+        {
+            r.Id = GetResource(r.Name);
+            if (r.Id == NullResource)
+            {
+                AF_CORE_ASSERT(false, "RenderGraph::Compile: ReadFrom resource not declared (no WriteTo or ImportTexture)");
+            }
+
+            // 默认 sampler uniform 名 = 资源名
+            if (r.SamplerName.empty())
+                r.SamplerName = r.Name;
+        }
+    }
+
+    // 4. 根据每个节点的写入声明创建瞬态纹理
     for (auto& node : m_Nodes)
     {
         for (auto& w : node->GetWrites())
@@ -179,9 +269,29 @@ void RenderGraph::Compile()
         }
     }
 
+    // 5. 构建依赖图并拓扑排序
     BuildAdjacency();
     TopologicalSort();
 
+    // 6. 为每个节点的 ReadFrom 分配纹理绑定槽位
+    //    binding 从 2 开始（0 = Camera UBO, 1 = Material UBO）
+    uint32_t globalNextSlot = 2;
+    for (auto& node : m_Nodes)
+    {
+        node->m_PassBindings.clear();
+
+        for (auto& r : node->m_Reads)
+        {
+            r.AllocatedSlot = globalNextSlot;
+            node->m_PassBindings.push_back({ r.SamplerName, globalNextSlot });
+            AF_LOG_INFO("RenderGraph: node '{}' bind sampler '{}' -> slot {}",
+                node->GetName(), r.SamplerName, globalNextSlot);
+
+            globalNextSlot++;
+        }
+    }
+
+    // 7. 为每个节点创建 FBO（附着其写入的纹理）
     for (auto& node : m_Nodes)
     {
         if (node->GetWrites().empty()) continue;
@@ -212,6 +322,8 @@ void RenderGraph::Invalidate()
     m_Compiled = false;
 }
 
+// ── 执行 ──
+
 void RenderGraph::Execute(const RenderView& view, const RenderPacket& packet, RHI::RHICommandBuffer& cmdBuf)
 {
     if (!m_Compiled)
@@ -223,20 +335,31 @@ void RenderGraph::Execute(const RenderView& view, const RenderPacket& packet, RH
 
         cmdBuf.SetViewport(0, 0, desc.Width, desc.Height);
 
-        if (desc.Shader)
-            cmdBuf.BindShader(desc.Shader);
-
-        cmdBuf.SetDepthStencilState(desc.DepthStencil.DepthTest, desc.DepthStencil.DepthWrite, desc.DepthStencil.DepthFunc);
-        cmdBuf.SetRasterizerState(desc.Rasterizer.Cull, desc.Rasterizer.Winding, desc.Rasterizer.Fill);
-
         if (node->HasOutput())
             cmdBuf.BindFramebuffer(node->GetFramebufferPtr());
 
+        if (desc.Clear)
+        {
+            cmdBuf.PushDepthMask();
+            cmdBuf.SetClearColor(desc.ClearColor);
+            cmdBuf.Clear();
+            cmdBuf.PopDepthMask();
+        }
+
+        // 自动绑定 Pass 输入纹理
+        for (auto& bind : node->m_PassBindings)
+        {
+            auto texture = GetResourceTexture(bind.Name);
+            if (texture)
+                cmdBuf.BindTexture(bind.Binding, texture);
+        }
+
         RenderGraphContext ctx;
-        ctx.m_View   = &view;
-        ctx.m_Packet = &packet;
-        ctx.m_Graph  = this;
-        ctx.Cmd      = &cmdBuf;
+        ctx.m_View         = &view;
+        ctx.m_Packet       = &packet;
+        ctx.m_Graph        = this;
+        ctx.Cmd            = &cmdBuf;
+        ctx.m_PassBindings = &node->m_PassBindings;
 
         node->Execute(ctx);
 
@@ -244,6 +367,8 @@ void RenderGraph::Execute(const RenderView& view, const RenderPacket& packet, RH
             cmdBuf.UnbindFramebuffer(node->GetFramebufferPtr());
     }
 }
+
+// ── 纹理查询 ──
 
 Ref<RHI::RHITexture2D> RenderGraph::GetTexture(RenderResource id) const
 {

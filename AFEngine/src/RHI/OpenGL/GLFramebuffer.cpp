@@ -51,11 +51,13 @@ void GLFramebuffer::Bind()
 {
     glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID);
 
+    // 设置 MRT 绘制缓冲区
     std::vector<GLenum> drawBuffers;
     for (const auto& att : m_ColorAttachments)
         drawBuffers.push_back(GL_COLOR_ATTACHMENT0 + att.Slot);
     glDrawBuffers(static_cast<GLsizei>(drawBuffers.size()), drawBuffers.data());
 
+    // 将视口设置为 FBO 尺寸
     glViewport(0, 0, m_Width, m_Height);
 }
 
@@ -72,7 +74,7 @@ uint32_t GLFramebuffer::GetColorAttachmentID(uint32_t slot) const
     return 0;
 }
 
-// Factory
+// 工厂
 Unique<RHIFramebuffer> RHIFramebuffer::Create()
 {
     return std::make_unique<GLFramebuffer>();

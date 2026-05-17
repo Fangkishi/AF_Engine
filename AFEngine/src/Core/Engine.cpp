@@ -12,6 +12,7 @@ Engine::Engine(const Config& config)
 {
     AF_LOG_INFO("Initializing Engine: {}", config.Name);
 
+    // 创建平台窗口
     Window::Desc wd;
     wd.Title = config.Name;
     wd.Width = config.WindowWidth;
@@ -22,6 +23,7 @@ Engine::Engine(const Config& config)
     m_World = std::make_unique<World>();
     m_RHIDevice = RHI::RHIDevice::Create();
 
+    // 事件回调链：GLFW → Window → Engine::OnEvent → System::OnEvent
     m_Window->SetEventCallback([this](Event& e) { OnEvent(e); });
     Input::SetNativeWindow(m_Window->GetNativeHandle());
 
@@ -43,6 +45,7 @@ void Engine::Run()
 
         m_Window->PollEvents();
 
+        // 每帧以暗色清空默认帧缓冲
         m_RHIDevice->SetClearColor({ 0.1f, 0.1f, 0.15f, 1.0f });
         m_RHIDevice->Clear();
 
@@ -58,6 +61,7 @@ void Engine::Quit()
 
 void Engine::OnEvent(Event& event)
 {
+    // 窗口关闭事件
     EventDispatcher dispatcher(event);
     dispatcher.Dispatch<WindowCloseEvent>([this](WindowCloseEvent&)
     {
@@ -65,6 +69,7 @@ void Engine::OnEvent(Event& event)
         return true;
     });
 
+    // 按注册顺序向所有 System 派发，一旦 Handled 即停止
     for (auto* system : m_SystemOrder)
     {
         system->OnEvent(event);
@@ -87,6 +92,7 @@ void Engine::Render()
 
 void Engine::Shutdown()
 {
+    // 逆序清理 System
     for (auto it = m_SystemOrder.rbegin(); it != m_SystemOrder.rend(); ++it)
     {
         (*it)->OnShutdown();

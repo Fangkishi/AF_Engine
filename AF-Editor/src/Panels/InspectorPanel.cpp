@@ -5,9 +5,10 @@
 #include <ECS/Entity.h>
 #include <Renderer/Camera.h>
 #include <Renderer/Mesh.h>
-#include <Renderer/Material.h>
+#include <Material/Material.h>
+#include <Material/MaterialInstance.h>
 #include <Factory/MeshFactory.h>
-#include <Factory/MaterialFactory.h>
+#include <Material/MaterialFactory.h>
 
 #include <imgui.h>
 

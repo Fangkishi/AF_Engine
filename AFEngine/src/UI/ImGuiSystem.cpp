@@ -29,12 +29,14 @@ void ImGuiSystem::OnInitialize(Engine& engine)
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
+    // 将 imgui.ini 固定到工作目录，避免 CWD 不确定导致布局丢失
     {
         std::filesystem::path iniPath = std::filesystem::current_path() / "imgui.ini";
         static std::string s_IniPath = iniPath.string();
         io.IniFilename = s_IniPath.c_str();
     }
 
+    // 初始化主题系统
     auto& tm = ThemeManager::Get();
     tm.Initialize("Resources/Themes/", std::make_unique<ImGuiThemeApplier>());
 
@@ -68,6 +70,7 @@ void ImGuiSystem::OnUpdate(float dt)
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
+    // 多视口支持：更新和渲染浮动窗口
     ImGuiIO& io = ImGui::GetIO();
     if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
     {
@@ -78,6 +81,7 @@ void ImGuiSystem::OnUpdate(float dt)
     }
 }
 
+/// 事件过滤——ImGui 需要优先截获输入事件
 void ImGuiSystem::OnEvent(Event& event)
 {
     if (event.Handled)

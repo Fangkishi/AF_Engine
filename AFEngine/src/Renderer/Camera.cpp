@@ -60,6 +60,7 @@ void Camera::SetMode(Mode mode)
     RecalculateProjection();
 }
 
+/// 设置旋转四元数并重新计算 View 矩阵
 void Camera::SetRotation(const glm::quat& rot)
 {
     m_Rotation = rot;
@@ -81,6 +82,7 @@ void Camera::RecalculateProjection()
     m_ViewProjection = m_Projection * m_View;
 }
 
+/// 从四元数计算 view 方向和 up，构建 View 矩阵
 void Camera::RecalculateView()
 {
     glm::mat4 rot = glm::toMat4(m_Rotation);

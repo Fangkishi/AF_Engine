@@ -1,6 +1,13 @@
 ﻿#pragma once
 
+// GLShader —— OpenGL 着色器实现
+//
+// 支持从文件路径或内联源码编译 vertex / fragment 着色器。
+// uniform 位置缓存避免重复 glGetUniformLocation 调用。
+// CollectReflection 提供反射信息供材质系统使用。
+
 #include "RHI/RHIShader.h"
+#include "RHI/ShaderReflection.h"
 
 #include <glm/glm.hpp>
 #include <string>
@@ -21,11 +28,14 @@ public:
 
     void SetInt(const std::string& name, int value) override;
     void SetFloat(const std::string& name, float value) override;
+    void SetFloat2(const std::string& name, const glm::vec2& value) override;
     void SetFloat3(const std::string& name, const glm::vec3& value) override;
     void SetFloat4(const std::string& name, const glm::vec4& value) override;
     void SetMat4(const std::string& name, const glm::mat4& value) override;
 
     const std::string& GetName() const override { return m_Name; }
+
+    ShaderReflection CollectReflection() const;
 
 private:
     static unsigned int StageToGL(ShaderStage stage);

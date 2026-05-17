@@ -1,5 +1,9 @@
 ﻿#pragma once
 
+// GLBuffer —— OpenGL 顶点/索引缓冲区实现
+//
+// 使用 DSA（glCreateBuffers / glNamedBufferData）管理 GL 缓冲区。
+
 #include "RHI/RHIBuffer.h"
 
 namespace AF {

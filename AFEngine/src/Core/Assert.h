@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+// 断言宏 —— Debug 模式下检查条件，失败时打印日志并触发断点
+
 #include "Core/Platform.h"
 #include "Core/Log.h"
 
@@ -36,6 +38,7 @@
 
 #else
 
+    // Release 模式下断言为空操作
     #define AF_ASSERT(...)
     #define AF_CORE_ASSERT(...)
 

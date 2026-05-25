@@ -28,8 +28,6 @@ add_subdirectory(AFEngine/vendor/imgui)
 # yaml-cpp
 add_subdirectory(AFEngine/vendor/yaml-cpp)
 
-# Box2D
-add_subdirectory(AFEngine/vendor/Box2D)
 
 # --- 项目定义 ---
 

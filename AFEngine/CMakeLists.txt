@@ -24,7 +24,6 @@ target_include_directories(AFEngine PUBLIC
     "vendor/entt/include"
     "vendor/yaml-cpp/include"
     "vendor/ImGuizmo"
-    "vendor/Box2D/include"
     "vendor/Assimp/include"
     "vendor/nlohmann"
 )
@@ -43,7 +42,6 @@ target_link_libraries(AFEngine PUBLIC
     Glad
     ImGui
     yaml-cpp
-    box2d
     OpenGL::GL
 )
 
